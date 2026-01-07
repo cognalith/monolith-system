@@ -1,0 +1,43 @@
+{
+    "name": "monolith-system",
+    "version": "1.0.0",
+    "description": "The Monolith System: AI-powered command-driven business operations and workflow execution engine",
+    "type": "module",
+    "main": "src/index.js",
+    "bin": {
+          "monolith": "src/index.js"
+    },
+    "scripts": {
+          "start": "node src/index.js",
+          "test": "jest",
+          "dev": "node --watch src/index.js",
+          "lint": "eslint src/"
+    },
+    "keywords": [
+          "business-operations",
+          "workflow-automation",
+          "ai",
+          "cli",
+          "executive-decision",
+          "enterprise-workflows"
+    ],
+    "author": "Cognalith Inc.",
+    "license": "MIT",
+    "engines": {
+          "node": ">=18.0.0"
+    },
+    "dependencies": {
+          "@anthropic-ai/sdk": "^0.20.0",
+          "commander": "^12.1.0",
+          "dotenv": "^16.4.5",
+          "chalk": "^5.3.0",
+          "ora": "^8.1.0",
+          "fs-extra": "^11.2.0"
+    },
+    "devDependencies": {
+          "eslint": "^8.56.0",
+          "jest": "^29.7.0",
+          "@types/jest": "^29.5.11",
+          "nodemon": "^3.0.2"
+    }
+}

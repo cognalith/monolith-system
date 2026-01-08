@@ -1,0 +1,14 @@
+{
+  "agent_id": "authentication",
+  "role": "authentication",
+  "session_id": "session-bootstrap-001",
+  "started_at": "2026-01-07T14:45:00Z",
+  "active_tasks": [],
+  "completed_tasks": [],
+  "blocked_tasks": [],
+  "dependencies": [],
+  "next_handoff_to": "",
+  "questions_for_chief": [],
+  "artifacts_created": [],
+  "last_updated": "2026-01-07T14:45:00Z"
+}

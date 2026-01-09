@@ -1,0 +1,19 @@
+{
+  "task_id": "phase0-002",
+  "title": "VP Operations Create Process Framework",
+  "assigned_to": "vp-operations",
+  "phase": 0,
+  "priority": "critical",
+  "status": "pending",
+  "created_at": "2026-01-07T15:00:00Z",
+  "depends_on": [],
+  "blocks": ["phase1-all-teams"],
+  "estimated_hours": 0.25,
+  "description": "Create standup template, escalation procedures, handoff checklist",
+  "acceptance_criteria": [
+    "Daily standup template created",
+    "Escalation procedures documented",
+    "Handoff checklist created",
+    "Progress tracking setup"
+  ]
+}

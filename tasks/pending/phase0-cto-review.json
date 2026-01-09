@@ -1,0 +1,19 @@
+{
+  "task_id": "phase0-001",
+  "title": "CTO Review Technical Architecture",
+  "assigned_to": "cto",
+  "phase": 0,
+  "priority": "critical",
+  "status": "pending",
+  "created_at": "2026-01-07T15:00:00Z",
+  "depends_on": [],
+  "blocks": ["phase0-vp-ops-timeline", "phase1-frontend-start"],
+  "estimated_hours": 0.25,
+  "description": "Review /docs/monolith-architecture.md and validate tech stack choices",
+  "acceptance_criteria": [
+    "Architecture doc reviewed",
+    "Tech stack validated",
+    "Questions documented for Chief",
+    "Phase 1 roadmap created"
+  ]
+}

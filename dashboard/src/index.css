@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Monolith OS - God Mode Theme */
+:root {
+  --monolith-dark: #0a0a0f;
+  --monolith-green: #00ff88;
+  --monolith-amber: #ffaa00;
+  --monolith-gray: #1a1a2e;
+}
+
+body {
+  background-color: var(--monolith-dark);
+  color: #e0e0e0;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* Bloomberg terminal style scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--monolith-gray);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--monolith-green);
+  border-radius: 4px;
+}

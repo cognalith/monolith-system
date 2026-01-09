@@ -4,6 +4,7 @@ dotenv.config({ path: './dashboard/.env' });
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
 import cors from 'cors';
+import { sendSlackNotification, sendEmailNotification, notifyDecision } from './notifications.js';
 
 const app = express();
 const port = 3000;
@@ -183,6 +184,56 @@ app.get('/api/decision-history', async (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
+
+// ============================================
+// NOTIFICATION ENDPOINTS (Phase 6.2)
+// ============================================
+
+// POST /api/notifications/test - Test notification service
+app.post('/api/notifications/test', async (req, res) => {
+  try {
+      const { channel, message, priority, role } = req.body;
+          
+              let result;
+                  if (channel === 'slack' || !channel) {
+                        result = await sendSlackNotification({
+                                title: 'Test Notification',
+                                        message: message || 'This is a test notification from MONOLITH OS',
+                                                priority: priority || 'LOW',
+                                                        role: role || 'system'
+                                                              });
+                                                                  }
+                                                                      
+                                                                          if (channel === 'email') {
+                                                                                result = await sendEmailNotification({
+                                                                                        subject: 'Test Email',
+                                                                                                body: `<p>${message || 'This is a test email from MONOLITH OS'}</p>`,
+                                                                                                        priority: priority || 'CRITICAL',
+                                                                                                                role: role || 'system'
+                                                                                                                      });
+                                                                                                                          }
+                                                                                                                              
+                                                                                                                                  res.json({ success: true, result });
+                                                                                                                                    } catch (error) {
+                                                                                                                                        console.error('Error testing notification:', error.message);
+                                                                                                                                            res.status(500).json({ error: error.message });
+                                                                                                                                              }
+                                                                                                                                              });
+
+                                                                                                                                              // GET /api/notifications/status - Check notification service status
+                                                                                                                                              app.get('/api/notifications/status', (req, res) => {
+                                                                                                                                                res.json({
+                                                                                                                                                    slack: {
+                                                                                                                                                          configured: !!process.env.SLACK_WEBHOOK_URL,
+                                                                                                                                                                status: process.env.SLACK_WEBHOOK_URL ? 'ready' : 'not_configured'
+                                                                                                                                                                    },
+                                                                                                                                                                        email: {
+                                                                                                                                                                              configured: !!process.env.EMAIL_API_KEY,
+                                                                                                                                                                                    status: process.env.EMAIL_API_KEY ? 'ready' : 'not_configured'
+                                                                                                                                                                                        },
+                                                                                                                                                                                            timestamp: new Date().toISOString()
+                                                                                                                                                                                              });
+                                                                                                                                                                                              });
 
 // Start server
 app.listen(port, () => {

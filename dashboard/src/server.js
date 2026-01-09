@@ -1,6 +1,9 @@
-const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
-const cors = require('cors');
+import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config({ path: './dashboard/.env' });
+import express from 'express';
+import { createClient } from '@supabase/supabase-js';
+import cors from 'cors';
 
 const app = express();
 const port = 3000;

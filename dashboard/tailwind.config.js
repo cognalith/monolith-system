@@ -12,9 +12,6 @@ export default {
         'monolith-amber': '#ffaa00',
         'monolith-gray': '#1a1a2e',
       },
-      fontFamily: {
-        'mono': ['JetBrains Mono', 'Fira Code', 'monospace'],
-      },
     },
   },
   plugins: [],

@@ -107,6 +107,78 @@ app.post('/api/decision', async (req, res) => {
   }
 });
 
+// GET /api/pending-tasks - Returns pending tasks with full details
+app.get('/api/pending-tasks', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('id, content, assigned_role, priority, status, created_at, workflows!inner(name)')
+      .eq('status', 'PENDING')
+      .order('created_at', { ascending: true });
+
+    if (error) throw new Error(error.message);
+
+    const priorityOrder = { CRITICAL: 1, HIGH: 2, MEDIUM: 3, LOW: 4 };
+    const sortedTasks = data.sort((a, b) => {
+      const diff = priorityOrder[a.priority] - priorityOrder[b.priority];
+      return diff !== 0 ? diff : new Date(a.created_at) - new Date(b.created_at);
+    });
+
+    const now = new Date();
+    const tasks = sortedTasks.map(t => ({
+      Id: t.id,
+      Content: t.content,
+      assigned_role: t.assigned_role,
+      Priority: t.priority,
+      Status: t.status,
+      created_at: t.created_at,
+      workflow_name: t.workflows?.name || 'Unknown',
+      age_in_hours: Math.round((now - new Date(t.created_at)) / 3600000)
+    }));
+
+    const summary = {
+      CRITICAL: tasks.filter(t => t.Priority === 'CRITICAL').length,
+      HIGH: tasks.filter(t => t.Priority === 'HIGH').length,
+      MEDIUM: tasks.filter(t => t.Priority === 'MEDIUM').length,
+      LOW: tasks.filter(t => t.Priority === 'LOW').length
+    };
+
+    res.json({ Tasks: tasks, Summary: summary });
+  } catch (error) {
+    console.error('Error in /api/pending-tasks:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/decision-history - Returns decision history with task details
+app.get('/api/decision-history', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('decision_logs')
+      .select('id, task_id, role, decision, financial_impact, rationale, timestamp, tasks(content, priority)')
+      .order('timestamp', { ascending: false });
+
+    if (error) throw new Error(error.message);
+
+    const decisions = data.map(d => ({
+      id: d.id,
+      task_id: d.task_id,
+      task_content: d.tasks?.content || 'Unknown',
+      task_priority: d.tasks?.priority || 'Unknown',
+      role: d.role,
+      decision: d.decision,
+      financial_impact: d.financial_impact,
+      rationale: d.rationale,
+      timestamp: d.timestamp
+    }));
+
+    res.json({ decisions, total: decisions.length });
+  } catch (error) {
+    console.error('Error in /api/decision-history:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });

@@ -1,0 +1,129 @@
+/* Skeleton Loading Components - Bloomberg Terminal Style */
+
+.skeleton {
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-text {
+  display: block;
+}
+
+.skeleton-badge {
+  width: 70px;
+  height: 22px;
+  border-radius: 4px;
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+.skeleton-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 15px;
+}
+
+/* Task Row Skeleton */
+.skeleton-task-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.skeleton-task-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Chart Skeletons */
+.skeleton-chart {
+  padding: 20px;
+}
+
+.skeleton-bars {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 200px;
+  padding: 10px 0;
+  border-bottom: 1px solid #333;
+}
+
+.skeleton-bar-wrapper {
+  width: 40px;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.skeleton-bar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+}
+
+.skeleton-pie-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.skeleton-pie {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+}
+
+.skeleton-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Summary Cards Skeleton */
+.skeleton-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  padding: 20px;
+  background: #0d0d0d;
+}
+
+@media (max-width: 768px) {
+  .skeleton-summary-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .skeleton-pie-container {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .skeleton-summary-cards {
+    grid-template-columns: 1fr;
+  }
+}

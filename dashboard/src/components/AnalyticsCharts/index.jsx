@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { SkeletonSummaryCards, SkeletonChart } from '../Skeleton';
 import './AnalyticsCharts.css';
 
 const AnalyticsCharts = ({ isOpen, onClose }) => {
@@ -76,7 +77,8 @@ const AnalyticsCharts = ({ isOpen, onClose }) => {
 
         {loading ? (
           <div className="loading-container">
-            <div className="loading-spinner"></div>
+            <SkeletonSummaryCards />
+            <SkeletonChart type="bar" />
             <p>Loading analytics data...</p>
           </div>
         ) : error ? (

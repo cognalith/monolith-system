@@ -1,0 +1,80 @@
+.error-boundary {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid #ff4444;
+  border-radius: 8px;
+  padding: 24px;
+  margin: 16px;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: #ff4444;
+}
+
+.error-boundary h3 {
+  color: #ff4444;
+  font-size: 18px;
+  margin: 0 0 12px 0;
+  font-family: 'Courier New', monospace;
+}
+
+.error-boundary p {
+  color: #888;
+  font-size: 14px;
+  margin: 0 0 20px 0;
+  font-family: 'Courier New', monospace;
+}
+
+.error-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.retry-button,
+.reset-button {
+  background: transparent;
+  border: 1px solid #00ff88;
+  color: #00ff88;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.retry-button:hover,
+.reset-button:hover {
+  background: #00ff88;
+  color: #0a0a0a;
+}
+
+.reset-button {
+  border-color: #ff4444;
+  color: #ff4444;
+}
+
+.reset-button:hover {
+  background: #ff4444;
+  color: #0a0a0a;
+}
+
+@media (max-width: 480px) {
+  .error-boundary {
+    padding: 16px;
+    margin: 8px;
+  }
+  
+  .error-actions {
+    flex-direction: column;
+  }
+  
+  .retry-button,
+  .reset-button {
+    width: 100%;
+  }
+}

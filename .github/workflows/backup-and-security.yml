@@ -1,0 +1,165 @@
+# =============================================================================
+# MONOLITH OS - Automated Backup and Security Monitoring
+# GitHub Actions Workflow
+# =============================================================================
+
+name: Backup and Security Monitoring
+
+on:
+  schedule:
+    # Daily backup at 2 AM UTC
+    - cron: '0 2 * * *'
+    # Hourly SSL monitoring
+    - cron: '0 * * * *'
+    # Weekly backup verification
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'backup'
+        type: choice
+        options:
+          - backup
+          - verify
+          - ssl-check
+          - full-audit
+
+env:
+  SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+  SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  PAGERDUTY_ROUTING_KEY: ${{ secrets.PAGERDUTY_ROUTING_KEY }}
+
+jobs:
+  # Daily Database Backup
+  backup:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 2 * * *' || github.event.inputs.action == 'backup'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Run backup script
+        run: |
+          chmod +x infrastructure/backup/supabase-backup.sh
+          ./infrastructure/backup/supabase-backup.sh
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"🚨 BACKUP FAILED: Daily backup job failed. Check GitHub Actions for details."}' \
+            $SLACK_WEBHOOK_URL
+
+  # Weekly Backup Verification
+  verify-backup:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 6 * * 0' || github.event.inputs.action == 'verify'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Start PostgreSQL for verification
+        run: |
+          docker run -d --name verify-db \
+            -e POSTGRES_PASSWORD=testpassword \
+            -p 5433:5432 \
+            postgres:15
+
+      - name: Wait for PostgreSQL
+        run: sleep 10
+
+      - name: Run verification script
+        env:
+          VERIFICATION_DB_PASSWORD: testpassword
+        run: |
+          chmod +x infrastructure/backup/verify-backup.sh
+          ./infrastructure/backup/verify-backup.sh
+
+      - name: Cleanup
+        if: always()
+        run: docker stop verify-db && docker rm verify-db
+
+  # Hourly SSL Certificate Monitoring
+  ssl-monitoring:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 * * * *' || github.event.inputs.action == 'ssl-check'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run SSL monitoring
+        run: |
+          chmod +x infrastructure/security/ssl-monitor.sh
+          ./infrastructure/security/ssl-monitor.sh
+
+  # Full Security Audit (Manual trigger)
+  security-audit:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.action == 'full-audit'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run security tests
+        run: |
+          node infrastructure/security/intrusion-detection.js
+
+      - name: Check RTO/RPO status
+        run: |
+          node -e "
+            const { securityMonitor } = require('./infrastructure/monitoring/security-monitoring.js');
+            securityMonitor.estimateRTO().then(console.log);
+          "
+
+      - name: Generate security report
+        run: |
+          echo "## Security Audit Report" > security-report.md
+          echo "Generated: $(date)" >> security-report.md
+          echo "" >> security-report.md
+          echo "### SSL/TLS Status" >> security-report.md
+          ./infrastructure/security/ssl-monitor.sh >> security-report.md
+          
+      - name: Upload security report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: security-report.md

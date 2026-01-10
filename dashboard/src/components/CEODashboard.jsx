@@ -1,5 +1,5 @@
 // Phase 7: Security & Compliance - CEO Dashboard
-// import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import PendingTasksPanel from './PendingTasksPanel';
 import ErrorBoundary from './ErrorBoundary';
 

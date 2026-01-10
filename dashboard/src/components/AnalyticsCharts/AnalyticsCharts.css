@@ -460,3 +460,31 @@
     width: 40px;
   }
 }
+
+/* Extra extra small devices (iPhone SE, 375px and down) */
+@media (max-width: 375px) {
+  .analytics-panel {
+    padding: 12px;
+  }
+  
+  .panel-title {
+    font-size: 14px;
+  }
+  
+  .summary-card {
+    padding: 10px;
+  }
+  
+  .summary-value {
+    font-size: 18px;
+  }
+  
+  .summary-label {
+    font-size: 10px;
+  }
+  
+  .chart-tab {
+    font-size: 10px;
+    padding: 6px 10px;
+  }
+}

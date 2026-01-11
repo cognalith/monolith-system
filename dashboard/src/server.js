@@ -6,12 +6,28 @@ import { createClient } from '@supabase/supabase-js';
 import cors from 'cors';
 import { sendSlackNotification, sendEmailNotification, notifyDecision } from './notifications.js';
 
+// Phase 8: Dashboard UX Enhancement API Routes
+import rolesRoutes from './api/rolesRoutes.js';
+import roleTaskCountsRoutes from './api/roleTaskCountsRoutes.js';
+import workflowsActiveRoutes from './api/workflowsActiveRoutes.js';
+import tasksCompletedRoutes from './api/tasksCompletedRoutes.js';
+import decisionsRoutes from './api/decisionsRoutes.js';
+
 const app = express();
 const port = 3000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// ============================================
+// PHASE 8: Dashboard UX Enhancement Routes
+// ============================================
+app.use('/api/roles', rolesRoutes);
+app.use('/api/role-task-counts', roleTaskCountsRoutes);
+app.use('/api/workflows/active', workflowsActiveRoutes);
+app.use('/api/tasks', tasksCompletedRoutes);
+app.use('/api/decisions', decisionsRoutes);
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -50,18 +66,28 @@ app.get('/api/dashboard/stats', async (req, res) => {
 });
 
 // GET /api/recent-activity - Returns the last 10 rows from decision_logs
+// Phase 8.3.5: Added ?role= query parameter support
 app.get('/api/recent-activity', async (req, res) => {
   try {
-    const { data, error } = await supabase
+    const { role } = req.query;
+
+    let query = supabase
       .from('decision_logs')
       .select('*')
       .order('timestamp', { ascending: false })
       .limit(10);
-    
+
+    // Filter by role if specified
+    if (role) {
+      query = query.eq('role', role.toLowerCase());
+    }
+
+    const { data, error } = await query;
+
     if (error) {
       throw new Error(error.message);
     }
-    
+
     res.json({
       activities: data || [],
     });
@@ -109,18 +135,28 @@ app.post('/api/decision', async (req, res) => {
 });
 
 // GET /api/pending-tasks - Returns pending tasks with full details
+// Phase 8.3.5: Added ?role= query parameter support
 app.get('/api/pending-tasks', async (req, res) => {
   try {
-    const { data, error } = await supabase
+    const { role } = req.query;
+
+    let query = supabase
       .from('tasks')
       .select('id, content, assigned_role, priority, status, created_at, workflows!inner(name)')
       .eq('status', 'PENDING')
       .order('created_at', { ascending: true });
 
+    // Filter by role if specified
+    if (role) {
+      query = query.eq('assigned_role', role.toLowerCase());
+    }
+
+    const { data, error } = await query;
+
     if (error) throw new Error(error.message);
 
     const priorityOrder = { CRITICAL: 1, HIGH: 2, MEDIUM: 3, LOW: 4 };
-    const sortedTasks = data.sort((a, b) => {
+    const sortedTasks = (data || []).sort((a, b) => {
       const diff = priorityOrder[a.priority] - priorityOrder[b.priority];
       return diff !== 0 ? diff : new Date(a.created_at) - new Date(b.created_at);
     });

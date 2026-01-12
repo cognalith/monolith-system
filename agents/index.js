@@ -36,6 +36,9 @@ import QAAgent from './roles/qa/agent.js';
 import WorkflowEngine from './workflows/WorkflowEngine.js';
 import { workflows } from './workflows/definitions.js';
 
+// Intelligence - Phase 5
+import IntelligenceHub from './intelligence/index.js';
+
 /**
  * Initialize and run the autonomous agent system
  */
@@ -116,6 +119,20 @@ async function initializeAgentSystem(config = {}) {
 
   console.log(`[SYSTEM] Registered ${workflows.length} workflows`);
 
+  // Initialize Intelligence Hub - Phase 5
+  const intelligenceHub = new IntelligenceHub({
+    knowledge: config.knowledge,
+    performance: config.performance,
+    cost: config.cost || { dailyBudget: 100, monthlyBudget: 2000 },
+    routing: { agents },
+    enableLearning: config.enableLearning !== false,
+    enableCaching: config.enableCaching !== false,
+    enableCostOptimization: config.enableCostOptimization !== false,
+    enableSmartRouting: config.enableSmartRouting !== false,
+  });
+
+  console.log('[SYSTEM] Intelligence Hub initialized');
+
   // Set up event handlers
   orchestrator.on('escalation', async (escalation) => {
     console.log(`[SYSTEM] Escalation received: ${escalation.reason}`);
@@ -165,6 +182,7 @@ async function initializeAgentSystem(config = {}) {
     emailNotifier,
     agents,
     workflowEngine,
+    intelligenceHub,
 
     // Helper methods
     async start() {
@@ -200,6 +218,23 @@ async function initializeAgentSystem(config = {}) {
 
     getWorkflowStatus(instanceId) {
       return workflowEngine.getWorkflowStatus(instanceId);
+    },
+
+    // Intelligence methods
+    getIntelligenceDashboard() {
+      return intelligenceHub.getDashboard();
+    },
+
+    getHealthReport() {
+      return intelligenceHub.getHealthReport();
+    },
+
+    getCostSummary() {
+      return intelligenceHub.costOptimizer.getSummary();
+    },
+
+    exportIntelligence() {
+      return intelligenceHub.export();
     },
   };
 }
@@ -261,6 +296,8 @@ export {
   // Workflows
   WorkflowEngine,
   workflows,
+  // Intelligence
+  IntelligenceHub,
 };
 
 export default initializeAgentSystem;

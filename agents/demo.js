@@ -287,6 +287,70 @@ async function main(argsOverride = null) {
       console.log(JSON.stringify(instance, null, 2));
       break;
 
+    case 'intelligence':
+      // Show intelligence dashboard
+      console.log('Loading Intelligence Dashboard...');
+      const intSystem = await initializeAgentSystem();
+      const dashboard = intSystem.getIntelligenceDashboard();
+      console.log('\n📊 Intelligence Dashboard');
+      console.log('='.repeat(60));
+      console.log('\nSystem Overview:');
+      console.log(JSON.stringify(dashboard.system, null, 2));
+      console.log('\nAgent Performance:');
+      for (const agent of dashboard.agents.slice(0, 5)) {
+        console.log(`  ${agent.role}: ${agent.totalTasks} tasks, ${Math.round(agent.successRate * 100)}% success`);
+      }
+      console.log('\nCost Summary:');
+      console.log(`  Today: $${dashboard.costs.budget.spentToday.toFixed(2)} / $${dashboard.costs.budget.daily}`);
+      console.log(`  This Month: $${dashboard.costs.budget.spentThisMonth.toFixed(2)} / $${dashboard.costs.budget.monthly}`);
+      break;
+
+    case 'health':
+      // Show health report
+      console.log('Generating Health Report...');
+      const healthSystem = await initializeAgentSystem();
+      const health = healthSystem.getHealthReport();
+      console.log('\n🏥 Health Report');
+      console.log('='.repeat(60));
+      console.log(`\nStatus: ${health.status.toUpperCase()}`);
+      console.log(`\nMetrics:`);
+      console.log(`  Tasks Processed: ${health.metrics.tasksProcessed}`);
+      console.log(`  Escalation Rate: ${Math.round(health.metrics.escalationRate * 100)}%`);
+      console.log(`  Uptime: ${health.metrics.uptime}`);
+      console.log(`  Daily Cost: $${health.metrics.dailyCost.toFixed(2)}`);
+      if (health.alerts.length > 0) {
+        console.log(`\nAlerts (${health.alerts.length}):`);
+        for (const alert of health.alerts) {
+          const icon = alert.severity === 'critical' ? '🔴' : '🟡';
+          console.log(`  ${icon} ${alert.message}`);
+        }
+      } else {
+        console.log('\n✅ No alerts');
+      }
+      break;
+
+    case 'costs':
+      // Show cost details
+      console.log('Loading Cost Summary...');
+      const costSystem = await initializeAgentSystem();
+      const costs = costSystem.getCostSummary();
+      console.log('\n💰 Cost Summary');
+      console.log('='.repeat(60));
+      console.log('\nBudget:');
+      console.log(`  Daily: $${costs.budget.spentToday.toFixed(2)} / $${costs.budget.daily} (${Math.round(costs.budget.spentToday / costs.budget.daily * 100)}%)`);
+      console.log(`  Monthly: $${costs.budget.spentThisMonth.toFixed(2)} / $${costs.budget.monthly} (${Math.round(costs.budget.spentThisMonth / costs.budget.monthly * 100)}%)`);
+      console.log('\nLast 24h:');
+      console.log(`  Calls: ${costs.last24h.calls}`);
+      console.log(`  Cost: $${costs.last24h.cost.toFixed(2)}`);
+      console.log(`  Tokens: ${costs.last24h.tokens.toLocaleString()}`);
+      if (costs.recommendations.length > 0) {
+        console.log('\nRecommendations:');
+        for (const rec of costs.recommendations) {
+          console.log(`  • ${rec.message}`);
+        }
+      }
+      break;
+
     default:
       console.log(`
 MONOLITH OS - Agent System
@@ -324,6 +388,11 @@ Agent Testing (Phase 4 - Specialists):
 Workflows:
   workflows      List all available multi-agent workflows
   run-workflow   Run a workflow (e.g., run-workflow new-feature '{"featureName":"Dark Mode"}')
+
+Intelligence (Phase 5):
+  intelligence   Show intelligence dashboard with system metrics
+  health         Generate system health report with alerts
+  costs          Show detailed cost summary and recommendations
 
 Environment Variables:
   ANTHROPIC_API_KEY  - Required for Claude LLM

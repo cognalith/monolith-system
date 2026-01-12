@@ -27,6 +27,15 @@ import CCOAgent from './roles/cco/agent.js';
 import CPOAgent from './roles/cpo/agent.js';
 import CROAgent from './roles/cro/agent.js';
 
+// Role Agents - Phase 4 (Specialists)
+import DevOpsAgent from './roles/devops/agent.js';
+import DataEngineeringAgent from './roles/data/agent.js';
+import QAAgent from './roles/qa/agent.js';
+
+// Workflows - Phase 4
+import WorkflowEngine from './workflows/WorkflowEngine.js';
+import { workflows } from './workflows/definitions.js';
+
 /**
  * Initialize and run the autonomous agent system
  */
@@ -82,7 +91,30 @@ async function initializeAgentSystem(config = {}) {
   agents.cro = new CROAgent({ llmRouter, decisionLogger });
   orchestrator.registerAgent(agents.cro);
 
+  // Phase 4: Specialists
+  agents.devops = new DevOpsAgent({ llmRouter, decisionLogger });
+  orchestrator.registerAgent(agents.devops);
+
+  agents.data = new DataEngineeringAgent({ llmRouter, decisionLogger });
+  orchestrator.registerAgent(agents.data);
+
+  agents.qa = new QAAgent({ llmRouter, decisionLogger });
+  orchestrator.registerAgent(agents.qa);
+
   console.log(`[SYSTEM] Initialized ${Object.keys(agents).length} role agents`);
+
+  // Initialize Workflow Engine
+  const workflowEngine = new WorkflowEngine({
+    orchestrator: { agents },
+    decisionLogger,
+  });
+
+  // Register predefined workflows
+  for (const workflow of workflows) {
+    workflowEngine.registerWorkflow(workflow);
+  }
+
+  console.log(`[SYSTEM] Registered ${workflows.length} workflows`);
 
   // Set up event handlers
   orchestrator.on('escalation', async (escalation) => {
@@ -132,6 +164,7 @@ async function initializeAgentSystem(config = {}) {
     escalationEngine,
     emailNotifier,
     agents,
+    workflowEngine,
 
     // Helper methods
     async start() {
@@ -154,6 +187,19 @@ async function initializeAgentSystem(config = {}) {
 
     async processTask(task) {
       orchestrator.queueTask(task);
+    },
+
+    // Workflow methods
+    async startWorkflow(workflowId, context) {
+      return workflowEngine.startWorkflow(workflowId, context);
+    },
+
+    listWorkflows() {
+      return workflowEngine.listWorkflows();
+    },
+
+    getWorkflowStatus(instanceId) {
+      return workflowEngine.getWorkflowStatus(instanceId);
     },
   };
 }
@@ -208,6 +254,13 @@ export {
   CCOAgent,
   CPOAgent,
   CROAgent,
+  // Phase 4 Agents
+  DevOpsAgent,
+  DataEngineeringAgent,
+  QAAgent,
+  // Workflows
+  WorkflowEngine,
+  workflows,
 };
 
 export default initializeAgentSystem;

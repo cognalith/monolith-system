@@ -208,16 +208,83 @@ async function main(argsOverride = null) {
       });
       break;
 
+    case 'test-devops':
+      // Test DevOps agent
+      await testAgent('devops', {
+        id: 'test-devops-001',
+        content: 'Design CI/CD pipeline for React application with GitHub Actions',
+        priority: 'HIGH',
+        assigned_role: 'devops',
+        status: 'pending',
+        workflow: 'Infrastructure Setup',
+      });
+      break;
+
+    case 'test-data':
+      // Test Data Engineering agent
+      await testAgent('data', {
+        id: 'test-data-001',
+        content: 'Design data pipeline for user analytics from PostgreSQL to BigQuery',
+        priority: 'MEDIUM',
+        assigned_role: 'data',
+        status: 'pending',
+        workflow: 'Analytics Pipeline',
+      });
+      break;
+
+    case 'test-qa':
+      // Test QA agent
+      await testAgent('qa', {
+        id: 'test-qa-001',
+        content: 'Create test plan for new user authentication feature with 2FA',
+        priority: 'HIGH',
+        assigned_role: 'qa',
+        status: 'pending',
+        workflow: 'Quality Assurance',
+      });
+      break;
+
     case 'test-all':
       // Test all agents
       console.log('Testing all agents...\n');
-      const agents = ['cos', 'cfo', 'cto', 'clo', 'coo', 'ciso', 'cmo', 'chro', 'cco', 'cpo', 'cro'];
+      const agents = ['cos', 'cfo', 'cto', 'clo', 'coo', 'ciso', 'cmo', 'chro', 'cco', 'cpo', 'cro', 'devops', 'data', 'qa'];
       for (const agent of agents) {
         console.log(`\n${'='.repeat(60)}`);
         console.log(`Testing ${agent.toUpperCase()} Agent`);
         console.log('='.repeat(60));
         await runCommand(`test-${agent}`);
       }
+      break;
+
+    case 'workflows':
+      // List available workflows
+      console.log('Listing available workflows...');
+      const wfSystem = await initializeAgentSystem();
+      const availableWorkflows = wfSystem.listWorkflows();
+      console.log('\nAvailable Workflows:');
+      console.log('='.repeat(60));
+      for (const wf of availableWorkflows) {
+        console.log(`\n📋 ${wf.name} (${wf.id})`);
+        console.log(`   ${wf.description}`);
+        console.log(`   Steps: ${wf.steps.length}`);
+        console.log(`   Roles: ${wf.steps.map(s => s.role).join(' → ')}`);
+      }
+      break;
+
+    case 'run-workflow':
+      // Run a workflow
+      const workflowId = args[1];
+      if (!workflowId) {
+        console.log('Usage: node agents/demo.js run-workflow <workflow-id> [context-json]');
+        console.log('\nExample: node agents/demo.js run-workflow new-feature \'{"featureName": "Dark Mode"}\'');
+        break;
+      }
+      const contextArg = args[2] ? JSON.parse(args[2]) : {};
+      console.log(`Running workflow: ${workflowId}`);
+      const runSystem = await initializeAgentSystem();
+      const instance = await runSystem.startWorkflow(workflowId, contextArg);
+      console.log('\nWorkflow Result:');
+      console.log(JSON.stringify(instance, null, 2));
       break;
 
     default:
@@ -247,7 +314,16 @@ Agent Testing (Phase 3):
   test-cpo   Test CPO agent (product roadmap)
   test-cro   Test CRO agent (revenue strategy)
 
-  test-all   Test all agents sequentially
+Agent Testing (Phase 4 - Specialists):
+  test-devops  Test DevOps agent (CI/CD, infrastructure)
+  test-data    Test Data Engineering agent (pipelines)
+  test-qa      Test QA agent (testing strategy)
+
+  test-all     Test all 14 agents sequentially
+
+Workflows:
+  workflows      List all available multi-agent workflows
+  run-workflow   Run a workflow (e.g., run-workflow new-feature '{"featureName":"Dark Mode"}')
 
 Environment Variables:
   ANTHROPIC_API_KEY  - Required for Claude LLM

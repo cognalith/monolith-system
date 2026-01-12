@@ -60,49 +60,25 @@ const CEODashboard = () => {
         setActivity(activityData);
       } catch (err) {
         setError(err.message);
-        console.warn('API failed, using mock data:', err.message);
+        console.warn('API failed, using fallback data:', err.message);
 
-        // Fallback to mock data with visual delay for UX
+        // Fallback to minimal placeholder data with visual delay for UX
         setTimeout(() => {
           setStats({
-            activeWorkflows: 4,
-            pendingTasks: 47,
-            completedToday: 12,
-            totalDecisions: 156,
+            activeWorkflows: 0,
+            pendingTasks: 0,
+            completedToday: 0,
+            totalDecisions: 0,
           });
           setActivity([
             {
               id: 1,
-              action: 'Approved Q4 budget allocation',
-              timestamp: new Date(Date.now() - 5 * 60000),
-              role: 'cfo',
-            },
-            {
-              id: 2,
-              action: 'Reviewed security compliance report',
-              timestamp: new Date(Date.now() - 15 * 60000),
-              role: 'chief-compliance-officer',
-            },
-            {
-              id: 3,
-              action: 'Assigned vendor contract review',
-              timestamp: new Date(Date.now() - 30 * 60000),
-              role: 'chief-procurement-officer',
-            },
-            {
-              id: 4,
-              action: 'Approved marketing campaign launch',
-              timestamp: new Date(Date.now() - 45 * 60000),
-              role: 'cmo',
-            },
-            {
-              id: 5,
-              action: 'Finalized product roadmap for Q2',
-              timestamp: new Date(Date.now() - 60 * 60000),
-              role: 'cto',
+              action: 'API unavailable - Start backend server to see real data',
+              timestamp: new Date(),
+              role: 'system',
             },
           ]);
-          setError(null);
+          // Keep error visible so user knows API is down
         }, 500);
       } finally {
         setLoading(false);
@@ -323,9 +299,25 @@ const CEODashboard = () => {
         {/* Role Context Panel */}
         {selectedRole && (
           <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 mb-8 animate-fadeIn">
-            <h3 className="text-xl font-bold text-monolith-green mb-4">
-              {selectedRole.fullName} Context
-            </h3>
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-xl font-bold text-monolith-green">
+                {selectedRole.fullName} Context
+              </h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowTasksPanel(true)}
+                  className="px-3 py-1.5 bg-monolith-amber/20 border border-monolith-amber text-monolith-amber text-sm font-medium rounded hover:bg-monolith-amber/30 transition-colors"
+                >
+                  View Pending Tasks ({getTaskCount(selectedRole.id)})
+                </button>
+                <button
+                  onClick={() => setShowWorkflowPanel(true)}
+                  className="px-3 py-1.5 bg-monolith-green/20 border border-monolith-green text-monolith-green text-sm font-medium rounded hover:bg-monolith-green/30 transition-colors"
+                >
+                  View Workflows
+                </button>
+              </div>
+            </div>
             <div className="text-gray-300 text-sm space-y-2">
               <p>
                 Role: <span className="text-monolith-amber">{selectedRole.abbr}</span>
@@ -346,9 +338,12 @@ const CEODashboard = () => {
               </p>
               <p>
                 Pending Tasks:{' '}
-                <span className="text-monolith-amber font-bold">
+                <button
+                  onClick={() => setShowTasksPanel(true)}
+                  className="text-monolith-amber font-bold hover:underline cursor-pointer"
+                >
                   {getTaskCount(selectedRole.id)}
-                </span>
+                </button>
               </p>
               <p>
                 Status: <span className="text-monolith-green animate-pulse">Active</span>

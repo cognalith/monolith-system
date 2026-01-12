@@ -13,7 +13,7 @@ import workflowsActiveRoutes from './api/workflowsActiveRoutes.js';
 import tasksCompletedRoutes from './api/tasksCompletedRoutes.js';
 import decisionsRoutes from './api/decisionsRoutes.js';
 // Task data loader for NotebookLM-extracted JSON files
-import { getPendingTasks, getPrioritySummary } from './api/taskDataLoader.js';
+import { getPendingTasks, getPrioritySummary, getCompletedTasks, getActiveWorkflows, getTaskCountsByRole } from './api/taskDataLoader.js';
 
 const app = express();
 const port = 3000;
@@ -36,31 +36,41 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// GET /api/dashboard/stats - Returns row counts from Supabase
+// GET /api/dashboard/stats - Returns dashboard statistics
+// Phase 9: Updated to use real NotebookLM-extracted JSON data as primary source
 app.get('/api/dashboard/stats', async (req, res) => {
   try {
-    // Get counts from each table
-    const { count: workflowCount, error: workflowError } = await supabase
-      .from('workflows')
-      .select('*', { count: 'exact', head: true });
-    
-    const { count: taskCount, error: taskError } = await supabase
-      .from('tasks')
-      .select('*', { count: 'exact', head: true });
-    
-    const { count: decisionCount, error: decisionError } = await supabase
-      .from('decision_logs')
-      .select('*', { count: 'exact', head: true });
-    
-    if (workflowError || taskError || decisionError) {
-      throw new Error('Error fetching stats');
+    // Get real stats from NotebookLM-extracted JSON files
+    const pendingTasks = getPendingTasks();
+    const completedTasks = getCompletedTasks();
+    const activeWorkflows = getActiveWorkflows();
+
+    // Calculate stats from real data
+    const stats = {
+      activeWorkflows: activeWorkflows.length,
+      pendingTasks: pendingTasks.length,
+      completedToday: completedTasks.length,
+      totalDecisions: 0 // Will be updated from Supabase if available
+    };
+
+    // Try to get decision count from Supabase if available
+    if (supabase && supabaseUrl && supabaseAnonKey) {
+      try {
+        const { count: decisionCount, error: decisionError } = await supabase
+          .from('decision_logs')
+          .select('*', { count: 'exact', head: true });
+
+        if (!decisionError && decisionCount !== null) {
+          stats.totalDecisions = decisionCount;
+        }
+      } catch (dbError) {
+        console.warn('[DASHBOARD-STATS] Supabase error for decisions:', dbError.message);
+      }
     }
-    
-    res.json({
-      workflows: workflowCount || 0,
-      tasks: taskCount || 0,
-      decisions: decisionCount || 0,
-    });
+
+    console.log(`[DASHBOARD-STATS] Real data: ${stats.pendingTasks} pending, ${stats.activeWorkflows} workflows, ${stats.completedToday} completed`);
+
+    res.json(stats);
   } catch (error) {
     console.error('Error in /api/dashboard/stats:', error.message);
     res.status(500).json({ error: error.message });

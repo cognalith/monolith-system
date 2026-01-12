@@ -1,0 +1,138 @@
+{
+  "role_id": "cos",
+  "role_name": "Chief of Staff",
+  "role_abbr": "CoS",
+  "extracted_at": "2026-01-11T14:50:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "cos-001",
+      "content": "Daily Briefing Synthesis - Aggregate 8 Department Heads into 2-page brief for CEO",
+      "priority": "CRITICAL",
+      "status": "ongoing",
+      "due_date": "Daily 8 AM",
+      "workflow": "Daily Operations",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cos-002",
+      "content": "Report Critical Risks and Coordination Failures directly to CEO",
+      "priority": "CRITICAL",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Risk Management",
+      "notes": "Email verification gate identified as current critical risk",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cos-003",
+      "content": "Track TeeMates MVP Status - User signup and beta progress",
+      "priority": "CRITICAL",
+      "status": "at_risk",
+      "due_date": "2026-01-30",
+      "workflow": "Product Launch Tracking",
+      "notes": "5+ features currently blocked by verification gate",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cos-004",
+      "content": "Track GitHub Deployment Status - Jan 30 Migration readiness",
+      "priority": "CRITICAL",
+      "status": "ongoing",
+      "due_date": "2026-01-30",
+      "workflow": "Replit Exit Migration",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cos-005",
+      "content": "Establish Department Dashboard - Simultaneous view of all departments for CEO",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Dashboard Development",
+      "notes": "One Dashboard, One Truth philosophy",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cos-006",
+      "content": "Maintain Decision Log - Track CEO decisions and rationale",
+      "priority": "HIGH",
+      "status": "ongoing",
+      "due_date": "2026-01-30",
+      "workflow": "Documentation",
+      "notes": "Trade-offs like Speed vs. Security tracked",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cos-007",
+      "content": "Finalize Daily Briefing Template",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Template Development",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cos-008",
+      "content": "Track Legal Compliance - ToS and Privacy Policy approval",
+      "priority": "HIGH",
+      "status": "ongoing",
+      "due_date": "2026-01-30",
+      "workflow": "Compliance Tracking",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cos-009",
+      "content": "Monitor Infrastructure - Cloudflare/Railway uptime and performance",
+      "priority": "HIGH",
+      "status": "ongoing",
+      "due_date": "2026-01-30",
+      "workflow": "Infrastructure Monitoring",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cos-010",
+      "content": "Monitor Inter-Department Dependencies (Legal/Product/Eng)",
+      "priority": "HIGH",
+      "status": "ongoing",
+      "due_date": "2026-01-30",
+      "workflow": "Cross-Functional Coordination",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cos-011",
+      "content": "Flag Conflicting Priorities (Speed vs. Security)",
+      "priority": "MEDIUM",
+      "status": "ongoing",
+      "due_date": "2026-01-30",
+      "workflow": "Priority Management",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cos-012",
+      "content": "Post-Launch Review Template - Audit success of TeeMates launch",
+      "priority": "MEDIUM",
+      "status": "upcoming",
+      "due_date": "2026-02-06",
+      "workflow": "Post-Launch Audit",
+      "notes": null,
+      "created_at": "2026-01-05"
+    }
+  ],
+  "total_tasks": 12,
+  "by_priority": {
+    "CRITICAL": 4,
+    "HIGH": 6,
+    "MEDIUM": 2,
+    "LOW": 0
+  },
+  "operational_philosophy": "One Dashboard, One Truth - CEO should never have to ask for status update",
+  "analogy": "Air traffic controller ensuring all departments land safely for Jan 30 migration"
+}

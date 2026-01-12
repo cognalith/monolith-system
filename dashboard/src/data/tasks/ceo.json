@@ -1,0 +1,233 @@
+{
+  "role_id": "ceo",
+  "role_name": "Chief Executive Officer",
+  "role_abbr": "CEO",
+  "extracted_at": "2026-01-11T14:04:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "ceo-001",
+      "content": "Complete migration of all projects out of Replit",
+      "priority": "CRITICAL",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Replit Exit Migration",
+      "notes": "AT RISK - Cross-functional dependency with CTO/COO",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ceo-002",
+      "content": "Archive Unplug Social shell from Replit",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": "2026-01-28",
+      "workflow": "Replit Exit Migration",
+      "notes": "History preservation",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ceo-003",
+      "content": "Archive Riichi Scoring shell from Replit",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": "2026-01-28",
+      "workflow": "Replit Exit Migration",
+      "notes": "History preservation",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ceo-004",
+      "content": "Set up CFO NotebookLM notebook",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": "2026-01-06",
+      "workflow": "Monolith System Initialization",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "ceo-005",
+      "content": "Set up CTO NotebookLM notebook",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": "2026-01-06",
+      "workflow": "Monolith System Initialization",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "ceo-006",
+      "content": "Set up COO NotebookLM notebook",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-07",
+      "workflow": "Monolith System Initialization",
+      "notes": "Current Priority",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "ceo-007",
+      "content": "Set up CPO NotebookLM notebook",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-08",
+      "workflow": "Monolith System Initialization",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "ceo-008",
+      "content": "Set up CHRO NotebookLM notebook",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-09",
+      "workflow": "Monolith System Initialization",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "ceo-009",
+      "content": "Load specific source documents into each executive notebook",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-03-31",
+      "workflow": "Monolith System Initialization",
+      "notes": "Q1 2026 target",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "ceo-010",
+      "content": "Establish Claude Code integration workflow",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": "2026-03-31",
+      "workflow": "Monolith System Initialization",
+      "notes": "Q1 2026 target",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "ceo-011",
+      "content": "Document shareholder loan amounts/dates for CFO",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-10",
+      "workflow": "Financial & Legal Foundation",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ceo-012",
+      "content": "Document pre-incorporation expenses ($287.70) for CFO",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-10",
+      "workflow": "Financial & Legal Foundation",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ceo-013",
+      "content": "Formalize VR Golf Leagues partnership agreement with James",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-15",
+      "workflow": "Financial & Legal Foundation",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ceo-014",
+      "content": "Open business bank account",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-20",
+      "workflow": "Financial & Legal Foundation",
+      "notes": "Targeting post-CRA number receipt",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ceo-015",
+      "content": "Acquire personal phone for work/Cognalith separation",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": "2026-03-31",
+      "workflow": "Financial & Legal Foundation",
+      "notes": "Q1 2026 target",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ceo-016",
+      "content": "Approve hosting provider selection and budget",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-13",
+      "workflow": "Product Launch (TeeMates)",
+      "notes": "Jan 12-13 window",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ceo-017",
+      "content": "Finalize TeeMates production audit and P0 bug fixes",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Product Launch (TeeMates)",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ceo-018",
+      "content": "Generate App Store screenshots and finalize listing",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Product Launch (TeeMates)",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ceo-019",
+      "content": "Complete push notification setup (Xcode/APNs)",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-03-31",
+      "workflow": "Product Launch (TeeMates)",
+      "notes": "Q1 2026 target",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ceo-020",
+      "content": "Hire Liam part-time for social media/support",
+      "priority": "MEDIUM",
+      "status": "planned",
+      "due_date": "2026-12-31",
+      "workflow": "Team & Personnel",
+      "notes": "2026 planned hire",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ceo-021",
+      "content": "Register for CRA Payroll and WCB Alberta",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Team & Personnel",
+      "notes": "Pre-hiring requirement",
+      "created_at": "2026-01-07"
+    }
+  ],
+  "total_tasks": 21,
+  "by_priority": {
+    "CRITICAL": 1,
+    "HIGH": 13,
+    "MEDIUM": 5,
+    "LOW": 2
+  },
+  "core_projects": [
+    {"name": "Monolith System", "priority": "HIGH", "status": "Active Development", "timeline": "Q1 2026 Foundation"},
+    {"name": "TeeMates", "priority": "HIGH", "status": "~95% Ready", "timeline": "Q1 2026 App Store Launch"},
+    {"name": "VR Golf Leagues", "priority": "HIGH", "status": "UX/UI Audit & Testing", "timeline": "Q1 2026 Testing/Migration"},
+    {"name": "Unplug Social", "priority": "LOW", "status": "Back Burner", "timeline": "Jan 30, 2026 Archive"},
+    {"name": "Riichi Scoring", "priority": "LOW", "status": "Back Burner", "timeline": "Jan 30, 2026 Archive"}
+  ]
+}

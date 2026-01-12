@@ -1,0 +1,161 @@
+{
+  "role_id": "cpo",
+  "role_name": "Chief Product Officer",
+  "role_abbr": "CPO",
+  "extracted_at": "2026-01-11T16:00:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "cpo-001",
+      "content": "Coordinate with CTO on TeeMates migration from Replit",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-20",
+      "workflow": "Migration Coordination",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cpo-002",
+      "content": "Define final QA checklist for TeeMates",
+      "priority": "HIGH",
+      "status": "not_started",
+      "due_date": "2026-01-27",
+      "workflow": "Quality Assurance",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cpo-003",
+      "content": "Prepare App Store submission materials (Screenshots, keywords)",
+      "priority": "HIGH",
+      "status": "not_started",
+      "due_date": "2026-01-25",
+      "workflow": "App Store Launch",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cpo-004",
+      "content": "Create launch marketing plan (Calgary focus)",
+      "priority": "HIGH",
+      "status": "not_started",
+      "due_date": "2026-01-28",
+      "workflow": "Go-to-Market",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cpo-005",
+      "content": "Define success metrics/KPIs for TeeMates MVP",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-12",
+      "workflow": "Metrics Definition",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cpo-006",
+      "content": "Complete VR Golf Leagues UX/UI testing with James Casuga",
+      "priority": "MEDIUM",
+      "status": "in_progress",
+      "due_date": "2026-01-18",
+      "workflow": "VR Golf Leagues",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cpo-007",
+      "content": "Document VR Golf user feedback and required fixes",
+      "priority": "MEDIUM",
+      "status": "not_started",
+      "due_date": "2026-01-22",
+      "workflow": "VR Golf Leagues",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cpo-008",
+      "content": "Align VR Golf Leagues launch timeline with James Casuga",
+      "priority": "MEDIUM",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "VR Golf Leagues",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cpo-009",
+      "content": "Create TeeMates Product Roadmap document",
+      "priority": "MEDIUM",
+      "status": "in_progress",
+      "due_date": "2026-01-15",
+      "workflow": "Product Strategy",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cpo-010",
+      "content": "Create VR Golf Leagues Product Roadmap document",
+      "priority": "MEDIUM",
+      "status": "not_started",
+      "due_date": "2026-01-30",
+      "workflow": "Product Strategy",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cpo-011",
+      "content": "Document official feature backlogs for both products",
+      "priority": "LOW",
+      "status": "not_started",
+      "due_date": "2026-02-02",
+      "workflow": "Product Strategy",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cpo-012",
+      "content": "Provide CFO with App Store fee estimates ($99/year)",
+      "priority": "LOW",
+      "status": "pending",
+      "due_date": "2026-01-10",
+      "workflow": "Admin",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cpo-013",
+      "content": "Provide CFO with marketing budget requirements",
+      "priority": "LOW",
+      "status": "not_started",
+      "due_date": "2026-01-24",
+      "workflow": "Admin",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cpo-014",
+      "content": "Identify third-party tools needed for launch",
+      "priority": "LOW",
+      "status": "not_started",
+      "due_date": "2026-02-05",
+      "workflow": "Admin",
+      "notes": null,
+      "created_at": "2026-01-05"
+    }
+  ],
+  "total_tasks": 14,
+  "by_priority": {
+    "CRITICAL": 0,
+    "HIGH": 5,
+    "MEDIUM": 5,
+    "LOW": 4
+  },
+  "product_status": {
+    "teemates": "~95% ready",
+    "vr_golf_leagues": "UX/UI Testing phase"
+  },
+  "philosophy": "Ship Over Perfect - Conversion Handoff is the primary goal"
+}

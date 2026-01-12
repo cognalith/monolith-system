@@ -124,9 +124,21 @@ const PendingTasksPanel = ({ isOpen, onClose, selectedRole = null }) => {
       const response = await fetch('/api/pending-tasks');
       if (!response.ok) throw new Error('Failed to fetch pending tasks');
       const data = await response.json();
-      setTasks(data.tasks || []);
-      setByPriority(data.by_priority || {});
-      setError(null);
+
+      // Handle both old format (Tasks/Summary) and new format (tasks/by_priority)
+      const tasksArray = data.tasks || data.Tasks || [];
+      const priorityData = data.by_priority || data.Summary || {};
+
+      if (tasksArray.length > 0) {
+        setTasks(tasksArray);
+        setByPriority(priorityData);
+        setError(null);
+        console.log(`[PENDING-TASKS] Loaded ${tasksArray.length} tasks from ${data.source || 'api'}`);
+      } else {
+        // No tasks from API, use mock as fallback
+        setTasks(MOCK_TASKS);
+        setByPriority(calculateByPriority(MOCK_TASKS));
+      }
     } catch (err) {
       console.warn('API failed, using mock data:', err.message);
       // Use mock data as fallback

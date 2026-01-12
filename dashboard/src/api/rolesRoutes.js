@@ -8,6 +8,7 @@ import express from 'express';
 const router = express.Router();
 
 // Role hierarchy configuration with abbreviations, full names, tiers, and ranks
+// Updated to include all NotebookLM-extracted roles
 const ROLES_HIERARCHY = [
   // Tier 1: C-Suite Executives
   { id: 'ceo', abbr: 'CEO', fullName: 'Chief Executive Officer', tier: 1, rank: 1 },
@@ -22,19 +23,40 @@ const ROLES_HIERARCHY = [
   { id: 'cos', abbr: 'CoS', fullName: 'Chief of Staff', tier: 2, rank: 8 },
   { id: 'clo', abbr: 'CLO', fullName: 'General Counsel', tier: 2, rank: 9 },
   { id: 'cco', abbr: 'CCO', fullName: 'Chief Compliance Officer', tier: 2, rank: 10 },
-  { id: 'cdo', abbr: 'CDO', fullName: 'Chief Data Officer', tier: 2, rank: 11 },
-  { id: 'cso', abbr: 'CSO', fullName: 'Chief Strategy Officer', tier: 2, rank: 12 },
-  { id: 'cpo', abbr: 'CPO', fullName: 'Chief Procurement Officer', tier: 2, rank: 13 },
-  { id: 'csuso', abbr: 'CSusO', fullName: 'Chief Sustainability Officer', tier: 2, rank: 14 },
+  { id: 'cpo', abbr: 'CPO', fullName: 'Chief Product Officer', tier: 2, rank: 11 },
+  { id: 'cro', abbr: 'CRO', fullName: 'Chief Revenue Officer', tier: 2, rank: 12 },
+  { id: 'cdo', abbr: 'CDO', fullName: 'Chief Data Officer', tier: 2, rank: 13 },
+  { id: 'cso', abbr: 'CSO', fullName: 'Chief Strategy Officer', tier: 2, rank: 14 },
+  { id: 'csuso', abbr: 'CSusO', fullName: 'Chief Sustainability Officer', tier: 2, rank: 15 },
 
   // Tier 3: Vice Presidents
-  { id: 'vp-sales', abbr: 'VP-Sales', fullName: 'VP of Sales', tier: 3, rank: 15 },
-  { id: 'vp-ops', abbr: 'VP-Ops', fullName: 'VP of Operations', tier: 3, rank: 16 },
-  { id: 'vp-product', abbr: 'VP-Product', fullName: 'VP of Product', tier: 3, rank: 17 },
-  { id: 'vp-eng', abbr: 'VP-Eng', fullName: 'VP of Engineering', tier: 3, rank: 18 },
-  { id: 'vp-mktg', abbr: 'VP-Mktg', fullName: 'VP of Marketing', tier: 3, rank: 19 },
-  { id: 'vp-hr', abbr: 'VP-HR', fullName: 'VP of Human Resources', tier: 3, rank: 20 },
-  { id: 'vp-fin', abbr: 'VP-Fin', fullName: 'VP of Finance', tier: 3, rank: 21 }
+  { id: 'vp-employer-branding', abbr: 'VP-EB', fullName: 'VP of Employer Branding', tier: 3, rank: 16 },
+  { id: 'vp-sales', abbr: 'VP-Sales', fullName: 'VP of Sales', tier: 3, rank: 17 },
+  { id: 'vp-ops', abbr: 'VP-Ops', fullName: 'VP of Operations', tier: 3, rank: 18 },
+  { id: 'vp-product', abbr: 'VP-Product', fullName: 'VP of Product', tier: 3, rank: 19 },
+  { id: 'vp-eng', abbr: 'VP-Eng', fullName: 'VP of Engineering', tier: 3, rank: 20 },
+  { id: 'vp-mktg', abbr: 'VP-Mktg', fullName: 'VP of Marketing', tier: 3, rank: 21 },
+  { id: 'vp-hr', abbr: 'VP-HR', fullName: 'VP of Human Resources', tier: 3, rank: 22 },
+  { id: 'vp-fin', abbr: 'VP-Fin', fullName: 'VP of Finance', tier: 3, rank: 23 },
+
+  // Tier 4: Directors
+  { id: 'dir-communications', abbr: 'Dir-Comms', fullName: 'Director of Communications', tier: 4, rank: 24 },
+  { id: 'dir-learning-dev', abbr: 'Dir-L&D', fullName: 'Director of Learning & Development', tier: 4, rank: 25 },
+  { id: 'dir-sales', abbr: 'Dir-Sales', fullName: 'Director of Sales', tier: 4, rank: 26 },
+  { id: 'dir-ops', abbr: 'Dir-Ops', fullName: 'Director of Operations', tier: 4, rank: 27 },
+  { id: 'dir-product', abbr: 'Dir-Product', fullName: 'Director of Product', tier: 4, rank: 28 },
+  { id: 'dir-eng', abbr: 'Dir-Eng', fullName: 'Director of Engineering', tier: 4, rank: 29 },
+  { id: 'dir-mktg', abbr: 'Dir-Mktg', fullName: 'Director of Marketing', tier: 4, rank: 30 },
+  { id: 'dir-hr', abbr: 'Dir-HR', fullName: 'Director of HR', tier: 4, rank: 31 },
+  { id: 'dir-fin', abbr: 'Dir-Fin', fullName: 'Director of Finance', tier: 4, rank: 32 },
+
+  // Tier 5: Leads & Specialists
+  { id: 'head-cs', abbr: 'Head-CS', fullName: 'Head of Customer Success', tier: 5, rank: 33 },
+  { id: 'devops-lead', abbr: 'DevOps', fullName: 'DevOps & Infrastructure Lead', tier: 5, rank: 34 },
+  { id: 'qa-lead', abbr: 'QA', fullName: 'QA Lead', tier: 5, rank: 35 },
+  { id: 'lead-web-designer', abbr: 'Lead-Web', fullName: 'Lead Web Designer', tier: 5, rank: 36 },
+  { id: 'internal-creative-director', abbr: 'ICD', fullName: 'Internal Creative Director', tier: 5, rank: 37 },
+  { id: 'change-mgmt-lead', abbr: 'ChgMgmt', fullName: 'Change Management Lead', tier: 5, rank: 38 }
 ];
 
 const TIER_DESCRIPTIONS = {

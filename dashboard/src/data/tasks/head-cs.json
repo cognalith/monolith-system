@@ -1,0 +1,148 @@
+{
+  "role_id": "head-cs",
+  "role_name": "Head of Customer Success",
+  "role_abbr": "Head-CS",
+  "extracted_at": "2026-01-11T15:30:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "head-cs-001",
+      "content": "Help Center Documentation (20+ articles, FAQs, tutorials, troubleshooting)",
+      "priority": "CRITICAL",
+      "status": "required_deliverable",
+      "due_date": "2026-01-30",
+      "workflow": "Documentation",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "head-cs-002",
+      "content": "Bug Triage Classification System (Defining severity and escalation)",
+      "priority": "CRITICAL",
+      "status": "required_deliverable",
+      "due_date": "2026-01-30",
+      "workflow": "Bug Management",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "head-cs-003",
+      "content": "Support Email Response Templates (Including 8-hour response SLA)",
+      "priority": "CRITICAL",
+      "status": "required_deliverable",
+      "due_date": "2026-01-30",
+      "workflow": "Support Infrastructure",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "head-cs-004",
+      "content": "Customer Feedback Tracking System",
+      "priority": "CRITICAL",
+      "status": "required_deliverable",
+      "due_date": "2026-01-30",
+      "workflow": "Feedback Systems",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "head-cs-005",
+      "content": "Monitor Support Email Queue",
+      "priority": "HIGH",
+      "status": "active_ongoing",
+      "due_date": null,
+      "workflow": "Daily Operations",
+      "notes": "Daily",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "head-cs-006",
+      "content": "Critical Bug Triage",
+      "priority": "CRITICAL",
+      "status": "active_ongoing",
+      "due_date": null,
+      "workflow": "Bug Management",
+      "notes": "Day-1 Fix required",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "head-cs-007",
+      "content": "High-Priority Bug Triage",
+      "priority": "HIGH",
+      "status": "active_ongoing",
+      "due_date": null,
+      "workflow": "Bug Management",
+      "notes": "Week-1 resolution",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "head-cs-008",
+      "content": "Low-Priority Bug Triage",
+      "priority": "LOW",
+      "status": "active_ongoing",
+      "due_date": null,
+      "workflow": "Bug Management",
+      "notes": "Backlog",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "head-cs-009",
+      "content": "NPS Tracking (Measure user satisfaction)",
+      "priority": "MEDIUM",
+      "status": "active_ongoing",
+      "due_date": null,
+      "workflow": "Metrics",
+      "notes": "Monthly",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "head-cs-010",
+      "content": "Monitor Signup Funnel for dropoff points",
+      "priority": "MEDIUM",
+      "status": "active_ongoing",
+      "due_date": null,
+      "workflow": "Analytics",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "head-cs-011",
+      "content": "Beta Cohort Engagement (Proactive outreach and communication)",
+      "priority": "MEDIUM",
+      "status": "active_ongoing",
+      "due_date": null,
+      "workflow": "User Engagement",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "head-cs-012",
+      "content": "Feature Request Consolidation (Synthesize and forward to Product)",
+      "priority": "MEDIUM",
+      "status": "active_ongoing",
+      "due_date": null,
+      "workflow": "Feedback Systems",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "head-cs-013",
+      "content": "Templates MVP Launch Support",
+      "priority": "CRITICAL",
+      "status": "assigned",
+      "due_date": null,
+      "workflow": "Launch Support",
+      "notes": null,
+      "created_at": "2026-01-07"
+    }
+  ],
+  "total_tasks": 13,
+  "by_priority": {
+    "CRITICAL": 6,
+    "HIGH": 2,
+    "MEDIUM": 4,
+    "LOW": 1
+  },
+  "philosophy": "Customer Problems = Learning Opportunities - every support ticket should be viewed as a tool to identify and fix product gaps",
+  "analogy": "Think of the Head of Customer Success as a lighthouse keeper; they must first build the structure and light the lamp (the Jan 30 deliverables) and then remain on constant watch to guide ships and report any dangerous reefs back to the mainland (ongoing operations and bug triage)."
+}

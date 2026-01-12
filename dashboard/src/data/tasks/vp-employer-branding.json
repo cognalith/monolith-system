@@ -1,0 +1,177 @@
+{
+  "role_id": "vp-employer-branding",
+  "role_name": "VP of Employer Branding",
+  "role_abbr": "VP-EB",
+  "extracted_at": "2026-01-11T15:10:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "vp-eb-001",
+      "content": "Develop EVP Document ('Introverts Welcome' + 'Infinite Leverage')",
+      "priority": "CRITICAL",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "EVP Development",
+      "notes": "Core deliverable",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-002",
+      "content": "Create 3 Mission-based Job Description Templates",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Recruitment Materials",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-003",
+      "content": "Update LinkedIn Employer Brand Profile",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Social Presence",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-004",
+      "content": "Draft Culture Manifesto for Public Consumption",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Brand Content",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-005",
+      "content": "Define 'Introverts Welcome' pillar and supporting values",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "EVP Development",
+      "notes": "Component of EVP document",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-006",
+      "content": "Develop 'Infinite Leverage' narrative (1-person C-suite model)",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "EVP Development",
+      "notes": "Component of EVP document",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-007",
+      "content": "Establish Anti-hustle 'Quiet Power' positioning",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Brand Strategy",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-008",
+      "content": "Formulate Competitive Differentiation vs. traditional tech",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Brand Strategy",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-009",
+      "content": "Manage LinkedIn employer brand strategy and content calendar",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Social Presence",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-010",
+      "content": "Manage Glassdoor and Indeed presence",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Social Presence",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-011",
+      "content": "Design Candidate Communication templates",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Recruitment Materials",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-012",
+      "content": "Manifest Core Values in daily operations",
+      "priority": "HIGH",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Culture",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-013",
+      "content": "Apply 'Ship Over Perfect' decision framework to hiring",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Recruitment Process",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-014",
+      "content": "Update Onboarding materials reflecting Monolith methodology",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Onboarding",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-015",
+      "content": "Document Founder Journey publicly",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Brand Content",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "vp-eb-016",
+      "content": "Approve recruitment messaging and manage brand content",
+      "priority": "HIGH",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Recruitment Materials",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    }
+  ],
+  "total_tasks": 16,
+  "by_priority": {
+    "CRITICAL": 1,
+    "HIGH": 11,
+    "MEDIUM": 4,
+    "LOW": 0
+  },
+  "analogy": "Building an employer brand is like building a lighthouse; the EVP is the light itself, specifically calibrated to guide the right ships (talent) to shore while signaling to others that this may not be their harbor."
+}

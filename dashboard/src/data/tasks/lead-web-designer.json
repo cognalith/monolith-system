@@ -1,0 +1,109 @@
+{
+  "role_id": "lead-web-designer",
+  "role_name": "Lead Web Designer",
+  "role_abbr": "Lead-Web",
+  "extracted_at": "2026-01-11T16:05:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "web-001",
+      "content": "Analyze Board Requests: Synthesize conflicting requirements (CFO's frugality vs. CMO's vision) into cohesive design specification",
+      "priority": "CRITICAL",
+      "status": "in_progress",
+      "due_date": "2026-01-08",
+      "workflow": "Foundational Strategy",
+      "notes": null,
+      "created_at": "2026-01-06"
+    },
+    {
+      "id": "web-002",
+      "content": "High-Level Site Structure (Sitemap): Define navigation and key sections including Hero, Monolith System, Products, and Origin Story",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-10",
+      "workflow": "Architecture",
+      "notes": null,
+      "created_at": "2026-01-06"
+    },
+    {
+      "id": "web-003",
+      "content": "Mood & Style Definition: Finalize the 'Glass Cockpit' and 'Skeleton Watch' aesthetic using deep charcoal, introvert-friendly palette",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-10",
+      "workflow": "Visual Identity",
+      "notes": null,
+      "created_at": "2026-01-06"
+    },
+    {
+      "id": "web-004",
+      "content": "Wireframe Finalization: Lock in 'Hub-and-Spoke' geometry for Hero section with central Founder node and orbiting AI executives",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-12",
+      "workflow": "UX/UI Design",
+      "notes": null,
+      "created_at": "2026-01-06"
+    },
+    {
+      "id": "web-005",
+      "content": "Modal Interface Design: Design interactive modals for 6 AI Executive nodes to detail functional traits without leaving page",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": "2026-01-15",
+      "workflow": "Interaction Design",
+      "notes": null,
+      "created_at": "2026-01-06"
+    },
+    {
+      "id": "web-006",
+      "content": "Dual-Path Conversion UI: Design 'Join the Beta' (Primary) and 'Read the Manifesto' (Secondary/Newsletter) interface elements",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-15",
+      "workflow": "Conversion UX",
+      "notes": null,
+      "created_at": "2026-01-06"
+    },
+    {
+      "id": "web-007",
+      "content": "Content Ingestion: Draft and integrate 'Founder Bio' and 'AI Node' descriptive text into design",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": "2026-01-18",
+      "workflow": "Content Strategy",
+      "notes": null,
+      "created_at": "2026-01-06"
+    },
+    {
+      "id": "web-008",
+      "content": "Careers Page Design: Create single-page layout communicating 'AI-first/No-hiring' narrative",
+      "priority": "LOW",
+      "status": "pending",
+      "due_date": "2026-01-20",
+      "workflow": "Niche Pages",
+      "notes": null,
+      "created_at": "2026-01-06"
+    },
+    {
+      "id": "web-009",
+      "content": "Design-to-Engineering Handoff: Finalize assets for Vite/React/Tailwind stack for Phase 1 'Soft Launch' readiness",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-22",
+      "workflow": "Handoff",
+      "notes": null,
+      "created_at": "2026-01-06"
+    }
+  ],
+  "total_tasks": 9,
+  "by_priority": {
+    "CRITICAL": 3,
+    "HIGH": 3,
+    "MEDIUM": 2,
+    "LOW": 1
+  },
+  "design_philosophy": "Systems Over Hustle - visual language suggests efficiency, automation, calm utilitarian feel",
+  "technical_constraint": "Operational expense less than $15/month - lightweight React and Tailwind CSS frontend",
+  "tech_stack": ["Vite", "React", "Tailwind CSS"]
+}

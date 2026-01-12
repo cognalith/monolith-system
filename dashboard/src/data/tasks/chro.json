@@ -1,0 +1,165 @@
+{
+  "role_id": "chro",
+  "role_name": "Chief Human Resources Officer",
+  "role_abbr": "CHRO",
+  "extracted_at": "2026-01-11T14:43:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "chro-001",
+      "content": "Understand Alberta Employment Standards basics (Minimum wage, OT, Vacation)",
+      "priority": "CRITICAL",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Compliance Foundation",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "chro-002",
+      "content": "Flag immediate compliance risks (Worker misclassification, informal partnerships)",
+      "priority": "CRITICAL",
+      "status": "ongoing",
+      "due_date": null,
+      "workflow": "Compliance Foundation",
+      "notes": "Immediate and ongoing priority",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "chro-003",
+      "content": "Identify/Register for CRA Payroll account",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-19",
+      "workflow": "Compliance Foundation",
+      "notes": "Dependent on Business Number receipt",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "chro-004",
+      "content": "Formalize VR Golf Leagues Partnership (Recommend legal review for equity/IP)",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Partnership Formalization",
+      "notes": "Transitioning from informal 50/50 split with James Casuga to legally binding document",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "chro-005",
+      "content": "Register with WCB Alberta",
+      "priority": "HIGH",
+      "status": "not_started",
+      "due_date": null,
+      "workflow": "Compliance Foundation",
+      "notes": "Required before Liam's start",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "chro-006",
+      "content": "Create Contractor Agreement and NDA Templates",
+      "priority": "HIGH",
+      "status": "not_started",
+      "due_date": "2026-01-30",
+      "workflow": "Legal Templates",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "chro-007",
+      "content": "Document current team structure and relationships",
+      "priority": "MEDIUM",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Organizational Documentation",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "chro-008",
+      "content": "Research Calgary market rates (Developers, Designers, Marketers)",
+      "priority": "MEDIUM",
+      "status": "not_started",
+      "due_date": "2026-03-31",
+      "workflow": "Compensation Research",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "chro-009",
+      "content": "Draft Liam Tinana's Employment Agreement (Part-time, minimum wage)",
+      "priority": "MEDIUM",
+      "status": "not_started",
+      "due_date": null,
+      "workflow": "Family First Implementation",
+      "notes": "Prior to hire",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "chro-010",
+      "content": "Define Liam's Job Description (Social media, support, monitoring)",
+      "priority": "MEDIUM",
+      "status": "not_started",
+      "due_date": null,
+      "workflow": "Family First Implementation",
+      "notes": "Prior to hire",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "chro-011",
+      "content": "Assess contractor needs for Replit migration",
+      "priority": "MEDIUM",
+      "status": "ongoing",
+      "due_date": "2026-01-30",
+      "workflow": "Resource Planning",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "chro-012",
+      "content": "Create basic job description and interview templates",
+      "priority": "LOW",
+      "status": "not_started",
+      "due_date": "2026-03-31",
+      "workflow": "HR Templates",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "chro-013",
+      "content": "Establish Onboarding Checklist (Tool access: Discord, Email, etc.)",
+      "priority": "LOW",
+      "status": "not_started",
+      "due_date": null,
+      "workflow": "Onboarding",
+      "notes": "Prior to hire",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "chro-014",
+      "content": "Maintain payroll records (Deductions for CPP, EI, Income Tax)",
+      "priority": "LOW",
+      "status": "not_started",
+      "due_date": null,
+      "workflow": "Payroll Administration",
+      "notes": "Ongoing requirement (6-year retention)",
+      "created_at": "2026-01-05"
+    }
+  ],
+  "total_tasks": 14,
+  "by_priority": {
+    "CRITICAL": 3,
+    "HIGH": 3,
+    "MEDIUM": 5,
+    "LOW": 3
+  },
+  "hr_initiatives": [
+    "Compliance Foundation: CRA/WCB registrations, Alberta Employment Standards awareness",
+    "Partnership Formalization: VR Golf Leagues agreement with James Casuga (50/50 → legally binding)",
+    "Family First Implementation: Hiring Liam Tinana with professional compliance standards"
+  ],
+  "key_personnel": [
+    {"name": "Liam Tinana", "role": "Part-time (Social media, support)", "relationship": "Family member"},
+    {"name": "James Casuga", "role": "VR Golf Leagues Partner", "agreement": "50/50 split pending formalization"}
+  ]
+}

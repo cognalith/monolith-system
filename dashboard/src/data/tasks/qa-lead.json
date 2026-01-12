@@ -1,0 +1,107 @@
+{
+  "role_id": "qa-lead",
+  "role_name": "QA Lead",
+  "role_abbr": "QA",
+  "extracted_at": "2026-01-11T15:40:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "qa-001",
+      "content": "Test TeeMates MVP 'Happy Path' (signup, invite, scoring flow)",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Functional Testing",
+      "notes": "Checklist completion",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "qa-002",
+      "content": "Test website functionality",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Functional Testing",
+      "notes": "Checklist completion",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "qa-003",
+      "content": "Bug severity classification",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Bug Management",
+      "notes": "Critical bug list",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "qa-004",
+      "content": "Performance baseline establishment",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Performance Testing",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "qa-005",
+      "content": "Regression testing",
+      "priority": "MEDIUM",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Testing",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "qa-006",
+      "content": "Test case management",
+      "priority": "MEDIUM",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Testing",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "qa-007",
+      "content": "Browser compatibility testing",
+      "priority": "MEDIUM",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Compatibility Testing",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "qa-008",
+      "content": "Mobile testing",
+      "priority": "HIGH",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Mobile Testing",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "qa-009",
+      "content": "Automated test script creation",
+      "priority": "LOW",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Automation",
+      "notes": null,
+      "created_at": "2026-01-07"
+    }
+  ],
+  "total_tasks": 9,
+  "by_priority": {
+    "CRITICAL": 0,
+    "HIGH": 5,
+    "MEDIUM": 3,
+    "LOW": 1
+  },
+  "analogy": "Think of these QA tasks as a pre-flight safety inspection for an aircraft."
+}

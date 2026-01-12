@@ -1,0 +1,149 @@
+{
+  "role_id": "cmo",
+  "role_name": "Chief Marketing Officer",
+  "role_abbr": "CMO",
+  "extracted_at": "2026-01-11T14:40:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "cmo-001",
+      "content": "Define Brand Voice and Tone Guidelines",
+      "priority": "CRITICAL",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Brand Identity",
+      "notes": "Includes 'Introverts Welcome' voice guidelines",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cmo-002",
+      "content": "Recommend Logo and Visual Identity Direction",
+      "priority": "CRITICAL",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Brand Identity",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cmo-003",
+      "content": "Website Hero Copy (Narrative H1 / Utilitarian H2)",
+      "priority": "CRITICAL",
+      "status": "completed",
+      "due_date": "2026-01-30",
+      "workflow": "Website Content",
+      "notes": "Two-Tier Copy Strategy: H1 'The Infinite Leverage of a Quiet Mind' / H2 direct utility language",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cmo-004",
+      "content": "Drafting 'AI Node' & 'Founder Bio' Copy",
+      "priority": "HIGH",
+      "status": "not_started",
+      "due_date": "2026-01-30",
+      "workflow": "Website Content",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cmo-005",
+      "content": "TeeMates App Store Listing Copy (ASO)",
+      "priority": "HIGH",
+      "status": "not_started",
+      "due_date": "2026-03-31",
+      "workflow": "TeeMates GTM",
+      "notes": "Keywords, titles, descriptions for App Store discoverability",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cmo-006",
+      "content": "Identify Calgary Golf Communities for Seeding",
+      "priority": "HIGH",
+      "status": "not_started",
+      "due_date": "2026-02-06",
+      "workflow": "TeeMates GTM",
+      "notes": "Calgary clubs, subreddits, local communities",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cmo-007",
+      "content": "Research VR Golf Community & Influencer Landscape",
+      "priority": "HIGH",
+      "status": "not_started",
+      "due_date": "2026-03-31",
+      "workflow": "VR Golf Leagues Marketing",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cmo-008",
+      "content": "Develop Partnership Positioning for VR Leagues",
+      "priority": "HIGH",
+      "status": "not_started",
+      "due_date": "2026-03-31",
+      "workflow": "VR Golf Leagues Marketing",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cmo-009",
+      "content": "Establish Social Media Presence Strategy",
+      "priority": "MEDIUM",
+      "status": "not_started",
+      "due_date": "2026-02-06",
+      "workflow": "Social Media",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cmo-010",
+      "content": "Create Content Calendar for Launch Period",
+      "priority": "MEDIUM",
+      "status": "not_started",
+      "due_date": "2026-02-06",
+      "workflow": "Content Strategy",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cmo-011",
+      "content": "Develop Word-of-Mouth & Referral Strategy",
+      "priority": "MEDIUM",
+      "status": "not_started",
+      "due_date": "2026-03-31",
+      "workflow": "Growth",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cmo-012",
+      "content": "Define Tracking for Waitlist & Initial Engagement",
+      "priority": "LOW",
+      "status": "not_started",
+      "due_date": "2026-02-06",
+      "workflow": "Analytics",
+      "notes": null,
+      "created_at": "2026-01-07"
+    }
+  ],
+  "total_tasks": 12,
+  "by_priority": {
+    "CRITICAL": 3,
+    "HIGH": 5,
+    "MEDIUM": 3,
+    "LOW": 1
+  },
+  "marketing_strategy": {
+    "copy_approach": "Two-Tier (Narrative H1 + Utilitarian H2)",
+    "brand_archetype": "Skeleton Watch - transparent, functional",
+    "conversion_paths": [
+      "Afterburner: Join the Beta button → TeeMates",
+      "Learning Loop: Read the Manifesto → Newsletter capture"
+    ]
+  },
+  "strategic_phases": [
+    {"phase": "Soft Launch", "date": "2026-01-30", "focus": "Website copy and visual identity finalized"},
+    {"phase": "Targeted Launch", "date": "2026-02-06", "focus": "Calgary community seeding and TeeMates MVP traffic"},
+    {"phase": "General Launch", "date": "Q1 2026", "focus": "VR Golf Leagues marketing and TeeMates growth analytics"}
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "role_id": "change-mgmt-lead",
+  "role_name": "Change Management Lead",
+  "role_abbr": "ChgMgmt",
+  "extracted_at": "2026-01-11T16:15:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "chg-001",
+      "content": "Plan communication strategy",
+      "priority": "HIGH",
+      "status": "not_specified",
+      "due_date": "2026-01-30",
+      "workflow": "Communication",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "chg-002",
+      "content": "Identify stakeholders",
+      "priority": "HIGH",
+      "status": "not_specified",
+      "due_date": "2026-01-30",
+      "workflow": "Stakeholder Management",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "chg-003",
+      "content": "Map dependencies (Replit exit, GitHub migration, hosting switch)",
+      "priority": "CRITICAL",
+      "status": "not_specified",
+      "due_date": "2026-01-30",
+      "workflow": "Technical Dependencies",
+      "notes": "Key migration workstream",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "chg-004",
+      "content": "Create stakeholder map",
+      "priority": "HIGH",
+      "status": "not_specified",
+      "due_date": "2026-01-30",
+      "workflow": "Stakeholder Management",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "chg-005",
+      "content": "Conduct risk assessment for each change",
+      "priority": "CRITICAL",
+      "status": "not_specified",
+      "due_date": "2026-01-30",
+      "workflow": "Risk Management",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "chg-006",
+      "content": "Establish rollback procedures",
+      "priority": "CRITICAL",
+      "status": "not_specified",
+      "due_date": "2026-01-30",
+      "workflow": "Contingency Planning",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "chg-007",
+      "content": "Develop training plans",
+      "priority": "MEDIUM",
+      "status": "not_specified",
+      "due_date": "2026-01-30",
+      "workflow": "Training",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "chg-008",
+      "content": "Establish communication timeline (weekly updates, escalation protocols)",
+      "priority": "HIGH",
+      "status": "not_specified",
+      "due_date": "2026-01-30",
+      "workflow": "Communication",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "chg-009",
+      "content": "Finalize Migration impact assessment document",
+      "priority": "HIGH",
+      "status": "not_specified",
+      "due_date": "2026-01-30",
+      "workflow": "Documentation",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "chg-010",
+      "content": "Establish stakeholder communication plan",
+      "priority": "HIGH",
+      "status": "not_specified",
+      "due_date": "2026-01-30",
+      "workflow": "Communication",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "chg-011",
+      "content": "Establish risk log",
+      "priority": "HIGH",
+      "status": "not_specified",
+      "due_date": "2026-01-30",
+      "workflow": "Risk Management",
+      "notes": null,
+      "created_at": "2026-01-07"
+    }
+  ],
+  "total_tasks": 11,
+  "by_priority": {
+    "CRITICAL": 3,
+    "HIGH": 7,
+    "MEDIUM": 1,
+    "LOW": 0
+  },
+  "migration_focus": "Replit Exit → GitHub → New Hosting (Jan 30 deadline)",
+  "analogy": "Theatre director preparing for opening night - ensure every actor (stakeholder) knows their cues, stage hands (dependencies) have right equipment, and clear plan if lights go out, all before curtain rises on Jan 30"
+}

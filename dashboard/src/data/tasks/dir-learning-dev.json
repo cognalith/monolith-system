@@ -1,0 +1,187 @@
+{
+  "role_id": "dir-learning-dev",
+  "role_name": "Director of Learning & Development",
+  "role_abbr": "Dir-L&D",
+  "extracted_at": "2026-01-11T15:20:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "dir-ld-001",
+      "content": "Draft 3-module onboarding curriculum",
+      "priority": "HIGH",
+      "status": "deliverable",
+      "due_date": "2026-01-30",
+      "workflow": "Onboarding",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-002",
+      "content": "'Monolith 101' public training module",
+      "priority": "HIGH",
+      "status": "deliverable",
+      "due_date": "2026-01-30",
+      "workflow": "Public Education",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-003",
+      "content": "Set up learning platform infrastructure (Notion/Ghost)",
+      "priority": "HIGH",
+      "status": "deliverable",
+      "due_date": "2026-01-30",
+      "workflow": "Platform Setup",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-004",
+      "content": "Publish first methodology article",
+      "priority": "HIGH",
+      "status": "deliverable",
+      "due_date": "2026-01-30",
+      "workflow": "Content Publishing",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-005",
+      "content": "Document founder's approach (Core Mandate)",
+      "priority": "HIGH",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Methodology Documentation",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-006",
+      "content": "Create accessible training modules for 1-person C-suites",
+      "priority": "HIGH",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Public Education",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-007",
+      "content": "Host public webinars and workshops",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Community Building",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-008",
+      "content": "Write and publish monthly methodology articles",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Content Publishing",
+      "notes": "Monthly",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-009",
+      "content": "Build community online cohort of founders",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Community Building",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-010",
+      "content": "Establish day 1 onboarding curriculum for employees",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Onboarding",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-011",
+      "content": "Implement role-specific training with AI executive nodes",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "AI Training",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-012",
+      "content": "Define skill matrix (required and aspirational)",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Skills Framework",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-013",
+      "content": "Develop 30-60-90 day plans for hires and contractors",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Onboarding",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-014",
+      "content": "Manage YouTube channel (CEO decision-making walkthroughs)",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Video Content",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-015",
+      "content": "Share open-source SOP templates",
+      "priority": "LOW",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Open Source",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-016",
+      "content": "Develop case studies on scaling with AI leverage",
+      "priority": "LOW",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Case Studies",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-ld-017",
+      "content": "Gather user input via community feedback loop",
+      "priority": "LOW",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Community Building",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    }
+  ],
+  "total_tasks": 17,
+  "by_priority": {
+    "CRITICAL": 0,
+    "HIGH": 6,
+    "MEDIUM": 8,
+    "LOW": 3
+  },
+  "analogy": "Establishing this learning mandate is like building a glass-walled factory; the Director is not only responsible for making sure the internal team knows how to run the machinery, but also for ensuring that anyone passing by outside can see exactly how the products are made through clear documentation and public transparency."
+}

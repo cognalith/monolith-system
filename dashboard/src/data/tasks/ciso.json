@@ -1,0 +1,94 @@
+{
+  "role_id": "ciso",
+  "role_name": "Chief Information Security Officer",
+  "role_abbr": "CISO",
+  "extracted_at": "2026-01-11T14:35:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "ciso-001",
+      "content": "Ensure data privacy and breach prevention measures are integrated into initial development",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Pre-Launch Security",
+      "notes": "Must be functional from day one of service",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ciso-002",
+      "content": "Implement encryption standards for all data handling",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Security Infrastructure",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ciso-003",
+      "content": "Manage API security protocols",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Security Infrastructure",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ciso-004",
+      "content": "Establish strict access policies through Supabase",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Access Control",
+      "notes": "Supabase backend security configuration",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ciso-005",
+      "content": "Define incident response protocols",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Incident Response",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ciso-006",
+      "content": "Ensure long-term regulatory compliance with global data standards",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Compliance",
+      "notes": "Ongoing requirement",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "ciso-007",
+      "content": "Configure pre-launch security settings",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Pre-Launch Security",
+      "notes": "Robust defense system required for launch",
+      "created_at": "2026-01-07"
+    }
+  ],
+  "total_tasks": 7,
+  "by_priority": {
+    "CRITICAL": 2,
+    "HIGH": 3,
+    "MEDIUM": 2,
+    "LOW": 0
+  },
+  "security_domains": [
+    "Data Privacy & Breach Prevention",
+    "Encryption Standards",
+    "API Security",
+    "Access Control (Supabase)",
+    "Incident Response",
+    "Regulatory Compliance"
+  ]
+}

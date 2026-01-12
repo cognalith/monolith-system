@@ -2,6 +2,7 @@
  * Role Hierarchy Configuration
  * Defines all organizational roles with their abbreviations, full names,
  * tier levels, and hierarchy rank for dashboard display and filtering.
+ * Updated to match NotebookLM-extracted roles.
  */
 
 // Role definitions ordered by organizational hierarchy
@@ -15,45 +16,49 @@ export const ROLES = [
   { id: 'cmo', abbr: 'CMO', fullName: 'Chief Marketing Officer', tier: 1, rank: 6 },
   { id: 'chro', abbr: 'CHRO', fullName: 'Chief Human Resources Officer', tier: 1, rank: 7 },
 
-  // Tier 2 - Chiefs (ranks 8-14)
-  { id: 'chief-of-staff', abbr: 'CoS', fullName: 'Chief of Staff', tier: 2, rank: 8 },
-  { id: 'general-counsel', abbr: 'CLO', fullName: 'Chief Legal Officer / General Counsel', tier: 2, rank: 9 },
-  { id: 'chief-compliance-officer', abbr: 'CCO', fullName: 'Chief Compliance Officer', tier: 2, rank: 10 },
-  { id: 'chief-data-officer', abbr: 'CDO', fullName: 'Chief Data Officer', tier: 2, rank: 11 },
-  { id: 'chief-strategy-officer', abbr: 'CSO', fullName: 'Chief Strategy Officer', tier: 2, rank: 12 },
-  { id: 'chief-procurement-officer', abbr: 'CPO', fullName: 'Chief Procurement Officer', tier: 2, rank: 13 },
-  { id: 'chief-sustainability-officer', abbr: 'CSusO', fullName: 'Chief Sustainability Officer', tier: 2, rank: 14 },
+  // Tier 2 - Chiefs (ranks 8-15)
+  { id: 'cos', abbr: 'CoS', fullName: 'Chief of Staff', tier: 2, rank: 8 },
+  { id: 'clo', abbr: 'CLO', fullName: 'General Counsel', tier: 2, rank: 9 },
+  { id: 'cco', abbr: 'CCO', fullName: 'Chief Compliance Officer', tier: 2, rank: 10 },
+  { id: 'cpo', abbr: 'CPO', fullName: 'Chief Product Officer', tier: 2, rank: 11 },
+  { id: 'cro', abbr: 'CRO', fullName: 'Chief Revenue Officer', tier: 2, rank: 12 },
+  { id: 'cdo', abbr: 'CDO', fullName: 'Chief Data Officer', tier: 2, rank: 13 },
+  { id: 'cso', abbr: 'CSO', fullName: 'Chief Strategy Officer', tier: 2, rank: 14 },
+  { id: 'csuso', abbr: 'CSusO', fullName: 'Chief Sustainability Officer', tier: 2, rank: 15 },
 
-  // Tier 3 - VPs (ranks 15-21)
-  { id: 'vp-sales', abbr: 'VP-Sales', fullName: 'Vice President of Sales', tier: 3, rank: 15 },
-  { id: 'vp-ops', abbr: 'VP-Ops', fullName: 'Vice President of Operations', tier: 3, rank: 16 },
-  { id: 'vp-product', abbr: 'VP-Product', fullName: 'Vice President of Product', tier: 3, rank: 17 },
-  { id: 'vp-eng', abbr: 'VP-Eng', fullName: 'Vice President of Engineering', tier: 3, rank: 18 },
-  { id: 'vp-mktg', abbr: 'VP-Mktg', fullName: 'Vice President of Marketing', tier: 3, rank: 19 },
-  { id: 'vp-hr', abbr: 'VP-HR', fullName: 'Vice President of Human Resources', tier: 3, rank: 20 },
-  { id: 'vp-fin', abbr: 'VP-Fin', fullName: 'Vice President of Finance', tier: 3, rank: 21 },
+  // Tier 3 - VPs (ranks 16-23)
+  { id: 'vp-employer-branding', abbr: 'VP-EB', fullName: 'VP of Employer Branding', tier: 3, rank: 16 },
+  { id: 'vp-sales', abbr: 'VP-Sales', fullName: 'Vice President of Sales', tier: 3, rank: 17 },
+  { id: 'vp-ops', abbr: 'VP-Ops', fullName: 'Vice President of Operations', tier: 3, rank: 18 },
+  { id: 'vp-product', abbr: 'VP-Product', fullName: 'Vice President of Product', tier: 3, rank: 19 },
+  { id: 'vp-eng', abbr: 'VP-Eng', fullName: 'Vice President of Engineering', tier: 3, rank: 20 },
+  { id: 'vp-mktg', abbr: 'VP-Mktg', fullName: 'Vice President of Marketing', tier: 3, rank: 21 },
+  { id: 'vp-hr', abbr: 'VP-HR', fullName: 'Vice President of Human Resources', tier: 3, rank: 22 },
+  { id: 'vp-fin', abbr: 'VP-Fin', fullName: 'Vice President of Finance', tier: 3, rank: 23 },
 
-  // Tier 4 - Directors (ranks 22-28)
-  { id: 'dir-sales', abbr: 'Dir-Sales', fullName: 'Director of Sales', tier: 4, rank: 22 },
-  { id: 'dir-ops', abbr: 'Dir-Ops', fullName: 'Director of Operations', tier: 4, rank: 23 },
-  { id: 'dir-product', abbr: 'Dir-Product', fullName: 'Director of Product', tier: 4, rank: 24 },
-  { id: 'dir-eng', abbr: 'Dir-Eng', fullName: 'Director of Engineering', tier: 4, rank: 25 },
-  { id: 'dir-mktg', abbr: 'Dir-Mktg', fullName: 'Director of Marketing', tier: 4, rank: 26 },
-  { id: 'dir-hr', abbr: 'Dir-HR', fullName: 'Director of Human Resources', tier: 4, rank: 27 },
-  { id: 'dir-fin', abbr: 'Dir-Fin', fullName: 'Director of Finance', tier: 4, rank: 28 },
+  // Tier 4 - Directors (ranks 24-32)
+  { id: 'dir-communications', abbr: 'Dir-Comms', fullName: 'Director of Communications', tier: 4, rank: 24 },
+  { id: 'dir-learning-dev', abbr: 'Dir-L&D', fullName: 'Director of Learning & Development', tier: 4, rank: 25 },
+  { id: 'dir-sales', abbr: 'Dir-Sales', fullName: 'Director of Sales', tier: 4, rank: 26 },
+  { id: 'dir-ops', abbr: 'Dir-Ops', fullName: 'Director of Operations', tier: 4, rank: 27 },
+  { id: 'dir-product', abbr: 'Dir-Product', fullName: 'Director of Product', tier: 4, rank: 28 },
+  { id: 'dir-eng', abbr: 'Dir-Eng', fullName: 'Director of Engineering', tier: 4, rank: 29 },
+  { id: 'dir-mktg', abbr: 'Dir-Mktg', fullName: 'Director of Marketing', tier: 4, rank: 30 },
+  { id: 'dir-hr', abbr: 'Dir-HR', fullName: 'Director of Human Resources', tier: 4, rank: 31 },
+  { id: 'dir-fin', abbr: 'Dir-Fin', fullName: 'Director of Finance', tier: 4, rank: 32 },
 
-  // Tier 5 - Managers & Specialists (ranks 29+)
-  { id: 'mgr-sales', abbr: 'Mgr-Sales', fullName: 'Sales Manager', tier: 5, rank: 29 },
-  { id: 'mgr-ops', abbr: 'Mgr-Ops', fullName: 'Operations Manager', tier: 5, rank: 30 },
-  { id: 'mgr-product', abbr: 'Mgr-Product', fullName: 'Product Manager', tier: 5, rank: 31 },
-  { id: 'analyst', abbr: 'Analyst', fullName: 'Business Analyst', tier: 5, rank: 32 },
-  { id: 'specialist', abbr: 'Specialist', fullName: 'Specialist', tier: 5, rank: 33 },
+  // Tier 5 - Leads & Specialists (ranks 33+)
+  { id: 'head-cs', abbr: 'Head-CS', fullName: 'Head of Customer Success', tier: 5, rank: 33 },
+  { id: 'devops-lead', abbr: 'DevOps', fullName: 'DevOps & Infrastructure Lead', tier: 5, rank: 34 },
+  { id: 'qa-lead', abbr: 'QA', fullName: 'QA Lead', tier: 5, rank: 35 },
+  { id: 'lead-web-designer', abbr: 'Lead-Web', fullName: 'Lead Web Designer', tier: 5, rank: 36 },
+  { id: 'internal-creative-director', abbr: 'ICD', fullName: 'Internal Creative Director', tier: 5, rank: 37 },
+  { id: 'change-mgmt-lead', abbr: 'ChgMgmt', fullName: 'Change Management Lead', tier: 5, rank: 38 },
 
-  // Technical roles (often used in development phases)
-  { id: 'database-architect', abbr: 'DB-Arch', fullName: 'Database Architect', tier: 5, rank: 34 },
-  { id: 'backend-developer', abbr: 'BE-Dev', fullName: 'Backend Developer', tier: 5, rank: 35 },
-  { id: 'frontend-developer', abbr: 'FE-Dev', fullName: 'Frontend Developer', tier: 5, rank: 36 },
-  { id: 'devops', abbr: 'DevOps', fullName: 'DevOps Engineer', tier: 5, rank: 37 },
+  // Technical/Development roles
+  { id: 'database-architect', abbr: 'DB-Arch', fullName: 'Database Architect', tier: 5, rank: 39 },
+  { id: 'backend-developer', abbr: 'BE-Dev', fullName: 'Backend Developer', tier: 5, rank: 40 },
+  { id: 'frontend-developer', abbr: 'FE-Dev', fullName: 'Frontend Developer', tier: 5, rank: 41 },
 ];
 
 // Tier labels for display
@@ -62,7 +67,7 @@ export const TIER_LABELS = {
   2: 'Chiefs',
   3: 'Vice Presidents',
   4: 'Directors',
-  5: 'Managers & Specialists',
+  5: 'Leads & Specialists',
 };
 
 // Tier colors for visual hierarchy
@@ -85,11 +90,11 @@ export const getRoleByAbbr = (abbr) => {
 
 /**
  * Get a role by its ID
- * @param {string} id - Role ID (e.g., 'ceo', 'chief-of-staff')
+ * @param {string} id - Role ID (e.g., 'ceo', 'cos')
  * @returns {object|undefined} Role object or undefined
  */
 export const getRoleById = (id) => {
-  return ROLES.find((role) => role.id === id);
+  return ROLES.find((role) => role.id === id?.toLowerCase());
 };
 
 /**
@@ -110,19 +115,19 @@ export const getTierRoles = (tier) => {
 };
 
 /**
- * Get abbreviation from legacy role ID format
- * Converts IDs like 'chief-of-staff' to 'CoS'
- * @param {string} roleId - Legacy role ID
+ * Get abbreviation from role ID
+ * @param {string} roleId - Role ID
  * @returns {string} Role abbreviation or formatted ID if not found
  */
 export const getAbbrFromId = (roleId) => {
   const role = getRoleById(roleId);
   if (role) return role.abbr;
   // Fallback: format unknown ID nicely
+  if (!roleId) return 'Unknown';
   return roleId
     .split('-')
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
+    .join('-');
 };
 
 /**
@@ -133,6 +138,7 @@ export const getAbbrFromId = (roleId) => {
 export const getFullNameFromId = (roleId) => {
   const role = getRoleById(roleId);
   if (role) return role.fullName;
+  if (!roleId) return 'Unknown Role';
   return roleId
     .split('-')
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))

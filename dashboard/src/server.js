@@ -12,6 +12,8 @@ import roleTaskCountsRoutes from './api/roleTaskCountsRoutes.js';
 import workflowsActiveRoutes from './api/workflowsActiveRoutes.js';
 import tasksCompletedRoutes from './api/tasksCompletedRoutes.js';
 import decisionsRoutes from './api/decisionsRoutes.js';
+// Task data loader for NotebookLM-extracted JSON files
+import { getPendingTasks, getPrioritySummary } from './api/taskDataLoader.js';
 
 const app = express();
 const port = 3000;
@@ -136,51 +138,85 @@ app.post('/api/decision', async (req, res) => {
 
 // GET /api/pending-tasks - Returns pending tasks with full details
 // Phase 8.3.5: Added ?role= query parameter support
+// Phase 9: Updated to use NotebookLM-extracted JSON files as primary source
 app.get('/api/pending-tasks', async (req, res) => {
   try {
     const { role } = req.query;
+    let useJsonData = true;
+    let tasks = [];
+    let summary = {};
 
-    let query = supabase
-      .from('tasks')
-      .select('id, content, assigned_role, priority, status, created_at, workflows!inner(name)')
-      .eq('status', 'PENDING')
-      .order('created_at', { ascending: true });
+    // Try Supabase first if connected
+    if (supabase && supabaseUrl && supabaseAnonKey) {
+      try {
+        let query = supabase
+          .from('tasks')
+          .select('id, content, assigned_role, priority, status, created_at, workflows!inner(name)')
+          .eq('status', 'PENDING')
+          .order('created_at', { ascending: true });
 
-    // Filter by role if specified
-    if (role) {
-      query = query.eq('assigned_role', role.toLowerCase());
+        if (role) {
+          query = query.eq('assigned_role', role.toLowerCase());
+        }
+
+        const { data, error } = await query;
+
+        if (!error && data && data.length > 0) {
+          useJsonData = false;
+          const priorityOrder = { CRITICAL: 1, HIGH: 2, MEDIUM: 3, LOW: 4 };
+          const sortedTasks = data.sort((a, b) => {
+            const diff = priorityOrder[a.priority] - priorityOrder[b.priority];
+            return diff !== 0 ? diff : new Date(a.created_at) - new Date(b.created_at);
+          });
+
+          const now = new Date();
+          tasks = sortedTasks.map(t => ({
+            id: t.id,
+            content: t.content,
+            assigned_role: t.assigned_role,
+            priority: t.priority,
+            status: t.status,
+            created_at: t.created_at,
+            workflows: { name: t.workflows?.name || 'Unknown' },
+            age_in_hours: Math.round((now - new Date(t.created_at)) / 3600000)
+          }));
+        }
+      } catch (dbError) {
+        console.warn('[PENDING-TASKS] Supabase error, falling back to JSON:', dbError.message);
+      }
     }
 
-    const { data, error } = await query;
+    // Fallback to JSON files (primary source for now)
+    if (useJsonData) {
+      const jsonTasks = getPendingTasks(role);
+      const now = new Date();
 
-    if (error) throw new Error(error.message);
+      tasks = jsonTasks.map(t => ({
+        id: t.id,
+        content: t.content,
+        assigned_role: t.assigned_role,
+        priority: t.priority,
+        status: t.status,
+        created_at: t.created_at,
+        workflows: { name: t.workflow || 'Unknown' },
+        age_in_hours: Math.round((now - new Date(t.created_at || now)) / 3600000)
+      }));
+    }
 
-    const priorityOrder = { CRITICAL: 1, HIGH: 2, MEDIUM: 3, LOW: 4 };
-    const sortedTasks = (data || []).sort((a, b) => {
-      const diff = priorityOrder[a.priority] - priorityOrder[b.priority];
-      return diff !== 0 ? diff : new Date(a.created_at) - new Date(b.created_at);
-    });
-
-    const now = new Date();
-    const tasks = sortedTasks.map(t => ({
-      Id: t.id,
-      Content: t.content,
-      assigned_role: t.assigned_role,
-      Priority: t.priority,
-      Status: t.status,
-      created_at: t.created_at,
-      workflow_name: t.workflows?.name || 'Unknown',
-      age_in_hours: Math.round((now - new Date(t.created_at)) / 3600000)
-    }));
-
-    const summary = {
-      CRITICAL: tasks.filter(t => t.Priority === 'CRITICAL').length,
-      HIGH: tasks.filter(t => t.Priority === 'HIGH').length,
-      MEDIUM: tasks.filter(t => t.Priority === 'MEDIUM').length,
-      LOW: tasks.filter(t => t.Priority === 'LOW').length
+    // Calculate priority summary
+    summary = {
+      CRITICAL: tasks.filter(t => t.priority === 'CRITICAL').length,
+      HIGH: tasks.filter(t => t.priority === 'HIGH').length,
+      MEDIUM: tasks.filter(t => t.priority === 'MEDIUM').length,
+      LOW: tasks.filter(t => t.priority === 'LOW').length
     };
 
-    res.json({ Tasks: tasks, Summary: summary });
+    res.json({
+      tasks,
+      by_priority: summary,
+      total: tasks.length,
+      source: useJsonData ? 'notebooklm_json' : 'supabase'
+    });
   } catch (error) {
     console.error('Error in /api/pending-tasks:', error.message);
     res.status(500).json({ error: error.message });

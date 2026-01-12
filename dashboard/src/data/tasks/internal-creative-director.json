@@ -1,0 +1,141 @@
+{
+  "role_id": "internal-creative-director",
+  "role_name": "Internal Creative Director",
+  "role_abbr": "ICD",
+  "extracted_at": "2026-01-11T16:10:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "icd-001",
+      "content": "Final visual style guide",
+      "priority": "HIGH",
+      "status": "not_specified",
+      "due_date": "2026-01-30",
+      "workflow": "Brand Documentation",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "icd-002",
+      "content": "Figma kit completion",
+      "priority": "HIGH",
+      "status": "not_specified",
+      "due_date": "2026-01-30",
+      "workflow": "Design Systems",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "icd-003",
+      "content": "Approved slide templates",
+      "priority": "HIGH",
+      "status": "not_specified",
+      "due_date": "2026-01-30",
+      "workflow": "Corporate Assets",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "icd-004",
+      "content": "Visual identity management (Tailwind palette: charcoal #121212, green #22c55e)",
+      "priority": "MEDIUM",
+      "status": "ongoing",
+      "due_date": null,
+      "workflow": "Brand Management",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "icd-005",
+      "content": "Maintain brand consistency",
+      "priority": "MEDIUM",
+      "status": "ongoing",
+      "due_date": null,
+      "workflow": "Brand Management",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "icd-006",
+      "content": "Design slides, presentations, and graphics",
+      "priority": "MEDIUM",
+      "status": "ongoing",
+      "due_date": null,
+      "workflow": "Corporate Assets",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "icd-007",
+      "content": "Figma library ownership",
+      "priority": "MEDIUM",
+      "status": "ongoing",
+      "due_date": null,
+      "workflow": "Design Systems",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "icd-008",
+      "content": "Establish logo usage guidelines",
+      "priority": "MEDIUM",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Brand Documentation",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "icd-009",
+      "content": "Establish typography standards",
+      "priority": "MEDIUM",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Brand Documentation",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "icd-010",
+      "content": "UI component kit development",
+      "priority": "MEDIUM",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Design Systems",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "icd-011",
+      "content": "Design critique framework",
+      "priority": "LOW",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Process",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "icd-012",
+      "content": "Approve all external-facing visual content",
+      "priority": "HIGH",
+      "status": "ongoing",
+      "due_date": null,
+      "workflow": "Approval Process",
+      "notes": null,
+      "created_at": "2026-01-07"
+    }
+  ],
+  "total_tasks": 12,
+  "by_priority": {
+    "CRITICAL": 0,
+    "HIGH": 4,
+    "MEDIUM": 7,
+    "LOW": 1
+  },
+  "brand_colors": {
+    "charcoal": "#121212",
+    "green": "#22c55e"
+  },
+  "analogy": "Architect and building inspector of brand's visual estate - designs blueprints (style guides, Figma kits) and personally inspects and signs off on every structure (external-facing content)"
+}

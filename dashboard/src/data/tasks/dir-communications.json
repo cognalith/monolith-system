@@ -1,0 +1,147 @@
+{
+  "role_id": "dir-communications",
+  "role_name": "Director of Communications",
+  "role_abbr": "Dir-Comms",
+  "extracted_at": "2026-01-11T15:15:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "dir-comms-001",
+      "content": "Newsletter signup page live on Cognalith.com",
+      "priority": "HIGH",
+      "status": "deliverable",
+      "due_date": "2026-01-30",
+      "workflow": "Email Infrastructure",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-comms-002",
+      "content": "2 founder newsletters drafted and sent",
+      "priority": "HIGH",
+      "status": "deliverable",
+      "due_date": "2026-01-30",
+      "workflow": "Content Execution",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-comms-003",
+      "content": "Internal comms template library created",
+      "priority": "HIGH",
+      "status": "deliverable",
+      "due_date": "2026-01-30",
+      "workflow": "Internal Comms",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-comms-004",
+      "content": "Unsubscribe/CASL tracking system configured",
+      "priority": "HIGH",
+      "status": "deliverable",
+      "due_date": "2026-01-30",
+      "workflow": "Compliance",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-comms-005",
+      "content": "Define frequency, content themes, and CTA alignment",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Newsletter Strategy",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-comms-006",
+      "content": "Maintain CEO tone/vocabulary database (analogies, principles)",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Founder Voice",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-comms-007",
+      "content": "LinkedIn/Twitter content curation in CEO's voice",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Social Media",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-comms-008",
+      "content": "Intranet management: FAQ and resource library maintenance",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Internal Comms",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-comms-009",
+      "content": "Establish crisis communication protocols",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Crisis Management",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-comms-010",
+      "content": "Blog post article ideas and first drafts from CEO notes",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Ghostwriting",
+      "notes": "Recurring",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-comms-011",
+      "content": "Town hall memo translation for team-level clarity",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Internal Comms",
+      "notes": "Recurring",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-comms-012",
+      "content": "Open/click rate monitoring and A/B testing",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Analytics",
+      "notes": "Recurring",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "dir-comms-013",
+      "content": "Coordination for product launches and policy changes",
+      "priority": "MEDIUM",
+      "status": "active",
+      "due_date": null,
+      "workflow": "Announcements",
+      "notes": "Per Event",
+      "created_at": "2026-01-07"
+    }
+  ],
+  "total_tasks": 13,
+  "by_priority": {
+    "CRITICAL": 0,
+    "HIGH": 4,
+    "MEDIUM": 9,
+    "LOW": 0
+  },
+  "analogy": "Think of the Director of Communications as a master translator. Much like a translator who ensures a message retains its heart while changing languages, this role takes the raw 'language' of the CEO's vision and translates it into different 'dialects'—from external newsletters for customers to internal memos for staff—ensuring the core message remains consistent across all channels."
+}

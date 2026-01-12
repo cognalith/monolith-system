@@ -1,0 +1,88 @@
+{
+  "role_id": "clo",
+  "role_name": "General Counsel",
+  "role_abbr": "CLO",
+  "extracted_at": "2026-01-11T14:55:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "clo-001",
+      "content": "Draft Terms of Service for TeeMates and VR Golf Leagues",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Product Launch Legal",
+      "notes": "Must comply with GDPR and PIPEDA",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "clo-002",
+      "content": "Draft Privacy Policy compliant with international regulations",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Product Launch Legal",
+      "notes": "GDPR (EU) and PIPEDA (Canada) compliance required",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "clo-003",
+      "content": "Manage Intellectual Property protection",
+      "priority": "HIGH",
+      "status": "ongoing",
+      "due_date": null,
+      "workflow": "IP Management",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "clo-004",
+      "content": "Ensure Alberta corporate filings are current",
+      "priority": "HIGH",
+      "status": "ongoing",
+      "due_date": null,
+      "workflow": "Corporate Compliance",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "clo-005",
+      "content": "Review VR Golf Leagues partnership agreement with James",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-15",
+      "workflow": "Contract Management",
+      "notes": "Formalize 50/50 equity split with James Casuga",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "clo-006",
+      "content": "Provide liability prevention guidance during product launch",
+      "priority": "HIGH",
+      "status": "ongoing",
+      "due_date": "2026-01-30",
+      "workflow": "Risk Mitigation",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "clo-007",
+      "content": "Integrate legal safeguards into contract management systems",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Systems Integration",
+      "notes": null,
+      "created_at": "2026-01-05"
+    }
+  ],
+  "total_tasks": 7,
+  "by_priority": {
+    "CRITICAL": 2,
+    "HIGH": 4,
+    "MEDIUM": 1,
+    "LOW": 0
+  },
+  "legal_philosophy": "Pragmatic approach favoring functional documentation that supports quick execution over rigid perfectionism",
+  "jurisdictions": ["Alberta (Canada)", "GDPR (EU)", "PIPEDA (Canada)"]
+}

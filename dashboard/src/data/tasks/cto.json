@@ -1,0 +1,176 @@
+{
+  "role_id": "cto",
+  "role_name": "Chief Technology Officer",
+  "role_abbr": "CTO",
+  "extracted_at": "2026-01-11T14:20:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "cto-001",
+      "content": "Complete migration of all projects out of Replit",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Replit Exit Migration",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-002",
+      "content": "Evaluate hosting alternatives (Railway, Render, Vercel, Fly.io, DigitalOcean)",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-12",
+      "workflow": "Infrastructure Selection",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-003",
+      "content": "Produce hosting cost comparison for CFO review",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-12",
+      "workflow": "Infrastructure Selection",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-004",
+      "content": "Create cognalith GitHub organization",
+      "priority": "HIGH",
+      "status": "not_yet_created",
+      "due_date": "2026-01-12",
+      "workflow": "Repository Setup",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-005",
+      "content": "Export code from Replit and migrate to GitHub repositories",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-12",
+      "workflow": "Replit Exit Migration",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-006",
+      "content": "Establish repository structure (monorepo vs. multi-repo decision)",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-12",
+      "workflow": "Repository Setup",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-007",
+      "content": "Identify and refactor Replit-specific dependencies",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-19",
+      "workflow": "Replit Exit Migration",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-008",
+      "content": "Implement GitHub Actions for automated testing",
+      "priority": "MEDIUM",
+      "status": "not_yet_established",
+      "due_date": "2026-01-19",
+      "workflow": "CI/CD Pipeline",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-009",
+      "content": "Set up deployment pipelines and environment variable management",
+      "priority": "HIGH",
+      "status": "not_yet_established",
+      "due_date": "2026-01-19",
+      "workflow": "CI/CD Pipeline",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-010",
+      "content": "Set up branch protection and code review requirements",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": "2026-01-19",
+      "workflow": "Repository Setup",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-011",
+      "content": "Document production rollback plan and test deployments",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-26",
+      "workflow": "CI/CD Pipeline",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-012",
+      "content": "Establish Claude Code workflow and document agentic coding patterns",
+      "priority": "MEDIUM",
+      "status": "not_yet_established",
+      "due_date": "2026-01-26",
+      "workflow": "Development Workflow",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-013",
+      "content": "Create CLAUDE.md files for each repository",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": "2026-01-26",
+      "workflow": "Development Workflow",
+      "notes": "AI development context documentation",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-014",
+      "content": "Execute DNS cutover for teemates.ca and vrgolfleagues.ca",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Go-Live",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-015",
+      "content": "Decommission Replit projects and move production live",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Go-Live",
+      "notes": null,
+      "created_at": "2026-01-05"
+    }
+  ],
+  "total_tasks": 15,
+  "by_priority": {
+    "CRITICAL": 5,
+    "HIGH": 5,
+    "MEDIUM": 5,
+    "LOW": 0
+  },
+  "technical_constraints": [
+    "No SaaS Builders - custom code per CFO to avoid subscription leakage",
+    "Skeleton Watch design - internal gears of AI operations visible and interactive",
+    "CLAUDE.md file required for AI development agent context",
+    "Performance Budget - mobile responsiveness required, Capacitor-driven iOS support"
+  ],
+  "responsibilities": [
+    "Architecture & Design: Designing scalable system architectures for Monolith system and AI integrations",
+    "Technology Selection: Full authority over library/framework selection, development tooling"
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "role_id": "cco",
+  "role_name": "Chief Compliance Officer",
+  "role_abbr": "CCO",
+  "extracted_at": "2026-01-11T14:52:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "cco-001",
+      "content": "Audit Standard Operating Procedures (SOPs) against legal and operational standards",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": "2026-01-30",
+      "workflow": "SOP Audit",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cco-002",
+      "content": "Deploy Compliance Checklist",
+      "priority": "HIGH",
+      "status": "deployed",
+      "due_date": "2026-01-30",
+      "workflow": "Compliance Framework",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cco-003",
+      "content": "Activate and manage Risk Log",
+      "priority": "HIGH",
+      "status": "active",
+      "due_date": "2026-01-30",
+      "workflow": "Risk Management",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cco-004",
+      "content": "Regulatory monitoring - track legislative changes",
+      "priority": "MEDIUM",
+      "status": "ongoing",
+      "due_date": null,
+      "workflow": "Regulatory Compliance",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cco-005",
+      "content": "Ensure General Counsel advice is implemented",
+      "priority": "MEDIUM",
+      "status": "ongoing",
+      "due_date": null,
+      "workflow": "Legal Integration",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cco-006",
+      "content": "Manage SOP audit templates",
+      "priority": "LOW",
+      "status": "ongoing",
+      "due_date": null,
+      "workflow": "Template Management",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "cco-007",
+      "content": "Regulatory change tracking",
+      "priority": "LOW",
+      "status": "ongoing",
+      "due_date": null,
+      "workflow": "Regulatory Compliance",
+      "notes": null,
+      "created_at": "2026-01-05"
+    }
+  ],
+  "total_tasks": 7,
+  "by_priority": {
+    "CRITICAL": 0,
+    "HIGH": 3,
+    "MEDIUM": 2,
+    "LOW": 2
+  },
+  "compliance_framework": "Structural oversight and regulatory responsibilities shared with General Counsel and Operations"
+}

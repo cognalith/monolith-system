@@ -1,0 +1,122 @@
+{
+  "role_id": "cro",
+  "role_name": "Chief Revenue Officer",
+  "role_abbr": "CRO",
+  "extracted_at": "2026-01-11T15:25:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "cro-001",
+      "content": "Monetization model decision document (Freemium vs. Subscription)",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Monetization Strategy",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cro-002",
+      "content": "Finalize TeeMates pricing and packaging ($0 / $10 / $50 tiers)",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Pricing",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cro-003",
+      "content": "Secure 3 golf course partnerships in the pipeline",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "B2B Partnerships",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cro-004",
+      "content": "Complete 5 total golf course partnerships",
+      "priority": "HIGH",
+      "status": "in_progress",
+      "due_date": "2026-02-15",
+      "workflow": "B2B Partnerships",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cro-005",
+      "content": "Revenue forecasting (Year 1, Year 2, and Year 3)",
+      "priority": "MEDIUM",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Financial Planning",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cro-006",
+      "content": "Unit economics analysis (CAC and Lifetime Value)",
+      "priority": "MEDIUM",
+      "status": "in_progress",
+      "due_date": "2026-01-30",
+      "workflow": "Financial Planning",
+      "notes": "Ongoing",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cro-007",
+      "content": "Partnership infrastructure (Agreement templates and commission structures)",
+      "priority": "MEDIUM",
+      "status": "in_progress",
+      "due_date": null,
+      "workflow": "B2B Partnerships",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cro-008",
+      "content": "Pre-launch community building (Reddit and Facebook groups)",
+      "priority": "MEDIUM",
+      "status": "in_progress",
+      "due_date": null,
+      "workflow": "Community Growth",
+      "notes": "Pre-Launch",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cro-009",
+      "content": "Influencer relationship management (Coaches and creators)",
+      "priority": "MEDIUM",
+      "status": "in_progress",
+      "due_date": null,
+      "workflow": "Partnerships",
+      "notes": "Pre-Launch",
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "cro-010",
+      "content": "Launch day communication and post-launch retention strategy",
+      "priority": "MEDIUM",
+      "status": "in_progress",
+      "due_date": null,
+      "workflow": "Launch Planning",
+      "notes": "Launch / Post-Launch",
+      "created_at": "2026-01-07"
+    }
+  ],
+  "total_tasks": 10,
+  "by_priority": {
+    "CRITICAL": 0,
+    "HIGH": 4,
+    "MEDIUM": 6,
+    "LOW": 0
+  },
+  "authority_limits": {
+    "partnership_commitment": "$5,000",
+    "escalation_threshold": "$10,000 or exclusive IP licensing"
+  },
+  "philosophy": "Revenue = Product Fit Validation - revenue should prove user value without compromising product quality",
+  "analogy": "Think of it as a bridge builder: they are not only designing the 'toll booths' (monetization models) that ensure the company stays funded but also clearing the 'roads' (partnerships and community building) that allow users to reach the product in the first place."
+}

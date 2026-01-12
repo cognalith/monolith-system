@@ -1,0 +1,202 @@
+{
+  "role_id": "coo",
+  "role_name": "Chief Operating Officer",
+  "role_abbr": "COO",
+  "extracted_at": "2026-01-11T14:17:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "coo-001",
+      "content": "Migrate all projects out of Replit to GitHub/Hosting",
+      "priority": "CRITICAL",
+      "status": "at_risk",
+      "due_date": "2026-01-30",
+      "workflow": "Replit Exit Migration",
+      "notes": "Cross-functional coordination required",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-002",
+      "content": "Finalize Hosting Provider Selection (Target Date)",
+      "priority": "CRITICAL",
+      "status": "blocked",
+      "due_date": "2026-01-12",
+      "workflow": "Replit Exit Migration",
+      "notes": "Awaiting CTO recommendation",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-003",
+      "content": "Coordinate CTO/CFO on hosting budget approval",
+      "priority": "HIGH",
+      "status": "on_track",
+      "due_date": "2026-01-12",
+      "workflow": "Replit Exit Migration",
+      "notes": null,
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-004",
+      "content": "Set up Google Tasks lists for each AI Chief",
+      "priority": "HIGH",
+      "status": "not_yet_set_up",
+      "due_date": null,
+      "workflow": "Task Management System",
+      "notes": "Immediate priority",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-005",
+      "content": "Populate task management system from Executive Briefs",
+      "priority": "HIGH",
+      "status": "not_yet_set_up",
+      "due_date": null,
+      "workflow": "Task Management System",
+      "notes": "Immediate priority",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-006",
+      "content": "Establish daily/weekly task review cadence",
+      "priority": "HIGH",
+      "status": "not_yet_set_up",
+      "due_date": null,
+      "workflow": "Task Management System",
+      "notes": "Immediate priority",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-007",
+      "content": "Complete Vendor Registry (contracts, renewals, contacts)",
+      "priority": "HIGH",
+      "status": "on_track",
+      "due_date": null,
+      "workflow": "Vendor Management",
+      "notes": "Immediate priority",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-008",
+      "content": "Monitor CRA Business Number receipt",
+      "priority": "HIGH",
+      "status": "on_track",
+      "due_date": "2026-01-19",
+      "workflow": "Compliance",
+      "notes": "Expected Jan 15-19",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-009",
+      "content": "Facilitate Shareholder loan documentation",
+      "priority": "MEDIUM",
+      "status": "on_track",
+      "due_date": null,
+      "workflow": "Financial Operations",
+      "notes": "Immediate priority",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-010",
+      "content": "Facilitate Partnership Agreement for VR Golf Leagues",
+      "priority": "MEDIUM",
+      "status": "on_track",
+      "due_date": null,
+      "workflow": "Legal",
+      "notes": "Immediate priority",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-011",
+      "content": "Document CEO Weekly Review Process SOP",
+      "priority": "MEDIUM",
+      "status": "not_yet_set_up",
+      "due_date": null,
+      "workflow": "SOP Development",
+      "notes": "Immediate priority",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-012",
+      "content": "Create SOP for Expense Submission and Processing",
+      "priority": "MEDIUM",
+      "status": "not_yet_set_up",
+      "due_date": null,
+      "workflow": "SOP Development",
+      "notes": "Immediate priority",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-013",
+      "content": "Establish 30-day advance vendor renewal reminders",
+      "priority": "MEDIUM",
+      "status": "not_yet_set_up",
+      "due_date": null,
+      "workflow": "Vendor Management",
+      "notes": "Immediate priority",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-014",
+      "content": "Draft New Project Setup SOP (Repo, Clockify, Drive)",
+      "priority": "MEDIUM",
+      "status": "not_yet_set_up",
+      "due_date": null,
+      "workflow": "SOP Development",
+      "notes": "Immediate priority",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-015",
+      "content": "Establish Vendor Onboarding/Offboarding Checklist",
+      "priority": "MEDIUM",
+      "status": "not_yet_set_up",
+      "due_date": null,
+      "workflow": "Vendor Management",
+      "notes": "Immediate priority",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-016",
+      "content": "Establish Tool Access Provisioning SOP (e.g., for Liam)",
+      "priority": "LOW",
+      "status": "not_yet_set_up",
+      "due_date": null,
+      "workflow": "SOP Development",
+      "notes": "TBD",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-017",
+      "content": "Maintain Alberta Corporate Filings/Compliance Calendar",
+      "priority": "LOW",
+      "status": "on_track",
+      "due_date": null,
+      "workflow": "Compliance",
+      "notes": "TBD",
+      "created_at": "2026-01-05"
+    },
+    {
+      "id": "coo-018",
+      "content": "Set up Backup and Disaster Recovery SOP",
+      "priority": "LOW",
+      "status": "not_yet_set_up",
+      "due_date": null,
+      "workflow": "SOP Development",
+      "notes": "TBD",
+      "created_at": "2026-01-05"
+    }
+  ],
+  "total_tasks": 18,
+  "by_priority": {
+    "CRITICAL": 2,
+    "HIGH": 7,
+    "MEDIUM": 6,
+    "LOW": 3
+  },
+  "responsibilities": [
+    "Cross-Functional Coordination: Aligning Monolith Chiefs, tracking dependencies, resolving blockers",
+    "Process & Tool Design: Managing Operations Stack (GitHub, Google Workspace, Clockify, Discord)",
+    "Vendor Management: Tracking contracts, service levels, renewals (PostScan Mail, Hushed, domain registrars)",
+    "Deadline Tracking: Early-warning system for critical dates, especially January 30 migration"
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "role_id": "devops-lead",
+  "role_name": "DevOps & Infrastructure Lead",
+  "role_abbr": "DevOps",
+  "extracted_at": "2026-01-11T15:35:00Z",
+  "source": "NotebookLM",
+  "tasks": [
+    {
+      "id": "devops-001",
+      "content": "Deploy Cloudflare Pages for website (cognalith-web-v1)",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": "2026-01-30",
+      "workflow": "Web Hosting",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "devops-002",
+      "content": "Setup Railway hosting (TeeMates backend)",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": "2026-01-30",
+      "workflow": "Backend Hosting",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "devops-003",
+      "content": "GitHub Actions CI/CD pipeline (automated deployment)",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": "2026-01-30",
+      "workflow": "CI/CD",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "devops-004",
+      "content": "Configure Supabase connections",
+      "priority": "MEDIUM",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Database",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "devops-005",
+      "content": "Environment variables management",
+      "priority": "MEDIUM",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Configuration",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "devops-006",
+      "content": "Monitoring and alerting",
+      "priority": "MEDIUM",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Operations",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "devops-007",
+      "content": "Backup procedures",
+      "priority": "MEDIUM",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Disaster Recovery",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "devops-008",
+      "content": "Disaster recovery testing",
+      "priority": "MEDIUM",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Disaster Recovery",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "devops-009",
+      "content": "Infrastructure as code",
+      "priority": "LOW",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Infrastructure",
+      "notes": null,
+      "created_at": "2026-01-07"
+    },
+    {
+      "id": "devops-010",
+      "content": "Uptime tracking",
+      "priority": "LOW",
+      "status": "not_specified",
+      "due_date": null,
+      "workflow": "Operations",
+      "notes": null,
+      "created_at": "2026-01-07"
+    }
+  ],
+  "total_tasks": 10,
+  "by_priority": {
+    "CRITICAL": 0,
+    "HIGH": 3,
+    "MEDIUM": 5,
+    "LOW": 2
+  },
+  "infrastructure_stack": ["Cloudflare Pages", "Railway", "GitHub Actions", "Supabase"]
+}

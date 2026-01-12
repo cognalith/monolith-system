@@ -31,10 +31,16 @@ app.use('/api/workflows/active', workflowsActiveRoutes);
 app.use('/api/tasks', tasksCompletedRoutes);
 app.use('/api/decisions', decisionsRoutes);
 
-// Initialize Supabase client
+// Initialize Supabase client (optional - works without it using JSON data)
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+let supabase = null;
+if (supabaseUrl && supabaseAnonKey) {
+  supabase = createClient(supabaseUrl, supabaseAnonKey);
+  console.log('[SERVER] Supabase client initialized');
+} else {
+  console.log('[SERVER] Running without Supabase - using JSON data only');
+}
 
 // GET /api/dashboard/stats - Returns dashboard statistics
 // Phase 9: Updated to use real NotebookLM-extracted JSON data as primary source
@@ -82,6 +88,14 @@ app.get('/api/dashboard/stats', async (req, res) => {
 app.get('/api/recent-activity', async (req, res) => {
   try {
     const { role } = req.query;
+
+    // Return empty activities if Supabase is not configured
+    if (!supabase) {
+      return res.json({
+        activities: [],
+        message: 'Supabase not configured - no activity data available'
+      });
+    }
 
     let query = supabase
       .from('decision_logs')

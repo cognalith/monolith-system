@@ -351,6 +351,39 @@ async function main(argsOverride = null) {
       }
       break;
 
+    case 'config':
+      // Show configuration
+      console.log('Loading Configuration...');
+      const confSystem = await initializeAgentSystem();
+      const config = confSystem.getConfig();
+      const validation = confSystem.validateConfig();
+      console.log('\n⚙️ Configuration');
+      console.log('='.repeat(60));
+      console.log(`\nEnvironment: ${config.env?.nodeEnv || 'development'}`);
+      console.log('\nAPI Keys:');
+      console.log(`  Anthropic: ${config.api?.anthropicApiKey ? '✓ Set' : '✗ Not set'}`);
+      console.log(`  OpenAI: ${config.api?.openaiApiKey ? '✓ Set' : '✗ Not set'}`);
+      console.log('\nFeatures:');
+      for (const [key, value] of Object.entries(config.features || {})) {
+        console.log(`  ${key}: ${value ? '✓' : '✗'}`);
+      }
+      console.log('\nRate Limiting:');
+      console.log(`  Enabled: ${config.rateLimiting?.enabled ? '✓' : '✗'}`);
+      console.log(`  Tokens/sec: ${config.rateLimiting?.tokensPerSecond}`);
+      if (!validation.valid) {
+        console.log('\n❌ Validation Errors:');
+        for (const error of validation.errors) {
+          console.log(`  - ${error}`);
+        }
+      }
+      if (validation.warnings?.length > 0) {
+        console.log('\n⚠️ Warnings:');
+        for (const warning of validation.warnings) {
+          console.log(`  - ${warning}`);
+        }
+      }
+      break;
+
     default:
       console.log(`
 MONOLITH OS - Agent System
@@ -393,6 +426,9 @@ Intelligence (Phase 5):
   intelligence   Show intelligence dashboard with system metrics
   health         Generate system health report with alerts
   costs          Show detailed cost summary and recommendations
+
+Production (Phase 6):
+  config         Show current configuration and validation status
 
 Environment Variables:
   ANTHROPIC_API_KEY  - Required for Claude LLM

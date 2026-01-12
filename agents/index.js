@@ -39,6 +39,10 @@ import { workflows } from './workflows/definitions.js';
 // Intelligence - Phase 5
 import IntelligenceHub from './intelligence/index.js';
 
+// Production - Phase 6
+import ProductionWrapper from './production/index.js';
+import configManager from './production/ConfigManager.js';
+
 /**
  * Initialize and run the autonomous agent system
  */
@@ -133,6 +137,21 @@ async function initializeAgentSystem(config = {}) {
 
   console.log('[SYSTEM] Intelligence Hub initialized');
 
+  // Initialize Production Wrapper - Phase 6
+  const productionConfig = configManager.load();
+  const production = new ProductionWrapper({
+    retry: productionConfig.retry,
+    rateLimit: productionConfig.rateLimiting,
+    health: {},
+    shutdown: { timeout: 30000 },
+  });
+
+  // Only initialize production features in production mode
+  if (productionConfig.env?.isProduction || config.enableProduction) {
+    production.initialize();
+    console.log('[SYSTEM] Production features initialized');
+  }
+
   // Set up event handlers
   orchestrator.on('escalation', async (escalation) => {
     console.log(`[SYSTEM] Escalation received: ${escalation.reason}`);
@@ -183,6 +202,8 @@ async function initializeAgentSystem(config = {}) {
     agents,
     workflowEngine,
     intelligenceHub,
+    production,
+    config: productionConfig,
 
     // Helper methods
     async start() {
@@ -235,6 +256,19 @@ async function initializeAgentSystem(config = {}) {
 
     exportIntelligence() {
       return intelligenceHub.export();
+    },
+
+    // Production methods
+    getProductionStatus() {
+      return production.getStatus();
+    },
+
+    getConfig() {
+      return configManager.getSafeConfig();
+    },
+
+    validateConfig() {
+      return configManager.validate();
     },
   };
 }
@@ -298,6 +332,9 @@ export {
   workflows,
   // Intelligence
   IntelligenceHub,
+  // Production
+  ProductionWrapper,
+  configManager,
 };
 
 export default initializeAgentSystem;

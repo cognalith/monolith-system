@@ -7,8 +7,40 @@
 import 'dotenv/config';
 import { runDemo, initializeAgentSystem } from './index.js';
 
-async function main() {
-  const args = process.argv.slice(2);
+// Helper function to test an agent
+async function testAgent(roleId, task) {
+  console.log(`Testing ${roleId.toUpperCase()} agent...`);
+  const testSystem = await initializeAgentSystem();
+
+  console.log('\nProcessing test task:');
+  console.log(JSON.stringify(task, null, 2));
+
+  try {
+    const agent = testSystem.agents[roleId];
+    if (!agent) {
+      console.error(`Agent ${roleId} not found`);
+      return;
+    }
+
+    const result = await agent.processTask(task);
+    console.log('\nResult:');
+    console.log(JSON.stringify(result, null, 2));
+  } catch (error) {
+    console.error('Error:', error.message);
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.log('\nNote: Set ANTHROPIC_API_KEY environment variable to test with real LLM.');
+    }
+  }
+}
+
+// Helper to run a command
+async function runCommand(cmd) {
+  const args = [cmd];
+  await main(args);
+}
+
+async function main(argsOverride = null) {
+  const args = argsOverride || process.argv.slice(2);
   const mode = args[0] || 'demo';
 
   switch (mode) {
@@ -46,30 +78,73 @@ async function main() {
 
     case 'test-cos':
       // Test CoS agent with a sample task
-      console.log('Testing Chief of Staff agent...');
-      const testSystem = await initializeAgentSystem();
-
-      const testTask = {
-        id: 'test-001',
+      await testAgent('cos', {
+        id: 'test-cos-001',
         content: 'Generate a daily briefing synthesizing updates from all department heads',
         priority: 'HIGH',
         assigned_role: 'cos',
         status: 'pending',
         workflow: 'Daily Operations',
-      };
+      });
+      break;
 
-      console.log('\nProcessing test task:');
-      console.log(JSON.stringify(testTask, null, 2));
+    case 'test-cfo':
+      // Test CFO agent
+      await testAgent('cfo', {
+        id: 'test-cfo-001',
+        content: 'Review and approve the $8,500 expense request for new development laptops',
+        priority: 'MEDIUM',
+        assigned_role: 'cfo',
+        status: 'pending',
+        workflow: 'Expense Approval',
+      });
+      break;
 
-      try {
-        const result = await testSystem.agents.cos.processTask(testTask);
-        console.log('\nResult:');
-        console.log(JSON.stringify(result, null, 2));
-      } catch (error) {
-        console.error('Error:', error.message);
-        if (!process.env.ANTHROPIC_API_KEY) {
-          console.log('\nNote: Set ANTHROPIC_API_KEY environment variable to test with real LLM.');
-        }
+    case 'test-cto':
+      // Test CTO agent
+      await testAgent('cto', {
+        id: 'test-cto-001',
+        content: 'Evaluate Railway vs Render vs Vercel for hosting the TeeMates application',
+        priority: 'HIGH',
+        assigned_role: 'cto',
+        status: 'pending',
+        workflow: 'Infrastructure Migration',
+      });
+      break;
+
+    case 'test-clo':
+      // Test CLO agent
+      await testAgent('clo', {
+        id: 'test-clo-001',
+        content: 'Draft Terms of Service for TeeMates golf league management platform',
+        priority: 'HIGH',
+        assigned_role: 'clo',
+        status: 'pending',
+        workflow: 'Legal Documentation',
+      });
+      break;
+
+    case 'test-coo':
+      // Test COO agent
+      await testAgent('coo', {
+        id: 'test-coo-001',
+        content: 'Create operational plan for migrating all projects from Replit to GitHub',
+        priority: 'CRITICAL',
+        assigned_role: 'coo',
+        status: 'pending',
+        workflow: 'Platform Migration',
+      });
+      break;
+
+    case 'test-all':
+      // Test all agents
+      console.log('Testing all agents...\n');
+      const agents = ['cos', 'cfo', 'cto', 'clo', 'coo'];
+      for (const agent of agents) {
+        console.log(`\n${'='.repeat(60)}`);
+        console.log(`Testing ${agent.toUpperCase()} Agent`);
+        console.log('='.repeat(60));
+        await runCommand(`test-${agent}`);
       }
       break;
 
@@ -80,11 +155,18 @@ MONOLITH OS - Agent System
 Usage: node agents/demo.js [command]
 
 Commands:
-  demo      Run demo with console output (default)
-  start     Start the full agent system
-  status    Show system status
-  digest    Generate and send daily digest
-  test-cos  Test the Chief of Staff agent
+  demo       Run demo with console output (default)
+  start      Start the full agent system
+  status     Show system status
+  digest     Generate and send daily digest
+
+Agent Testing:
+  test-cos   Test Chief of Staff agent
+  test-cfo   Test CFO agent (financial analysis)
+  test-cto   Test CTO agent (technical evaluation)
+  test-clo   Test CLO agent (legal drafting)
+  test-coo   Test COO agent (operations planning)
+  test-all   Test all agents sequentially
 
 Environment Variables:
   ANTHROPIC_API_KEY  - Required for Claude LLM

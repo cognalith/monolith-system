@@ -8,8 +8,16 @@ import RoleAgent from './core/RoleAgent.js';
 import TaskOrchestrator from './core/TaskOrchestrator.js';
 import DecisionLogger from './core/DecisionLogger.js';
 import EscalationEngine from './core/EscalationEngine.js';
-import ChiefOfStaffAgent from './roles/cos/agent.js';
 import EmailNotifier from './notifications/email/EmailNotifier.js';
+
+// Role Agents - Phase 1
+import ChiefOfStaffAgent from './roles/cos/agent.js';
+
+// Role Agents - Phase 2 (Core C-Suite)
+import CFOAgent from './roles/cfo/agent.js';
+import CTOAgent from './roles/cto/agent.js';
+import CLOAgent from './roles/clo/agent.js';
+import COOAgent from './roles/coo/agent.js';
 
 /**
  * Initialize and run the autonomous agent system
@@ -27,14 +35,27 @@ async function initializeAgentSystem(config = {}) {
   const emailNotifier = new EmailNotifier(config.email);
   const orchestrator = new TaskOrchestrator(config.orchestrator);
 
-  // Initialize Chief of Staff agent (Phase 1 agent)
-  const cosAgent = new ChiefOfStaffAgent({
-    llmRouter,
-    decisionLogger,
-  });
+  // Initialize all agents
+  const agents = {};
 
-  // Register agent with orchestrator
-  orchestrator.registerAgent(cosAgent);
+  // Phase 1: Chief of Staff
+  agents.cos = new ChiefOfStaffAgent({ llmRouter, decisionLogger });
+  orchestrator.registerAgent(agents.cos);
+
+  // Phase 2: Core C-Suite
+  agents.cfo = new CFOAgent({ llmRouter, decisionLogger });
+  orchestrator.registerAgent(agents.cfo);
+
+  agents.cto = new CTOAgent({ llmRouter, decisionLogger });
+  orchestrator.registerAgent(agents.cto);
+
+  agents.clo = new CLOAgent({ llmRouter, decisionLogger });
+  orchestrator.registerAgent(agents.clo);
+
+  agents.coo = new COOAgent({ llmRouter, decisionLogger });
+  orchestrator.registerAgent(agents.coo);
+
+  console.log(`[SYSTEM] Initialized ${Object.keys(agents).length} role agents`);
 
   // Set up event handlers
   orchestrator.on('escalation', async (escalation) => {
@@ -60,18 +81,22 @@ async function initializeAgentSystem(config = {}) {
   const tasks = await orchestrator.loadTasks();
   console.log(`[SYSTEM] Loaded ${tasks.length} tasks from data files`);
 
-  // Queue pending tasks for the CoS agent
-  const cosTasks = tasks.filter(
-    (t) =>
-      t.assigned_role === 'cos' &&
-      ['pending', 'in_progress', 'active'].includes(t.status?.toLowerCase())
-  );
+  // Queue pending tasks for all registered agents
+  const registeredRoles = Object.keys(agents);
+  const pendingStatuses = ['pending', 'in_progress', 'active', 'ongoing', 'at_risk'];
 
-  console.log(`[SYSTEM] Found ${cosTasks.length} tasks for CoS agent`);
-
-  for (const task of cosTasks) {
-    orchestrator.queueTask(task);
+  let queuedCount = 0;
+  for (const task of tasks) {
+    if (
+      registeredRoles.includes(task.assigned_role) &&
+      pendingStatuses.includes(task.status?.toLowerCase())
+    ) {
+      orchestrator.queueTask(task);
+      queuedCount++;
+    }
   }
+
+  console.log(`[SYSTEM] Queued ${queuedCount} tasks for ${registeredRoles.length} agents`);
 
   return {
     orchestrator,
@@ -79,9 +104,7 @@ async function initializeAgentSystem(config = {}) {
     decisionLogger,
     escalationEngine,
     emailNotifier,
-    agents: {
-      cos: cosAgent,
-    },
+    agents,
 
     // Helper methods
     async start() {
@@ -137,13 +160,20 @@ async function runDemo() {
 export {
   initializeAgentSystem,
   runDemo,
+  // Core
   LLMRouter,
   RoleAgent,
   TaskOrchestrator,
   DecisionLogger,
   EscalationEngine,
-  ChiefOfStaffAgent,
   EmailNotifier,
+  // Phase 1 Agents
+  ChiefOfStaffAgent,
+  // Phase 2 Agents
+  CFOAgent,
+  CTOAgent,
+  CLOAgent,
+  COOAgent,
 };
 
 export default initializeAgentSystem;

@@ -57,7 +57,8 @@ const CEODashboard = () => {
         const activityData = await activityRes.json();
 
         setStats(statsData);
-        setActivity(activityData);
+        // API returns { activities: [...] }, extract the array
+        setActivity(activityData.activities || activityData || []);
       } catch (err) {
         setError(err.message);
         console.warn('API failed, using fallback data:', err.message);

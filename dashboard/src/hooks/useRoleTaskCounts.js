@@ -70,7 +70,7 @@ const useRoleTaskCounts = ({ refreshInterval = 30000, enabled = true } = {}) => 
 
     try {
       setLoading(true);
-      const response = await fetch('/api/role-task-counts');
+      const response = await fetch('http://localhost:3000/api/role-task-counts');
 
       if (!response.ok) {
         throw new Error('Failed to fetch role task counts');
@@ -80,10 +80,10 @@ const useRoleTaskCounts = ({ refreshInterval = 30000, enabled = true } = {}) => 
       setTaskCounts(data.counts || {});
       setError(null);
     } catch (err) {
-      console.warn('API failed, using mock data:', err.message);
-      // Use mock data as fallback
-      setTaskCounts(generateMockTaskCounts());
-      setError(null); // Don't show error when using mock data
+      console.warn('API failed for role task counts:', err.message);
+      // Don't use mock data - show actual zeros
+      setTaskCounts({});
+      setError(err.message);
     } finally {
       setLoading(false);
     }

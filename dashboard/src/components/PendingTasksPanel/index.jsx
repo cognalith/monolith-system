@@ -121,7 +121,7 @@ const PendingTasksPanel = ({ isOpen, onClose, selectedRole = null }) => {
   const fetchTasks = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/pending-tasks');
+      const response = await fetch('http://localhost:3000/api/pending-tasks');
       if (!response.ok) throw new Error('Failed to fetch pending tasks');
       const data = await response.json();
 

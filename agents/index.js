@@ -19,6 +19,14 @@ import CTOAgent from './roles/cto/agent.js';
 import CLOAgent from './roles/clo/agent.js';
 import COOAgent from './roles/coo/agent.js';
 
+// Role Agents - Phase 3 (Extended Leadership)
+import CISOAgent from './roles/ciso/agent.js';
+import CMOAgent from './roles/cmo/agent.js';
+import CHROAgent from './roles/chro/agent.js';
+import CCOAgent from './roles/cco/agent.js';
+import CPOAgent from './roles/cpo/agent.js';
+import CROAgent from './roles/cro/agent.js';
+
 /**
  * Initialize and run the autonomous agent system
  */
@@ -54,6 +62,25 @@ async function initializeAgentSystem(config = {}) {
 
   agents.coo = new COOAgent({ llmRouter, decisionLogger });
   orchestrator.registerAgent(agents.coo);
+
+  // Phase 3: Extended Leadership
+  agents.ciso = new CISOAgent({ llmRouter, decisionLogger });
+  orchestrator.registerAgent(agents.ciso);
+
+  agents.cmo = new CMOAgent({ llmRouter, decisionLogger });
+  orchestrator.registerAgent(agents.cmo);
+
+  agents.chro = new CHROAgent({ llmRouter, decisionLogger });
+  orchestrator.registerAgent(agents.chro);
+
+  agents.cco = new CCOAgent({ llmRouter, decisionLogger });
+  orchestrator.registerAgent(agents.cco);
+
+  agents.cpo = new CPOAgent({ llmRouter, decisionLogger });
+  orchestrator.registerAgent(agents.cpo);
+
+  agents.cro = new CROAgent({ llmRouter, decisionLogger });
+  orchestrator.registerAgent(agents.cro);
 
   console.log(`[SYSTEM] Initialized ${Object.keys(agents).length} role agents`);
 
@@ -174,6 +201,13 @@ export {
   CTOAgent,
   CLOAgent,
   COOAgent,
+  // Phase 3 Agents
+  CISOAgent,
+  CMOAgent,
+  CHROAgent,
+  CCOAgent,
+  CPOAgent,
+  CROAgent,
 };
 
 export default initializeAgentSystem;

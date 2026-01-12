@@ -136,10 +136,82 @@ async function main(argsOverride = null) {
       });
       break;
 
+    case 'test-ciso':
+      // Test CISO agent
+      await testAgent('ciso', {
+        id: 'test-ciso-001',
+        content: 'Conduct security assessment of our cloud infrastructure and identify vulnerabilities',
+        priority: 'HIGH',
+        assigned_role: 'ciso',
+        status: 'pending',
+        workflow: 'Security Assessment',
+      });
+      break;
+
+    case 'test-cmo':
+      // Test CMO agent
+      await testAgent('cmo', {
+        id: 'test-cmo-001',
+        content: 'Create marketing strategy for TeeMates app launch targeting golf enthusiasts',
+        priority: 'HIGH',
+        assigned_role: 'cmo',
+        status: 'pending',
+        workflow: 'Marketing Campaign',
+      });
+      break;
+
+    case 'test-chro':
+      // Test CHRO agent
+      await testAgent('chro', {
+        id: 'test-chro-001',
+        content: 'Create job description for Senior Full Stack Developer position',
+        priority: 'MEDIUM',
+        assigned_role: 'chro',
+        status: 'pending',
+        workflow: 'Recruiting',
+      });
+      break;
+
+    case 'test-cco':
+      // Test CCO agent
+      await testAgent('cco', {
+        id: 'test-cco-001',
+        content: 'Review GDPR compliance requirements for our user data handling practices',
+        priority: 'HIGH',
+        assigned_role: 'cco',
+        status: 'pending',
+        workflow: 'Compliance Review',
+      });
+      break;
+
+    case 'test-cpo':
+      // Test CPO agent
+      await testAgent('cpo', {
+        id: 'test-cpo-001',
+        content: 'Prioritize features for Q1 release including handicap tracking and league management',
+        priority: 'HIGH',
+        assigned_role: 'cpo',
+        status: 'pending',
+        workflow: 'Product Roadmap',
+      });
+      break;
+
+    case 'test-cro':
+      // Test CRO agent
+      await testAgent('cro', {
+        id: 'test-cro-001',
+        content: 'Create revenue strategy for SaaS subscription model with B2B and B2C tiers',
+        priority: 'HIGH',
+        assigned_role: 'cro',
+        status: 'pending',
+        workflow: 'Revenue Strategy',
+      });
+      break;
+
     case 'test-all':
       // Test all agents
       console.log('Testing all agents...\n');
-      const agents = ['cos', 'cfo', 'cto', 'clo', 'coo'];
+      const agents = ['cos', 'cfo', 'cto', 'clo', 'coo', 'ciso', 'cmo', 'chro', 'cco', 'cpo', 'cro'];
       for (const agent of agents) {
         console.log(`\n${'='.repeat(60)}`);
         console.log(`Testing ${agent.toUpperCase()} Agent`);
@@ -160,12 +232,21 @@ Commands:
   status     Show system status
   digest     Generate and send daily digest
 
-Agent Testing:
+Agent Testing (Phase 1-2):
   test-cos   Test Chief of Staff agent
   test-cfo   Test CFO agent (financial analysis)
   test-cto   Test CTO agent (technical evaluation)
   test-clo   Test CLO agent (legal drafting)
   test-coo   Test COO agent (operations planning)
+
+Agent Testing (Phase 3):
+  test-ciso  Test CISO agent (security assessment)
+  test-cmo   Test CMO agent (marketing strategy)
+  test-chro  Test CHRO agent (HR/recruiting)
+  test-cco   Test CCO agent (compliance)
+  test-cpo   Test CPO agent (product roadmap)
+  test-cro   Test CRO agent (revenue strategy)
+
   test-all   Test all agents sequentially
 
 Environment Variables:

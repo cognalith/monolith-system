@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getAbbrFromId, getRoleById } from '../../config/roleHierarchy';
 import { SkeletonTaskRow } from '../Skeleton';
+import TaskExpandedDetails from './TaskExpandedDetails';
 import './PendingTasksPanel.css';
 
 // Priority color mapping per spec
@@ -112,6 +113,14 @@ const PendingTasksPanel = ({ isOpen, onClose, selectedRole = null }) => {
   const [sortBy, setSortBy] = useState('priority'); // 'priority' or 'age'
   const [byPriority, setByPriority] = useState({});
 
+  // Task expansion state
+  const [expandedTaskId, setExpandedTaskId] = useState(null);
+  const [taskSteps, setTaskSteps] = useState({}); // { taskId: steps[] }
+  const [stepsLoading, setStepsLoading] = useState({}); // { taskId: boolean }
+  const [actionLoading, setActionLoading] = useState(null); // taskId
+  const [actionType, setActionType] = useState(null); // 'complete' | 'agent'
+  const [actionFeedback, setActionFeedback] = useState(null);
+
   // Update filter when selectedRole prop changes
   useEffect(() => {
     setFilterRole(selectedRole);
@@ -194,6 +203,96 @@ const PendingTasksPanel = ({ isOpen, onClose, selectedRole = null }) => {
   const getActiveRoles = () => {
     const roles = [...new Set(tasks.map((t) => t.assigned_role))];
     return roles.sort();
+  };
+
+  // Handle task click to expand/collapse
+  const handleTaskClick = (taskId) => {
+    const newExpandedId = expandedTaskId === taskId ? null : taskId;
+    setExpandedTaskId(newExpandedId);
+    setActionFeedback(null); // Clear feedback when switching tasks
+
+    // Fetch steps if expanding and not already loaded
+    if (newExpandedId && !taskSteps[taskId]) {
+      fetchTaskSteps(taskId);
+    }
+  };
+
+  // Fetch steps for a specific task
+  const fetchTaskSteps = async (taskId) => {
+    setStepsLoading((prev) => ({ ...prev, [taskId]: true }));
+    try {
+      const response = await fetch(`http://localhost:3000/api/tasks/${taskId}/steps`);
+      if (!response.ok) throw new Error('Failed to fetch task steps');
+      const data = await response.json();
+      setTaskSteps((prev) => ({ ...prev, [taskId]: data.steps || [] }));
+    } catch (err) {
+      console.warn('Failed to fetch task steps:', err.message);
+      // Set empty steps on error so we don't keep retrying
+      setTaskSteps((prev) => ({ ...prev, [taskId]: [] }));
+    } finally {
+      setStepsLoading((prev) => ({ ...prev, [taskId]: false }));
+    }
+  };
+
+  // Handle task completion
+  const handleCompleteTask = async (taskId) => {
+    setActionLoading(taskId);
+    setActionType('complete');
+    setActionFeedback(null);
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/tasks/${taskId}/complete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) throw new Error('Failed to complete task');
+
+      // Remove task from list on success
+      setTasks((prev) => prev.filter((t) => t.id !== taskId));
+      setByPriority(calculateByPriority(tasks.filter((t) => t.id !== taskId)));
+      setExpandedTaskId(null);
+      setActionFeedback({ type: 'success', message: 'Task completed successfully!' });
+
+      // Clear feedback after 3 seconds
+      setTimeout(() => setActionFeedback(null), 3000);
+    } catch (err) {
+      console.error('Failed to complete task:', err.message);
+      setActionFeedback({ type: 'error', message: 'Failed to complete task. Please try again.' });
+    } finally {
+      setActionLoading(null);
+      setActionType(null);
+    }
+  };
+
+  // Handle send to agent
+  const handleSendToAgent = async (taskId) => {
+    setActionLoading(taskId);
+    setActionType('agent');
+    setActionFeedback(null);
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/tasks/${taskId}/send-to-agent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) throw new Error('Failed to send task to agent');
+
+      setActionFeedback({ type: 'success', message: 'Task sent to agent successfully!' });
+
+      // Optionally refetch tasks to update status
+      fetchTasks();
+
+      // Clear feedback after 3 seconds
+      setTimeout(() => setActionFeedback(null), 3000);
+    } catch (err) {
+      console.error('Failed to send task to agent:', err.message);
+      setActionFeedback({ type: 'error', message: 'Failed to send task to agent. Please try again.' });
+    } finally {
+      setActionLoading(null);
+      setActionType(null);
+    }
   };
 
   const filteredTasks = getFilteredAndSortedTasks();
@@ -283,39 +382,62 @@ const PendingTasksPanel = ({ isOpen, onClose, selectedRole = null }) => {
             <div className="tasks-list">
               {filteredTasks.map((task) => {
                 const badgeStyle = getRoleBadgeStyle(task.assigned_role);
+                const isExpanded = expandedTaskId === task.id;
                 return (
-                  <div key={task.id} className="task-card">
-                    <div className="task-priority">
-                      <span
-                        className="priority-badge"
-                        style={{
-                          backgroundColor: PRIORITY_COLORS[task.priority],
-                          color: task.priority === 'LOW' ? '#fff' : '#000',
-                        }}
-                      >
-                        {task.priority}
-                      </span>
-                    </div>
-                    <div className="task-content">
-                      <div className="task-title">{task.content}</div>
-                      <div className="task-meta">
-                        {/* Enhanced Role Badge - Phase 8 */}
+                  <div
+                    key={task.id}
+                    className={`task-card ${isExpanded ? 'expanded' : ''}`}
+                    onClick={() => handleTaskClick(task.id)}
+                  >
+                    <div className="task-card-header">
+                      <div className="task-priority">
                         <span
-                          className={`
-                            inline-flex items-center px-2 py-0.5 rounded-md text-sm font-bold
-                            ${badgeStyle.bg} ${badgeStyle.text} border ${badgeStyle.border}
-                          `}
+                          className="priority-badge"
+                          style={{
+                            backgroundColor: PRIORITY_COLORS[task.priority],
+                            color: task.priority === 'LOW' ? '#fff' : '#000',
+                          }}
                         >
-                          {getAbbrFromId(task.assigned_role)}
+                          {task.priority}
                         </span>
-                        <span className="task-separator">|</span>
-                        <span className="task-workflow">
-                          {task.workflows?.name || 'N/A'}
+                      </div>
+                      <div className="task-content">
+                        <div className="task-title">{task.content}</div>
+                        <div className="task-meta">
+                          {/* Enhanced Role Badge - Phase 8 */}
+                          <span
+                            className={`
+                              inline-flex items-center px-2 py-0.5 rounded-md text-sm font-bold
+                              ${badgeStyle.bg} ${badgeStyle.text} border ${badgeStyle.border}
+                            `}
+                          >
+                            {getAbbrFromId(task.assigned_role)}
+                          </span>
+                          <span className="task-separator">|</span>
+                          <span className="task-workflow">
+                            {task.workflows?.name || 'N/A'}
+                          </span>
+                          <span className="task-separator">|</span>
+                          <span className="task-age">{getHoursPending(task.created_at)}h ago</span>
+                        </div>
+                      </div>
+                      <div className="task-expand-indicator">
+                        <span className={`chevron ${isExpanded ? 'expanded' : ''}`}>
+                          {isExpanded ? '\u25BC' : '\u25B6'}
                         </span>
-                        <span className="task-separator">|</span>
-                        <span className="task-age">{getHoursPending(task.created_at)}h ago</span>
                       </div>
                     </div>
+                    {isExpanded && (
+                      <TaskExpandedDetails
+                        task={task}
+                        steps={taskSteps[task.id]}
+                        stepsLoading={stepsLoading[task.id]}
+                        onComplete={handleCompleteTask}
+                        onSendToAgent={handleSendToAgent}
+                        actionLoading={actionLoading === task.id ? actionType : null}
+                        actionFeedback={actionFeedback}
+                      />
+                    )}
                   </div>
                 );
               })}

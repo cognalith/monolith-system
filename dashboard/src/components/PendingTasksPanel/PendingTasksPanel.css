@@ -3,397 +3,610 @@
 /* Overlay */
 .pending-tasks-overlay {
   position: fixed;
-    top: 0;
-      left: 0;
-        right: 0;
-          bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-              display: flex;
-                justify-content: center;
-                  align-items: center;
-                    z-index: 1000;
-                      backdrop-filter: blur(4px);
-                      }
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
 
-                      /* Main Panel */
-                      .pending-tasks-panel {
-                        background: #1a1a1a;
-                          border: 1px solid #00ff88;
-                            border-radius: 4px;
-                              width: 90%;
-                                max-width: 900px;
-                                  max-height: 85vh;
-                                    display: flex;
-                                      flex-direction: column;
-                                        box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
-                                          font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-                                          }
+/* Main Panel */
+.pending-tasks-panel {
+  background: #1a1a1a;
+  border: 1px solid #00ff88;
+  border-radius: 4px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
 
-                                          /* Header */
-                                          .pending-tasks-header {
-                                            display: flex;
-                                              justify-content: space-between;
-                                                align-items: flex-start;
-                                                  padding: 16px 20px;
-                                                    border-bottom: 1px solid #333;
-                                                      background: #0d0d0d;
-                                                      }
+/* Header */
+.pending-tasks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 20px;
+  border-bottom: 1px solid #333;
+  background: #0d0d0d;
+}
 
-                                                      .header-left h2 {
-                                                        margin: 0;
-                                                          font-size: 18px;
-                                                            font-weight: 600;
-                                                              color: #00ff88;
-                                                                letter-spacing: 1px;
-                                                                }
+.header-left h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #00ff88;
+  letter-spacing: 1px;
+}
 
-                                                                .priority-summary {
-                                                                  display: flex;
-                                                                    gap: 12px;
-                                                                      margin-top: 8px;
-                                                                        font-size: 11px;
-                                                                        }
+.priority-summary {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 11px;
+}
 
-                                                                        .priority-count {
-                                                                          font-weight: 500;
-                                                                          }
+.priority-count {
+  font-weight: 500;
+}
 
-                                                                          .header-right {
-                                                                            display: flex;
-                                                                              align-items: center;
-                                                                                gap: 12px;
-                                                                                }
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-                                                                                .sort-select {
-                                                                                  background: #222;
-                                                                                    border: 1px solid #444;
-                                                                                      color: #ccc;
-                                                                                        padding: 6px 10px;
-                                                                                          border-radius: 4px;
-                                                                                            font-size: 12px;
-                                                                                              font-family: inherit;
-                                                                                                cursor: pointer;
-                                                                                                }
+.sort-select {
+  background: #222;
+  border: 1px solid #444;
+  color: #ccc;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
 
-                                                                                                .sort-select:hover {
-                                                                                                  border-color: #00ff88;
-                                                                                                  }
+.sort-select:hover {
+  border-color: #00ff88;
+}
 
-                                                                                                  .close-btn {
-                                                                                                    background: transparent;
-                                                                                                      border: none;
-                                                                                                        color: #666;
-                                                                                                          font-size: 24px;
-                                                                                                            cursor: pointer;
-                                                                                                              padding: 0 8px;
-                                                                                                                line-height: 1;
-                                                                                                                }
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0 8px;
+  line-height: 1;
+}
 
-                                                                                                                .close-btn:hover {
-                                                                                                                  color: #ff4444;
-                                                                                                                  }
+.close-btn:hover {
+  color: #ff4444;
+}
 
-                                                                                                                  /* Role Filter */
-                                                                                                                  .role-filter {
-                                                                                                                    display: flex;
-                                                                                                                      flex-wrap: wrap;
-                                                                                                                        gap: 8px;
-                                                                                                                          padding: 12px 20px;
-                                                                                                                            background: #0f0f0f;
-                                                                                                                              border-bottom: 1px solid #333;
-                                                                                                                              }
+/* Role Filter */
+.role-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #0f0f0f;
+  border-bottom: 1px solid #333;
+}
 
-                                                                                                                              .filter-btn {
-                                                                                                                                background: #222;
-                                                                                                                                  border: 1px solid #333;
-                                                                                                                                    color: #888;
-                                                                                                                                      padding: 6px 12px;
-                                                                                                                                        border-radius: 4px;
-                                                                                                                                          font-size: 11px;
-                                                                                                                                            font-family: inherit;
-                                                                                                                                              cursor: pointer;
-                                                                                                                                                transition: all 0.2s;
-                                                                                                                                                  text-transform: capitalize;
-                                                                                                                                                  }
+.filter-btn {
+  background: #222;
+  border: 1px solid #333;
+  color: #888;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: capitalize;
+}
 
-                                                                                                                                                  .filter-btn:hover {
-                                                                                                                                                    border-color: #00ff88;
-                                                                                                                                                      color: #00ff88;
-                                                                                                                                                      }
+.filter-btn:hover {
+  border-color: #00ff88;
+  color: #00ff88;
+}
 
-                                                                                                                                                      .filter-btn.active {
-                                                                                                                                                        background: #00ff88;
-                                                                                                                                                          border-color: #00ff88;
-                                                                                                                                                            color: #000;
-                                                                                                                                                              font-weight: 600;
-                                                                                                                                                              }
+.filter-btn.active {
+  background: #00ff88;
+  border-color: #00ff88;
+  color: #000;
+  font-weight: 600;
+}
 
-                                                                                                                                                              /* Content Area */
-                                                                                                                                                              .pending-tasks-content {
-                                                                                                                                                                flex: 1;
-                                                                                                                                                                  overflow-y: auto;
-                                                                                                                                                                    padding: 16px 20px;
-                                                                                                                                                                      min-height: 200px;
-                                                                                                                                                                      }
+/* Content Area */
+.pending-tasks-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  min-height: 200px;
+}
 
-                                                                                                                                                                      /* Loading State */
-                                                                                                                                                                      .loading-state {
-                                                                                                                                                                        display: flex;
-                                                                                                                                                                          flex-direction: column;
-                                                                                                                                                                            align-items: center;
-                                                                                                                                                                              justify-content: center;
-                                                                                                                                                                                height: 200px;
-                                                                                                                                                                                  color: #666;
-                                                                                                                                                                                    gap: 16px;
-                                                                                                                                                                                    }
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #666;
+  gap: 16px;
+}
 
-                                                                                                                                                                                    .loading-spinner {
-                                                                                                                                                                                      width: 32px;
-                                                                                                                                                                                        height: 32px;
-                                                                                                                                                                                          border: 3px solid #333;
-                                                                                                                                                                                            border-top-color: #00ff88;
-                                                                                                                                                                                              border-radius: 50%;
-                                                                                                                                                                                                animation: spin 1s linear infinite;
-                                                                                                                                                                                                }
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #333;
+  border-top-color: #00ff88;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
 
-                                                                                                                                                                                                @keyframes spin {
-                                                                                                                                                                                                  to { transform: rotate(360deg); }
-                                                                                                                                                                                                  }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
-                                                                                                                                                                                                  /* Error State */
-                                                                                                                                                                                                  .error-state {
-                                                                                                                                                                                                    display: flex;
-                                                                                                                                                                                                      flex-direction: column;
-                                                                                                                                                                                                        align-items: center;
-                                                                                                                                                                                                          justify-content: center;
-                                                                                                                                                                                                            height: 200px;
-                                                                                                                                                                                                              color: #ff4444;
-                                                                                                                                                                                                                gap: 12px;
-                                                                                                                                                                                                                }
+/* Error State */
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #ff4444;
+  gap: 12px;
+}
 
-                                                                                                                                                                                                                .error-icon {
-                                                                                                                                                                                                                  font-size: 32px;
-                                                                                                                                                                                                                  }
+.error-icon {
+  font-size: 32px;
+}
 
-                                                                                                                                                                                                                  .error-state button {
-                                                                                                                                                                                                                    background: #ff4444;
-                                                                                                                                                                                                                      border: none;
-                                                                                                                                                                                                                        color: #fff;
-                                                                                                                                                                                                                          padding: 8px 16px;
-                                                                                                                                                                                                                            border-radius: 4px;
-                                                                                                                                                                                                                              cursor: pointer;
-                                                                                                                                                                                                                              }
+.error-state button {
+  background: #ff4444;
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
-                                                                                                                                                                                                                              /* Empty State */
-                                                                                                                                                                                                                              .empty-state {
-                                                                                                                                                                                                                                display: flex;
-                                                                                                                                                                                                                                  align-items: center;
-                                                                                                                                                                                                                                    justify-content: center;
-                                                                                                                                                                                                                                      height: 200px;
-                                                                                                                                                                                                                                        color: #666;
-                                                                                                                                                                                                                                        }
+/* Empty State */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #666;
+}
 
-                                                                                                                                                                                                                                        /* Tasks List */
-                                                                                                                                                                                                                                        .tasks-list {
-                                                                                                                                                                                                                                          display: flex;
-                                                                                                                                                                                                                                            flex-direction: column;
-                                                                                                                                                                                                                                              gap: 8px;
-                                                                                                                                                                                                                                              }
+/* Tasks List */
+.tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-                                                                                                                                                                                                                                              /* Task Card */
-                                                                                                                                                                                                                                              .task-card {
-                                                                                                                                                                                                                                                display: flex;
-                                                                                                                                                                                                                                                  gap: 12px;
-                                                                                                                                                                                                                                                    padding: 12px;
-                                                                                                                                                                                                                                                      background: #0d0d0d;
-                                                                                                                                                                                                                                                        border: 1px solid #222;
-                                                                                                                                                                                                                                                          border-radius: 4px;
-                                                                                                                                                                                                                                                            transition: border-color 0.2s;
-                                                                                                                                                                                                                                                            }
+/* Task Card */
+.task-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background: #0d0d0d;
+  border: 1px solid #222;
+  border-radius: 4px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
 
-                                                                                                                                                                                                                                                            .task-card:hover {
-                                                                                                                                                                                                                                                              border-color: #444;
-                                                                                                                                                                                                                                                              }
+.task-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #444;
+}
 
-                                                                                                                                                                                                                                                              .task-priority {
-                                                                                                                                                                                                                                                                flex-shrink: 0;
-                                                                                                                                                                                                                                                                }
+.task-card.expanded {
+  background: rgba(0, 255, 136, 0.05);
+  border-left: 3px solid #00ff88;
+}
 
-                                                                                                                                                                                                                                                                .priority-badge {
-                                                                                                                                                                                                                                                                  display: inline-block;
-                                                                                                                                                                                                                                                                    padding: 4px 8px;
-                                                                                                                                                                                                                                                                      border-radius: 3px;
-                                                                                                                                                                                                                                                                        font-size: 10px;
-                                                                                                                                                                                                                                                                          font-weight: 700;
-                                                                                                                                                                                                                                                                            letter-spacing: 0.5px;
-                                                                                                                                                                                                                                                                            }
+.task-card-header {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  align-items: flex-start;
+}
 
-                                                                                                                                                                                                                                                                            .task-content {
-                                                                                                                                                                                                                                                                              flex: 1;
-                                                                                                                                                                                                                                                                                min-width: 0;
-                                                                                                                                                                                                                                                                                }
+.task-expand-indicator {
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  margin-left: auto;
+}
 
-                                                                                                                                                                                                                                                                                .task-title {
-                                                                                                                                                                                                                                                                                  color: #e0e0e0;
-                                                                                                                                                                                                                                                                                    font-size: 13px;
-                                                                                                                                                                                                                                                                                      line-height: 1.4;
-                                                                                                                                                                                                                                                                                        margin-bottom: 6px;
-                                                                                                                                                                                                                                                                                        }
+.task-expand-indicator .chevron {
+  color: #666;
+  font-size: 10px;
+  transition: transform 0.2s, color 0.2s;
+}
 
-                                                                                                                                                                                                                                                                                        .task-meta {
-                                                                                                                                                                                                                                                                                          display: flex;
-                                                                                                                                                                                                                                                                                            flex-wrap: wrap;
-                                                                                                                                                                                                                                                                                              align-items: center;
-                                                                                                                                                                                                                                                                                                gap: 8px;
-                                                                                                                                                                                                                                                                                                  font-size: 11px;
-                                                                                                                                                                                                                                                                                                    color: #666;
-                                                                                                                                                                                                                                                                                                    }
+.task-expand-indicator .chevron.expanded {
+  color: #00ff88;
+}
 
-                                                                                                                                                                                                                                                                                                    .task-role {
-                                                                                                                                                                                                                                                                                                      color: #888;
-                                                                                                                                                                                                                                                                                                      }
+.task-priority {
+  flex-shrink: 0;
+}
 
-                                                                                                                                                                                                                                                                                                      .task-separator {
-                                                                                                                                                                                                                                                                                                        color: #333;
-                                                                                                                                                                                                                                                                                                        }
+.priority-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
 
-                                                                                                                                                                                                                                                                                                        .task-workflow {
-                                                                                                                                                                                                                                                                                                          color: #00ff88;
-                                                                                                                                                                                                                                                                                                          }
+.task-content {
+  flex: 1;
+  min-width: 0;
+}
 
-                                                                                                                                                                                                                                                                                                          .task-age {
-                                                                                                                                                                                                                                                                                                            color: #ffaa00;
-                                                                                                                                                                                                                                                                                                            }
+.task-title {
+  color: #e0e0e0;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
 
-                                                                                                                                                                                                                                                                                                            /* Footer */
-                                                                                                                                                                                                                                                                                                            .pending-tasks-footer {
-                                                                                                                                                                                                                                                                                                              display: flex;
-                                                                                                                                                                                                                                                                                                                justify-content: space-between;
-                                                                                                                                                                                                                                                                                                                  align-items: center;
-                                                                                                                                                                                                                                                                                                                    padding: 12px 20px;
-                                                                                                                                                                                                                                                                                                                      border-top: 1px solid #333;
-                                                                                                                                                                                                                                                                                                                        background: #0d0d0d;
-                                                                                                                                                                                                                                                                                                                        }
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #666;
+}
 
-                                                                                                                                                                                                                                                                                                                        .refresh-info {
-                                                                                                                                                                                                                                                                                                                          font-size: 11px;
-                                                                                                                                                                                                                                                                                                                            color: #666;
-                                                                                                                                                                                                                                                                                                                            }
+.task-role {
+  color: #888;
+}
 
-                                                                                                                                                                                                                                                                                                                            .refresh-btn {
-                                                                                                                                                                                                                                                                                                                              background: #222;
-                                                                                                                                                                                                                                                                                                                                border: 1px solid #333;
-                                                                                                                                                                                                                                                                                                                                  color: #00ff88;
-                                                                                                                                                                                                                                                                                                                                    padding: 8px 16px;
-                                                                                                                                                                                                                                                                                                                                      border-radius: 4px;
-                                                                                                                                                                                                                                                                                                                                        font-size: 12px;
-                                                                                                                                                                                                                                                                                                                                          font-family: inherit;
-                                                                                                                                                                                                                                                                                                                                            cursor: pointer;
-                                                                                                                                                                                                                                                                                                                                              transition: all 0.2s;
-                                                                                                                                                                                                                                                                                                                                              }
+.task-separator {
+  color: #333;
+}
 
-                                                                                                                                                                                                                                                                                                                                              .refresh-btn:hover {
-                                                                                                                                                                                                                                                                                                                                                background: #00ff88;
-                                                                                                                                                                                                                                                                                                                                                  color: #000;
-                                                                                                                                                                                                                                                                                                                                                  }
+.task-workflow {
+  color: #00ff88;
+}
 
-                                                                                                                                                                                                                                                                                                                                                  /* Scrollbar */
-                                                                                                                                                                                                                                                                                                                                                  .pending-tasks-content::-webkit-scrollbar {
-                                                                                                                                                                                                                                                                                                                                                    width: 8px;
-                                                                                                                                                                                                                                                                                                                                                    }
+.task-age {
+  color: #ffaa00;
+}
 
-                                                                                                                                                                                                                                                                                                                                                    .pending-tasks-content::-webkit-scrollbar-track {
-                                                                                                                                                                                                                                                                                                                                                      background: #1a1a1a;
-                                                                                                                                                                                                                                                                                                                                                      }
+/* Task Expanded Details */
+.task-expanded-details {
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+}
 
-                                                                                                                                                                                                                                                                                                                                                      .pending-tasks-content::-webkit-scrollbar-thumb {
-                                                                                                                                                                                                                                                                                                                                                        background: #333;
-                                                                                                                                                                                                                                                                                                                                                          border-radius: 4px;
-                                                                                                                                                                                                                                                                                                                                                          }
+/* Task Steps */
+.task-steps {
+  margin-bottom: 16px;
+}
 
-                                                                                                                                                                                                                                                                                                                                                          .pending-tasks-content::-webkit-scrollbar-thumb:hover {
-                                                                                                                                                                                                                                                                                                                                                            background: #444;
-                                                                                                                                                                                                                                                                                                                                                            }
+.task-steps-header {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-                                                                                                                                                                                                                                                                                                                                                            /* Mobile Responsive */
-                                                                                                                                                                                                                                                                                                                                                            @media (max-width: 768px) {
-                                                                                                                                                                                                                                                                                                                                                              .pending-tasks-panel {
-                                                                                                                                                                                                                                                                                                                                                                  width: 95%;
-                                                                                                                                                                                                                                                                                                                                                                      max-height: 90vh;
-                                                                                                                                                                                                                                                                                                                                                                          margin: 20px;
-                                                                                                                                                                                                                                                                                                                                                                            }
+.task-steps-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 12px;
+  padding: 8px 0;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                              .pending-tasks-header {
-                                                                                                                                                                                                                                                                                                                                                                                  flex-direction: column;
-                                                                                                                                                                                                                                                                                                                                                                                      gap: 12px;
-                                                                                                                                                                                                                                                                                                                                                                                        }
+.task-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                          .header-left h2 {
-                                                                                                                                                                                                                                                                                                                                                                                              font-size: 16px;
-                                                                                                                                                                                                                                                                                                                                                                                                }
+.task-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                  .priority-summary {
-                                                                                                                                                                                                                                                                                                                                                                                                      flex-wrap: wrap;
-                                                                                                                                                                                                                                                                                                                                                                                                        }
+.task-step:last-child {
+  border-bottom: none;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                          .header-right {
-                                                                                                                                                                                                                                                                                                                                                                                                              width: 100%;
-                                                                                                                                                                                                                                                                                                                                                                                                                  justify-content: space-between;
-                                                                                                                                                                                                                                                                                                                                                                                                                    }
+.task-step-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #00ff88;
+  cursor: default;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                      .role-filter {
-                                                                                                                                                                                                                                                                                                                                                                                                                          padding: 10px 16px;
-                                                                                                                                                                                                                                                                                                                                                                                                                            }
+.task-step-text {
+  font-size: 12px;
+  color: #ccc;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                              .filter-btn {
-                                                                                                                                                                                                                                                                                                                                                                                                                                  padding: 5px 10px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                      font-size: 10px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                        }
+.task-step-text.completed {
+  text-decoration: line-through;
+  color: #666;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                          .task-card {
-                                                                                                                                                                                                                                                                                                                                                                                                                                              flex-direction: column;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                  gap: 8px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
+.task-steps-empty {
+  font-size: 12px;
+  color: #555;
+  font-style: italic;
+  padding: 8px 0;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                      .task-meta {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                          font-size: 10px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+/* Task Dependencies */
+.task-dependencies {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                              .pending-tasks-footer {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                  flex-direction: column;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                      gap: 10px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
+.dependency-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          .refresh-btn {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                              width: 100%;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
+.dependency-group:last-child {
+  margin-bottom: 0;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @media (max-width: 480px) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  .pending-tasks-panel {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      border-radius: 0;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          max-height: 100vh;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              margin: 0;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  width: 100%;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
+.dependency-label {
+  color: #666;
+  margin-right: 4px;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      .header-left h2 {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          font-size: 14px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+.dependency-item {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              .pending-tasks-content {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  padding: 12px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
+.dependency-item.blocked-by {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff6b6b;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      .task-card {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          padding: 10px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+.dependency-item.blocks {
+  background: rgba(255, 170, 0, 0.2);
+  color: #ffaa00;
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              .task-title {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  font-size: 12px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
-/* Extra small devices (phones, 480px and down) */
+/* Task Actions */
+.task-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-complete,
+.btn-agent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-complete {
+  background: #00ff88;
+  color: #000;
+}
+
+.btn-agent {
+  background: #4a9eff;
+  color: #fff;
+}
+
+.btn-complete:hover,
+.btn-agent:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-complete:disabled,
+.btn-agent:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-complete:active:not(:disabled),
+.btn-agent:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Loading Spinner Small */
+.loading-spinner-small {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.btn-agent .loading-spinner-small {
+  border-color: rgba(255, 255, 255, 0.2);
+  border-top-color: #fff;
+}
+
+/* Action Feedback */
+.action-feedback {
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+.action-feedback.success {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.action-feedback.error {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.3);
+}
+
+/* Footer */
+.pending-tasks-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  border-top: 1px solid #333;
+  background: #0d0d0d;
+}
+
+.refresh-info {
+  font-size: 11px;
+  color: #666;
+}
+
+.refresh-btn {
+  background: #222;
+  border: 1px solid #333;
+  color: #00ff88;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.refresh-btn:hover {
+  background: #00ff88;
+  color: #000;
+}
+
+/* Scrollbar */
+.pending-tasks-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pending-tasks-content::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.pending-tasks-content::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+.pending-tasks-content::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .pending-tasks-panel {
+    width: 95%;
+    max-height: 90vh;
+    margin: 20px;
+  }
+
+  .pending-tasks-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .header-left h2 {
+    font-size: 16px;
+  }
+
+  .priority-summary {
+    flex-wrap: wrap;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .role-filter {
+    padding: 10px 16px;
+  }
+
+  .filter-btn {
+    padding: 5px 10px;
+    font-size: 10px;
+  }
+
+  .task-card-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .task-meta {
+    font-size: 10px;
+  }
+
+  .task-actions {
+    flex-direction: column;
+  }
+
+  .btn-complete,
+  .btn-agent {
+    width: 100%;
+  }
+
+  .pending-tasks-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .refresh-btn {
+    width: 100%;
+  }
+}
+
 @media (max-width: 480px) {
   .pending-tasks-panel {
     width: 100%;
@@ -402,57 +615,69 @@
     border-radius: 0;
     margin: 0;
   }
-  
+
   .panel-header {
     padding: 12px 16px;
   }
-  
+
   .panel-header h2 {
     font-size: 16px;
   }
-  
+
   .filter-controls {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .filter-btn {
     padding: 8px 12px;
     font-size: 11px;
     min-height: 36px;
   }
-  
+
   .sort-controls {
     flex-wrap: wrap;
     justify-content: center;
   }
-  
+
   .task-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
     padding: 12px;
   }
-  
+
   .task-title {
     font-size: 13px;
   }
-  
+
   .task-meta {
     font-size: 11px;
     flex-wrap: wrap;
   }
-  
+
   .priority-badge {
     font-size: 9px;
     padding: 3px 6px;
   }
-  
+
   .close-btn {
     width: 36px;
     height: 36px;
     min-width: 36px;
     font-size: 20px;
+  }
+
+  .pending-tasks-content {
+    padding: 12px;
+  }
+
+  .task-card-header {
+    padding: 10px;
+  }
+
+  .task-expanded-details {
+    padding: 12px;
   }
 }
 
@@ -461,11 +686,11 @@
   .panel-header h2 {
     font-size: 14px;
   }
-  
+
   .task-title {
     font-size: 12px;
   }
-  
+
   .filter-btn {
     font-size: 10px;
     padding: 6px 10px;

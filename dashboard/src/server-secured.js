@@ -30,6 +30,9 @@ import gdprRoutes from './api/gdprRoutes.js';
 import incidentRoutes, { detectAnomalies } from './api/incidentRoutes.js';
 import forensicsRoutes from './api/forensicsRoutes.js';
 
+// Import Task Completion API Routes
+import tasksRoutes from './api/tasksRoutes.js';
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -89,6 +92,9 @@ app.use('/api/incident', incidentRoutes);
 
 // Mount Forensics Routes (Task 7.3.2.5)
 app.use('/api/forensics', forensicsRoutes);
+
+// Mount Task Completion Routes (Task Completion Feature)
+app.use('/api/tasks', tasksRoutes);
 
 // Audit Log API Endpoints (Tasks 7.1.1.5, 7.1.1.7)
 app.get('/api/audit/logs', async (req, res) => {
@@ -301,7 +307,7 @@ app.post('/api/notifications/test', async (req, res) => {
     if (channel === 'email') {
       result = await sendEmailNotification({
         subject: 'Test Email',
-        body: \`<p>\${message || 'This is a test email from MONOLITH OS'}</p>\`,
+        body: `<p>${message || 'This is a test email from MONOLITH OS'}</p>`,
         priority: priority || 'CRITICAL',
         role: role || 'system'
       });
@@ -321,7 +327,7 @@ app.post('/api/notifications/test', async (req, res) => {
 app.use((req, res) => {
   res.status(404).json({
     error: 'Not Found',
-    message: \`Endpoint \${req.method} \${req.path} not found\`
+    message: `Endpoint ${req.method} ${req.path} not found`
   });
 });
 
@@ -352,11 +358,11 @@ app.use((err, req, res, next) => {
 // ==================================================
 
 app.listen(port, () => {
-  console.log(\`
+  console.log(`
 ╔════════════════════════════════════════════════════════════════╗
 ║           MONOLITH OS - Phase 7: Security & Compliance         ║
 ╠════════════════════════════════════════════════════════════════╣
-║  Backend API server running on http://localhost:\${port}          ║
+║  Backend API server running on http://localhost:${port}          ║
 ║                                                                ║
 ║  Security Features Active:                                     ║
 ║  ✓ HTTPS Enforcement (Task 7.0.2.1)                           ║
@@ -375,7 +381,7 @@ app.listen(port, () => {
 ║  ✓ Incident Escalation (Task 7.4.2.1)                         ║
 ║  ✓ Breach Notification (Task 7.4.3.1)                         ║
 ╚════════════════════════════════════════════════════════════════╝
-  \`);
+  `);
 });
 
 export default app;

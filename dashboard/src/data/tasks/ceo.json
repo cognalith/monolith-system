@@ -13,27 +13,69 @@
       "due_date": "2026-01-30",
       "workflow": "Replit Exit Migration",
       "notes": "AT RISK - Cross-functional dependency with CTO/COO",
-      "created_at": "2026-01-07"
+      "created_at": "2026-01-07",
+      "steps": [
+        {
+          "id": "step-1768282202204-3j8950m4w",
+          "description": "Assess urgency and notify relevant stakeholders",
+          "order": 1,
+          "completed": false,
+          "createdAt": "2026-01-13T05:30:02.204Z"
+        },
+        {
+          "id": "step-1768282202204-gsat2wx45",
+          "description": "Audit current state and dependencies",
+          "order": 2,
+          "completed": false,
+          "createdAt": "2026-01-13T05:30:02.204Z"
+        },
+        {
+          "id": "step-1768282202204-ru4tkxtlt",
+          "description": "Create backup of existing data/resources",
+          "order": 3,
+          "completed": false,
+          "createdAt": "2026-01-13T05:30:02.204Z"
+        },
+        {
+          "id": "step-1768282202204-6ngmr29hm",
+          "description": "Execute migration steps",
+          "order": 4,
+          "completed": false,
+          "createdAt": "2026-01-13T05:30:02.204Z"
+        },
+        {
+          "id": "step-1768282202204-dyihn9ich",
+          "description": "Validate migrated data/resources",
+          "order": 5,
+          "completed": false,
+          "createdAt": "2026-01-13T05:30:02.204Z"
+        }
+      ],
+      "updated_at": "2026-01-13T05:30:02.207Z"
     },
     {
       "id": "ceo-002",
       "content": "Archive Unplug Social shell from Replit",
       "priority": "MEDIUM",
-      "status": "pending",
+      "status": "completed",
       "due_date": "2026-01-28",
       "workflow": "Replit Exit Migration",
       "notes": "History preservation",
-      "created_at": "2026-01-07"
+      "created_at": "2026-01-07",
+      "completedBy": "manual",
+      "completedAt": "2026-01-13T14:12:28.758Z",
+      "updated_at": "2026-01-13T14:12:28.759Z"
     },
     {
       "id": "ceo-003",
       "content": "Archive Riichi Scoring shell from Replit",
       "priority": "MEDIUM",
-      "status": "pending",
+      "status": "in_progress",
       "due_date": "2026-01-28",
       "workflow": "Replit Exit Migration",
       "notes": "History preservation",
-      "created_at": "2026-01-07"
+      "created_at": "2026-01-07",
+      "updated_at": "2026-01-13T05:34:11.812Z"
     },
     {
       "id": "ceo-004",
@@ -43,7 +85,45 @@
       "due_date": "2026-01-06",
       "workflow": "Monolith System Initialization",
       "notes": null,
-      "created_at": "2026-01-05"
+      "created_at": "2026-01-05",
+      "steps": [
+        {
+          "id": "step-1768282205355-0c7fi4svi",
+          "description": "Review requirements and prerequisites",
+          "order": 1,
+          "completed": false,
+          "createdAt": "2026-01-13T05:30:05.355Z"
+        },
+        {
+          "id": "step-1768282205355-yv3sqojdm",
+          "description": "Prepare necessary resources and access",
+          "order": 2,
+          "completed": false,
+          "createdAt": "2026-01-13T05:30:05.355Z"
+        },
+        {
+          "id": "step-1768282205355-1esuggovq",
+          "description": "Execute setup procedure",
+          "order": 3,
+          "completed": false,
+          "createdAt": "2026-01-13T05:30:05.355Z"
+        },
+        {
+          "id": "step-1768282205355-hbfjlct90",
+          "description": "Verify configuration and test functionality",
+          "order": 4,
+          "completed": false,
+          "createdAt": "2026-01-13T05:30:05.355Z"
+        },
+        {
+          "id": "step-1768282205355-xkqodjc5y",
+          "description": "Document setup for future reference",
+          "order": 5,
+          "completed": false,
+          "createdAt": "2026-01-13T05:30:05.355Z"
+        }
+      ],
+      "updated_at": "2026-01-13T05:30:05.356Z"
     },
     {
       "id": "ceo-005",
@@ -59,21 +139,27 @@
       "id": "ceo-006",
       "content": "Set up COO NotebookLM notebook",
       "priority": "HIGH",
-      "status": "in_progress",
+      "status": "completed",
       "due_date": "2026-01-07",
       "workflow": "Monolith System Initialization",
       "notes": "Current Priority",
-      "created_at": "2026-01-05"
+      "created_at": "2026-01-05",
+      "completedBy": "system",
+      "completedAt": "2026-01-13T05:41:23.672Z",
+      "updated_at": "2026-01-13T05:41:23.673Z"
     },
     {
       "id": "ceo-007",
       "content": "Set up CPO NotebookLM notebook",
       "priority": "HIGH",
-      "status": "pending",
+      "status": "completed",
       "due_date": "2026-01-08",
       "workflow": "Monolith System Initialization",
       "notes": null,
-      "created_at": "2026-01-05"
+      "created_at": "2026-01-05",
+      "completedBy": "manual",
+      "completedAt": "2026-01-13T14:12:06.624Z",
+      "updated_at": "2026-01-13T14:12:06.625Z"
     },
     {
       "id": "ceo-008",
@@ -83,7 +169,9 @@
       "due_date": "2026-01-09",
       "workflow": "Monolith System Initialization",
       "notes": null,
-      "created_at": "2026-01-05"
+      "created_at": "2026-01-05",
+      "blockedBy": [],
+      "updated_at": "2026-01-13T14:12:06.636Z"
     },
     {
       "id": "ceo-009",
@@ -113,7 +201,45 @@
       "due_date": "2026-01-10",
       "workflow": "Financial & Legal Foundation",
       "notes": null,
-      "created_at": "2026-01-07"
+      "created_at": "2026-01-07",
+      "steps": [
+        {
+          "id": "step-1768282897229-ze52as4s4",
+          "description": "Gather information from relevant sources",
+          "order": 1,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:37.229Z"
+        },
+        {
+          "id": "step-1768282897229-f8q8zc659",
+          "description": "Create document outline/structure",
+          "order": 2,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:37.229Z"
+        },
+        {
+          "id": "step-1768282897229-ov5p3wzx8",
+          "description": "Draft initial content",
+          "order": 3,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:37.229Z"
+        },
+        {
+          "id": "step-1768282897229-os4kj5m64",
+          "description": "Review and revise for clarity",
+          "order": 4,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:37.229Z"
+        },
+        {
+          "id": "step-1768282897229-k8tn1xg3s",
+          "description": "Finalize and publish document",
+          "order": 5,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:37.229Z"
+        }
+      ],
+      "updated_at": "2026-01-13T05:41:37.230Z"
     },
     {
       "id": "ceo-012",
@@ -163,7 +289,45 @@
       "due_date": "2026-01-13",
       "workflow": "Product Launch (TeeMates)",
       "notes": "Jan 12-13 window",
-      "created_at": "2026-01-07"
+      "created_at": "2026-01-07",
+      "steps": [
+        {
+          "id": "step-1768282888618-h8ar3fego",
+          "description": "Gather financial data and documents",
+          "order": 1,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:28.618Z"
+        },
+        {
+          "id": "step-1768282888618-91x8dkdi9",
+          "description": "Review and verify numbers",
+          "order": 2,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:28.618Z"
+        },
+        {
+          "id": "step-1768282888618-tftx63mgs",
+          "description": "Perform calculations/analysis",
+          "order": 3,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:28.618Z"
+        },
+        {
+          "id": "step-1768282888618-6zd5r4q85",
+          "description": "Document findings and recommendations",
+          "order": 4,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:28.618Z"
+        },
+        {
+          "id": "step-1768282888618-wp8otalz1",
+          "description": "Submit for approval if required",
+          "order": 5,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:28.618Z"
+        }
+      ],
+      "updated_at": "2026-01-13T05:41:28.620Z"
     },
     {
       "id": "ceo-017",
@@ -183,7 +347,45 @@
       "due_date": "2026-01-30",
       "workflow": "Product Launch (TeeMates)",
       "notes": null,
-      "created_at": "2026-01-07"
+      "created_at": "2026-01-07",
+      "steps": [
+        {
+          "id": "step-1768282890619-7ibvxmdfc",
+          "description": "Complete pre-launch checklist",
+          "order": 1,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:30.619Z"
+        },
+        {
+          "id": "step-1768282890619-83pxsluzn",
+          "description": "Prepare marketing/communication materials",
+          "order": 2,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:30.619Z"
+        },
+        {
+          "id": "step-1768282890619-3cp3uj3pq",
+          "description": "Execute deployment procedure",
+          "order": 3,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:30.619Z"
+        },
+        {
+          "id": "step-1768282890619-ba71g2i8a",
+          "description": "Monitor for issues and address any problems",
+          "order": 4,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:30.619Z"
+        },
+        {
+          "id": "step-1768282890619-rdre0obkq",
+          "description": "Announce launch and gather initial feedback",
+          "order": 5,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:30.619Z"
+        }
+      ],
+      "updated_at": "2026-01-13T05:41:30.620Z"
     },
     {
       "id": "ceo-019",
@@ -203,7 +405,45 @@
       "due_date": "2026-12-31",
       "workflow": "Team & Personnel",
       "notes": "2026 planned hire",
-      "created_at": "2026-01-07"
+      "created_at": "2026-01-07",
+      "steps": [
+        {
+          "id": "step-1768282894912-0gmgm35p0",
+          "description": "Define role requirements and job description",
+          "order": 1,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:34.912Z"
+        },
+        {
+          "id": "step-1768282894912-kv3gkcs9f",
+          "description": "Post job listing and source candidates",
+          "order": 2,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:34.912Z"
+        },
+        {
+          "id": "step-1768282894912-4pfqtau4a",
+          "description": "Screen and interview candidates",
+          "order": 3,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:34.912Z"
+        },
+        {
+          "id": "step-1768282894912-dfbgnvp2f",
+          "description": "Evaluate and select top candidate",
+          "order": 4,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:34.912Z"
+        },
+        {
+          "id": "step-1768282894912-wg10nqm8d",
+          "description": "Extend offer and complete onboarding",
+          "order": 5,
+          "completed": false,
+          "createdAt": "2026-01-13T05:41:34.912Z"
+        }
+      ],
+      "updated_at": "2026-01-13T05:41:34.914Z"
     },
     {
       "id": "ceo-021",
@@ -224,10 +464,35 @@
     "LOW": 2
   },
   "core_projects": [
-    {"name": "Monolith System", "priority": "HIGH", "status": "Active Development", "timeline": "Q1 2026 Foundation"},
-    {"name": "TeeMates", "priority": "HIGH", "status": "~95% Ready", "timeline": "Q1 2026 App Store Launch"},
-    {"name": "VR Golf Leagues", "priority": "HIGH", "status": "UX/UI Audit & Testing", "timeline": "Q1 2026 Testing/Migration"},
-    {"name": "Unplug Social", "priority": "LOW", "status": "Back Burner", "timeline": "Jan 30, 2026 Archive"},
-    {"name": "Riichi Scoring", "priority": "LOW", "status": "Back Burner", "timeline": "Jan 30, 2026 Archive"}
+    {
+      "name": "Monolith System",
+      "priority": "HIGH",
+      "status": "Active Development",
+      "timeline": "Q1 2026 Foundation"
+    },
+    {
+      "name": "TeeMates",
+      "priority": "HIGH",
+      "status": "~95% Ready",
+      "timeline": "Q1 2026 App Store Launch"
+    },
+    {
+      "name": "VR Golf Leagues",
+      "priority": "HIGH",
+      "status": "UX/UI Audit & Testing",
+      "timeline": "Q1 2026 Testing/Migration"
+    },
+    {
+      "name": "Unplug Social",
+      "priority": "LOW",
+      "status": "Back Burner",
+      "timeline": "Jan 30, 2026 Archive"
+    },
+    {
+      "name": "Riichi Scoring",
+      "priority": "LOW",
+      "status": "Back Burner",
+      "timeline": "Jan 30, 2026 Archive"
+    }
   ]
 }

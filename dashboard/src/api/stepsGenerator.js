@@ -4,9 +4,7 @@
  * Analyzes task content keywords to generate appropriate steps
  */
 
-import { v4 as uuidv4 } from 'uuid';
-
-// Generate simple UUIDs if uuid not available
+// Generate simple IDs without external dependencies
 function generateId() {
   try {
     return `step-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;

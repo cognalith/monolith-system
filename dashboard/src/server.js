@@ -12,6 +12,8 @@ import roleTaskCountsRoutes from './api/roleTaskCountsRoutes.js';
 import workflowsActiveRoutes from './api/workflowsActiveRoutes.js';
 import tasksCompletedRoutes from './api/tasksCompletedRoutes.js';
 import decisionsRoutes from './api/decisionsRoutes.js';
+// Task Completion Feature Routes
+import tasksRoutes from './api/tasksRoutes.js';
 // Task data loader for NotebookLM-extracted JSON files
 import { getPendingTasks, getPrioritySummary, getCompletedTasks, getActiveWorkflows, getTaskCountsByRole } from './api/taskDataLoader.js';
 
@@ -29,6 +31,7 @@ app.use('/api/roles', rolesRoutes);
 app.use('/api/role-task-counts', roleTaskCountsRoutes);
 app.use('/api/workflows/active', workflowsActiveRoutes);
 app.use('/api/tasks', tasksCompletedRoutes);
+app.use('/api/tasks', tasksRoutes);  // Task completion & agent execution
 app.use('/api/decisions', decisionsRoutes);
 
 // Initialize Supabase client (optional - works without it using JSON data)

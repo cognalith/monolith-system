@@ -9,11 +9,14 @@
       "id": "cfo-001",
       "content": "Establish Cost Per Qualified Interaction (CPQI) tracking framework",
       "priority": "HIGH",
-      "status": "pending",
+      "status": "in_progress",
       "due_date": null,
       "workflow": "Financial Metrics Framework",
       "notes": "Brand Authority treated as reduction in future CAC",
-      "created_at": "2026-01-05"
+      "created_at": "2026-01-05",
+      "sentToAgent": true,
+      "sentToAgentAt": "2026-01-13T05:39:12.557Z",
+      "updated_at": "2026-01-13T05:39:12.558Z"
     },
     {
       "id": "cfo-002",

@@ -80,9 +80,6 @@ COPY --from=builder /app/dashboard/src/config ./dashboard/src/config
 # Copy task JSON data files (required for API)
 COPY --from=builder /app/dashboard/src/data ./dashboard/src/data
 
-# Copy data files
-COPY --from=builder /app/data ./data
-
 # Create logs directory
 RUN mkdir -p /app/logs && chown -R monolith:monolith /app
 

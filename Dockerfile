@@ -86,6 +86,9 @@ RUN mkdir -p /app/logs && chown -R monolith:monolith /app
 # Switch to non-root user
 USER monolith
 
+# Set working directory for the server
+WORKDIR /app/dashboard/src
+
 # Expose dashboard port
 EXPOSE 3000
 
@@ -97,4 +100,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 ENTRYPOINT ["dumb-init", "--"]
 
 # Default command: run dashboard server
-CMD ["node", "dashboard/src/server.js"]
+CMD ["node", "server.js"]

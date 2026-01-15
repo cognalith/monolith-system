@@ -1,0 +1,1243 @@
+openapi: 3.0.3
+info:
+  title: MONOLITH OS API
+  description: |
+    RESTful API for MONOLITH OS - An AI-powered enterprise operating system that orchestrates
+    autonomous agents for business operations, decision-making, and workflow management.
+
+    ## Features
+    - **Task Management**: Create, update, and track tasks across the organization
+    - **Decision Logging**: Record and audit business decisions with full traceability
+    - **Workflow Orchestration**: Manage multi-step business processes
+    - **Agent Management**: Monitor and control AI agents across different roles
+
+    ## Authentication
+    All endpoints require Bearer token authentication. Obtain a token via `/auth/login`.
+
+    ## Rate Limiting
+    - Standard endpoints: 100 requests/minute
+    - Bulk operations: 10 requests/minute
+
+    ## Versioning
+    The API uses URL-based versioning. Current version: v1
+  version: 1.0.0
+  contact:
+    name: MONOLITH OS Support
+    email: support@monolith-os.local
+  license:
+    name: Proprietary
+    url: https://monolith-os.local/license
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+  - url: https://api.monolith-os.local/api
+    description: Production server
+
+tags:
+  - name: Tasks
+    description: Task management operations
+  - name: Decisions
+    description: Decision log operations
+  - name: Workflows
+    description: Workflow management operations
+  - name: Agents
+    description: Agent status and management
+  - name: Escalations
+    description: Escalation handling
+  - name: Authentication
+    description: Authentication and authorization
+  - name: Health
+    description: System health and status
+
+security:
+  - BearerAuth: []
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Returns the health status of the API
+      security: []
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /v1/tasks:
+    get:
+      tags:
+        - Tasks
+      summary: List tasks
+      description: Retrieve a paginated list of tasks with optional filtering
+      parameters:
+        - name: status
+          in: query
+          description: Filter by task status
+          schema:
+            type: string
+            enum: [pending, in_progress, completed, blocked, cancelled]
+        - name: priority
+          in: query
+          description: Filter by priority level
+          schema:
+            type: string
+            enum: [CRITICAL, HIGH, MEDIUM, LOW]
+        - name: role
+          in: query
+          description: Filter by assigned role
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: sort
+          in: query
+          description: Sort field
+          schema:
+            type: string
+            enum: [created_at, priority, status]
+            default: created_at
+        - name: order
+          in: query
+          description: Sort order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags:
+        - Tasks
+      summary: Create a new task
+      description: Create a new task and optionally assign it to a role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreate'
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/tasks/{taskId}:
+    get:
+      tags:
+        - Tasks
+      summary: Get task by ID
+      description: Retrieve a specific task by its ID
+      parameters:
+        - $ref: '#/components/parameters/TaskIdParam'
+      responses:
+        '200':
+          description: Task details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    patch:
+      tags:
+        - Tasks
+      summary: Update a task
+      description: Update task properties
+      parameters:
+        - $ref: '#/components/parameters/TaskIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdate'
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags:
+        - Tasks
+      summary: Delete a task
+      description: Soft delete a task (marks as cancelled)
+      parameters:
+        - $ref: '#/components/parameters/TaskIdParam'
+      responses:
+        '200':
+          description: Task deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/tasks/{taskId}/complete:
+    post:
+      tags:
+        - Tasks
+      summary: Complete a task
+      description: Mark a task as completed and optionally resolve dependencies
+      parameters:
+        - $ref: '#/components/parameters/TaskIdParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                completedBy:
+                  type: string
+                  description: Who completed the task
+                notes:
+                  type: string
+                  description: Completion notes
+                resolveDeps:
+                  type: boolean
+                  default: true
+                  description: Whether to resolve dependent tasks
+      responses:
+        '200':
+          description: Task completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskCompleteResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/tasks/{taskId}/send-to-agent:
+    post:
+      tags:
+        - Tasks
+      summary: Send task to agent
+      description: Queue a task for processing by an AI agent
+      parameters:
+        - $ref: '#/components/parameters/TaskIdParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                priority:
+                  type: string
+                  enum: [CRITICAL, HIGH, MEDIUM, LOW]
+                  description: Override priority for processing
+                context:
+                  type: object
+                  description: Additional context for the agent
+      responses:
+        '200':
+          description: Task queued for agent processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskAgentResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/decisions:
+    get:
+      tags:
+        - Decisions
+      summary: List decisions
+      description: Retrieve a paginated list of decisions with optional filtering
+      parameters:
+        - name: role
+          in: query
+          description: Filter by decision maker role
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter by category
+          schema:
+            type: string
+            enum: [budget, strategy, compliance, security, operations, hr, marketing, legal, technology]
+        - name: impact
+          in: query
+          description: Filter by impact level
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of decisions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecisionListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags:
+        - Decisions
+      summary: Record a decision
+      description: Record a new business decision
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecisionCreate'
+      responses:
+        '201':
+          description: Decision recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecisionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/escalations:
+    get:
+      tags:
+        - Escalations
+      summary: List escalations
+      description: Retrieve pending escalations requiring CEO/human decision
+      responses:
+        '200':
+          description: List of escalations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EscalationListResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/agents/escalations/{escalationId}/resolve:
+    post:
+      tags:
+        - Escalations
+      summary: Resolve an escalation
+      description: Resolve a pending escalation with a decision
+      parameters:
+        - name: escalationId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - decision
+              properties:
+                decision:
+                  type: string
+                  description: The decision made
+                notes:
+                  type: string
+                  description: Additional notes
+      responses:
+        '200':
+          description: Escalation resolved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/workflows:
+    get:
+      tags:
+        - Workflows
+      summary: List workflows
+      description: Retrieve a paginated list of workflows
+      parameters:
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [active, paused, completed, cancelled, draft]
+        - name: type
+          in: query
+          description: Filter by workflow type
+          schema:
+            type: string
+            enum: [operational, strategic, compliance, hr, financial, technical]
+        - name: owner_role
+          in: query
+          description: Filter by owner role
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of workflows
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags:
+        - Workflows
+      summary: Create a workflow
+      description: Create a new workflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowCreate'
+      responses:
+        '201':
+          description: Workflow created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/agents:
+    get:
+      tags:
+        - Agents
+      summary: List agents
+      description: Retrieve all registered agents
+      parameters:
+        - name: status
+          in: query
+          description: Filter by agent status
+          schema:
+            type: string
+            enum: [active, idle, disabled, error]
+        - name: enabled
+          in: query
+          description: Filter by enabled state
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of agents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentListResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/agents/status:
+    get:
+      tags:
+        - Agents
+      summary: Get agent system status
+      description: Retrieve overall agent system status including orchestrator state
+      responses:
+        '200':
+          description: Agent system status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentStatusResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login
+      description: Authenticate and receive a JWT token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register
+      description: Register a new user account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - name
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                name:
+                  type: string
+                role:
+                  type: string
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh token
+      description: Refresh an expired access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /auth/login
+
+  parameters:
+    TaskIdParam:
+      name: taskId
+      in: path
+      required: true
+      description: Unique task identifier
+      schema:
+        type: string
+
+    PageParam:
+      name: page
+      in: query
+      description: Page number
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      description: Items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique task identifier
+        content:
+          type: string
+          description: Task description
+        priority:
+          type: string
+          enum: [CRITICAL, HIGH, MEDIUM, LOW]
+        status:
+          type: string
+          enum: [pending, in_progress, completed, blocked, cancelled]
+        assigned_role:
+          type: string
+          description: Role assigned to this task
+        workflow:
+          type: string
+          description: Associated workflow name
+        created_at:
+          type: string
+          format: date-time
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskStep'
+
+    TaskStep:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        completed:
+          type: boolean
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    TaskCreate:
+      type: object
+      required:
+        - content
+        - assigned_role
+      properties:
+        content:
+          type: string
+          description: Task description
+        priority:
+          type: string
+          enum: [CRITICAL, HIGH, MEDIUM, LOW]
+          default: MEDIUM
+        assigned_role:
+          type: string
+          description: Role to assign
+        workflow:
+          type: string
+          description: Associated workflow
+        due_date:
+          type: string
+          format: date-time
+        dependencies:
+          type: array
+          items:
+            type: string
+          description: Task IDs this task depends on
+
+    TaskUpdate:
+      type: object
+      properties:
+        content:
+          type: string
+        priority:
+          type: string
+          enum: [CRITICAL, HIGH, MEDIUM, LOW]
+        status:
+          type: string
+        due_date:
+          type: string
+          format: date-time
+        notes:
+          type: string
+
+    Decision:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        decided_at:
+          type: string
+          format: date-time
+        decided_by_role:
+          type: string
+        decided_by_name:
+          type: string
+        category:
+          type: string
+          enum: [budget, strategy, compliance, security, operations, hr, marketing, legal, technology]
+        impact:
+          type: string
+          enum: [low, medium, high, critical]
+        financial_impact:
+          type: number
+          nullable: true
+
+    DecisionCreate:
+      type: object
+      required:
+        - decision
+      properties:
+        decision:
+          type: string
+          description: Decision description
+        role:
+          type: string
+          description: Decision maker role
+        task_id:
+          type: string
+          description: Associated task ID
+        rationale:
+          type: string
+          description: Decision rationale
+        financial_impact:
+          type: number
+          description: Financial impact amount
+        category:
+          type: string
+          enum: [budget, strategy, compliance, security, operations, hr, marketing, legal, technology]
+
+    Escalation:
+      type: object
+      properties:
+        id:
+          type: string
+        taskId:
+          type: string
+        reason:
+          type: string
+        priority:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [pending, resolved]
+
+    Workflow:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [active, paused, completed, cancelled, draft]
+        type:
+          type: string
+          enum: [operational, strategic, compliance, hr, financial, technical]
+        owner_role:
+          type: string
+        owner_name:
+          type: string
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        start_date:
+          type: string
+          format: date-time
+          nullable: true
+        target_date:
+          type: string
+          format: date-time
+          nullable: true
+        tasks_total:
+          type: integer
+        tasks_completed:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    WorkflowCreate:
+      type: object
+      required:
+        - name
+        - owner_role
+      properties:
+        name:
+          type: string
+          description: Workflow name
+        description:
+          type: string
+        type:
+          type: string
+          enum: [operational, strategic, compliance, hr, financial, technical]
+          default: operational
+        owner_role:
+          type: string
+          description: Owner role ID
+        target_date:
+          type: string
+          format: date-time
+
+    Agent:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+        status:
+          type: string
+          enum: [active, idle, disabled, error]
+        enabled:
+          type: boolean
+        capabilities:
+          type: array
+          items:
+            type: string
+        metrics:
+          type: object
+          properties:
+            tasksProcessed:
+              type: integer
+            tasksCompleted:
+              type: integer
+            tasksFailed:
+              type: integer
+            averageProcessingTime:
+              type: number
+            lastActiveAt:
+              type: string
+              format: date-time
+              nullable: true
+        config:
+          type: object
+          properties:
+            maxConcurrentTasks:
+              type: integer
+            timeout:
+              type: integer
+            retryAttempts:
+              type: integer
+            priority:
+              type: integer
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            field:
+              type: string
+
+    HealthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [healthy, degraded, unhealthy]
+            version:
+              type: string
+            timestamp:
+              type: string
+              format: date-time
+            uptime:
+              type: number
+
+    TaskListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    TaskResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Task'
+        message:
+          type: string
+
+    TaskCompleteResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            task:
+              $ref: '#/components/schemas/Task'
+            dependencies:
+              type: object
+              properties:
+                resolved:
+                  type: boolean
+                unblockedTasks:
+                  type: array
+                  items:
+                    type: string
+        message:
+          type: string
+
+    TaskAgentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            task:
+              $ref: '#/components/schemas/Task'
+            queue:
+              type: object
+              properties:
+                mode:
+                  type: string
+                position:
+                  type: integer
+                taskId:
+                  type: string
+        message:
+          type: string
+
+    DecisionListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Decision'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    DecisionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Decision'
+        message:
+          type: string
+
+    EscalationListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Escalation'
+        total:
+          type: integer
+
+    WorkflowListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workflow'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    WorkflowResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Workflow'
+        message:
+          type: string
+
+    AgentListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agent'
+        total:
+          type: integer
+        systemStatus:
+          type: object
+          properties:
+            orchestratorRunning:
+              type: boolean
+            mode:
+              type: string
+            queuedTasks:
+              type: integer
+            inProgress:
+              type: integer
+
+    AgentStatusResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            system:
+              type: object
+              properties:
+                available:
+                  type: boolean
+                mode:
+                  type: string
+                orchestratorRunning:
+                  type: boolean
+            agents:
+              type: object
+              properties:
+                total:
+                  type: integer
+                active:
+                  type: integer
+                disabled:
+                  type: integer
+            queue:
+              type: object
+              properties:
+                pending:
+                  type: integer
+                inProgress:
+                  type: integer
+                completed:
+                  type: integer
+            escalations:
+              type: object
+              properties:
+                pendingCEODecisions:
+                  type: integer
+            timestamp:
+              type: string
+              format: date-time
+
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+            refreshToken:
+              type: string
+            expiresIn:
+              type: integer
+            user:
+              type: object
+              properties:
+                id:
+                  type: string
+                email:
+                  type: string
+                name:
+                  type: string
+                role:
+                  type: string
+
+  responses:
+    BadRequest:
+      description: Bad request - validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: VALIDATION_ERROR
+              message: Invalid input
+              field: content
+
+    Unauthorized:
+      description: Unauthorized - authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: UNAUTHORIZED
+              message: Authentication required
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: NOT_FOUND
+              message: Resource not found
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: INTERNAL_ERROR
+              message: An unexpected error occurred

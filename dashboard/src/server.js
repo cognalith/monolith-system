@@ -386,7 +386,24 @@ app.post('/api/notifications/test', authMiddleware, async (req, res) => {
                                                                                                                                                                                               });
                                                                                                                                                                                               });
 
-// Start server
-app.listen(port, '0.0.0.0', () => {
+// Start server with error handling
+const server = app.listen(port, '0.0.0.0', () => {
   console.log(`Backend API server running on port ${port}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Auth: ${process.env.DISABLE_AUTH === 'true' ? 'DISABLED' : 'ENABLED'}`);
+});
+
+server.on('error', (err) => {
+  console.error('Server failed to start:', err);
+  process.exit(1);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled rejection at:', promise, 'reason:', reason);
 });

@@ -1,6 +1,6 @@
-import 'dotenv/config';
+// Load environment variables (dotenv for local dev, Railway provides them in production)
 import dotenv from 'dotenv';
-dotenv.config({ path: './dashboard/.env' });
+dotenv.config(); // Uses .env in current directory if it exists
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
 import cors from 'cors';

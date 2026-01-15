@@ -1,0 +1,12 @@
+# Railway deployment configuration
+# Forces Railway to use Dockerfile instead of auto-detecting package.json
+
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3

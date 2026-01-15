@@ -11,6 +11,7 @@ const approvedOrigins = [
   'http://localhost:5174',
   'https://monolith-os.cognalith.com',
   'https://dashboard.monolith-os.com',
+  'https://monolith-system.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -53,7 +54,7 @@ export const corsOptions = {
     if (approvedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.warn(\`[CORS] Blocked request from origin: \${origin}\`);
+      console.warn(`[CORS] Blocked request from origin: ${origin}`);
       callback(new Error('Not allowed by CORS policy'));
     }
   },
@@ -96,7 +97,7 @@ export function corsMiddleware(req, res, next) {
 export function addApprovedOrigin(origin) {
   if (!approvedOrigins.includes(origin)) {
     approvedOrigins.push(origin);
-    console.log(\`[CORS] Added approved origin: \${origin}\`);
+    console.log(`[CORS] Added approved origin: ${origin}`);
   }
 }
 

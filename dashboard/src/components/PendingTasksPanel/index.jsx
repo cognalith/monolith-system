@@ -5,6 +5,7 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import { getAbbrFromId, getRoleById } from '../../config/roleHierarchy';
+import { API_BASE_URL } from '../../config/api';
 import { SkeletonTaskRow } from '../Skeleton';
 import TaskExpandedDetails from './TaskExpandedDetails';
 import './PendingTasksPanel.css';
@@ -130,7 +131,7 @@ const PendingTasksPanel = ({ isOpen, onClose, selectedRole = null }) => {
   const fetchTasks = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3000/api/pending-tasks');
+      const response = await fetch(`${API_BASE_URL}/api/pending-tasks`);
       if (!response.ok) throw new Error('Failed to fetch pending tasks');
       const data = await response.json();
 
@@ -221,7 +222,7 @@ const PendingTasksPanel = ({ isOpen, onClose, selectedRole = null }) => {
   const fetchTaskSteps = async (taskId) => {
     setStepsLoading((prev) => ({ ...prev, [taskId]: true }));
     try {
-      const response = await fetch(`http://localhost:3000/api/tasks/${taskId}/steps`);
+      const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}/steps`);
       if (!response.ok) throw new Error('Failed to fetch task steps');
       const data = await response.json();
       setTaskSteps((prev) => ({ ...prev, [taskId]: data.steps || [] }));
@@ -241,7 +242,7 @@ const PendingTasksPanel = ({ isOpen, onClose, selectedRole = null }) => {
     setActionFeedback(null);
 
     try {
-      const response = await fetch(`http://localhost:3000/api/tasks/${taskId}/complete`, {
+      const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}/complete`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -272,7 +273,7 @@ const PendingTasksPanel = ({ isOpen, onClose, selectedRole = null }) => {
     setActionFeedback(null);
 
     try {
-      const response = await fetch(`http://localhost:3000/api/tasks/${taskId}/send-to-agent`, {
+      const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}/send-to-agent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });

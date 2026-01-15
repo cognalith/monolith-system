@@ -5,6 +5,7 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import { ROLES } from '../config/roleHierarchy';
+import { apiFetch, isApiAvailable } from '../config/api';
 
 // Mock data for development (until backend API is ready)
 const generateMockTaskCounts = () => {
@@ -70,18 +71,11 @@ const useRoleTaskCounts = ({ refreshInterval = 30000, enabled = true } = {}) => 
 
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3000/api/role-task-counts');
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch role task counts');
-      }
-
-      const data = await response.json();
+      const data = await apiFetch('/api/role-task-counts');
       setTaskCounts(data.counts || {});
       setError(null);
     } catch (err) {
       console.warn('API failed for role task counts:', err.message);
-      // Don't use mock data - show actual zeros
       setTaskCounts({});
       setError(err.message);
     } finally {

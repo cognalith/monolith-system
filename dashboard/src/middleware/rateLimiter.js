@@ -75,7 +75,7 @@ export function rateLimiter(req, res, next) {
   const { tier, windowMs, maxRequests } = getRateLimitTier(path);
   
   // Create unique key for this client and endpoint tier
-  const key = \`\${clientIP}:\${tier}\`;
+  const key = `${clientIP}:${tier}`;
   const now = Date.now();
   
   let clientData = rateLimitStore.get(key);
@@ -107,10 +107,10 @@ export function rateLimiter(req, res, next) {
   
   // Check if rate limit exceeded
   if (clientData.requestCount > maxRequests) {
-    console.warn(\`[RATE_LIMIT] IP: \${clientIP}, Tier: \${tier}, Path: \${path}\`);
+    console.warn(`[RATE_LIMIT] IP: ${clientIP}, Tier: ${tier}, Path: ${path}`);
     return res.status(429).json({
       error: 'Too Many Requests',
-      message: \`Rate limit exceeded. Try again in \${resetTime} seconds.\`,
+      message: `Rate limit exceeded. Try again in ${resetTime} seconds.`,
       retryAfter: resetTime,
       tier
     });

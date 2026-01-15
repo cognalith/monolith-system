@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { ROLES, getRolesSorted, getAbbrFromId } from '../config/roleHierarchy';
 import useRoleTaskCounts from '../hooks/useRoleTaskCounts';
+import { apiFetch, isApiAvailable } from '../config/api';
 import RoleButton from './RoleButton';
 import StatCard from './StatCard';
 import PendingTasksPanel from './PendingTasksPanel';
@@ -43,44 +44,26 @@ const CEODashboard = () => {
         setLoading(true);
         setError(null);
 
-        // Try to fetch from backend API (port 3000)
-        const statsRes = await fetch('http://localhost:3000/api/dashboard/stats', {
-          headers: { 'Content-Type': 'application/json' },
-        });
-        const activityRes = await fetch('http://localhost:3000/api/recent-activity', {
-          headers: { 'Content-Type': 'application/json' },
-        });
-
-        if (!statsRes.ok || !activityRes.ok) throw new Error('API unavailable');
-
-        const statsData = await statsRes.json();
-        const activityData = await activityRes.json();
+        const [statsData, activityData] = await Promise.all([
+          apiFetch('/api/dashboard/stats'),
+          apiFetch('/api/recent-activity'),
+        ]);
 
         setStats(statsData);
         // API returns { activities: [...] }, extract the array
         setActivity(activityData.activities || activityData || []);
       } catch (err) {
         setError(err.message);
-        console.warn('API failed, using fallback data:', err.message);
+        console.warn('API failed:', err.message);
 
-        // Fallback to minimal placeholder data with visual delay for UX
-        setTimeout(() => {
-          setStats({
-            activeWorkflows: 0,
-            pendingTasks: 0,
-            completedToday: 0,
-            totalDecisions: 0,
-          });
-          setActivity([
-            {
-              id: 1,
-              action: 'API unavailable - Start backend server to see real data',
-              timestamp: new Date(),
-              role: 'system',
-            },
-          ]);
-          // Keep error visible so user knows API is down
-        }, 500);
+        // Show error state with zeros
+        setStats({
+          activeWorkflows: 0,
+          pendingTasks: 0,
+          completedToday: 0,
+          totalDecisions: 0,
+        });
+        setActivity([]);
       } finally {
         setLoading(false);
       }

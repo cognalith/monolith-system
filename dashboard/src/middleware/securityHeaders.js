@@ -18,8 +18,8 @@ export function enforceHttps(req, res, next) {
   
   if (!isSecure && !isDevelopment) {
     // Redirect to HTTPS
-    const httpsUrl = \`https://\${req.headers.host}\${req.url}\`;
-    console.log(\`[HTTPS] Redirecting \${req.url} to HTTPS\`);
+    const httpsUrl = `https://${req.headers.host}${req.url}`;
+    console.log(`[HTTPS] Redirecting ${req.url} to HTTPS`);
     return res.redirect(301, httpsUrl);
   }
   
@@ -87,7 +87,7 @@ export function securityHeaders(req, res, next) {
   res.setHeader('Server', 'MONOLITH-OS');
   
   // Add request ID for tracking
-  const requestId = \`req_\${Date.now()}_\${Math.random().toString(36).substr(2, 9)}\`;
+  const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   res.setHeader('X-Request-ID', requestId);
   req.requestId = requestId;
   
@@ -146,11 +146,11 @@ export const certificatePins = {
 export function certificatePinning(req, res, next) {
   // Report-Only mode for testing
   res.setHeader('Public-Key-Pins-Report-Only', [
-    \`pin-sha256="\${certificatePins.pins[0]}"\`,
-    \`pin-sha256="\${certificatePins.pins[1]}"\`,
-    \`max-age=\${certificatePins.maxAge}\`,
+    `pin-sha256="${certificatePins.pins[0]}"`,
+    `pin-sha256="${certificatePins.pins[1]}"`,
+    `max-age=${certificatePins.maxAge}`,
     certificatePins.includeSubdomains ? 'includeSubDomains' : '',
-    \`report-uri="\${certificatePins.reportUri}"\`
+    `report-uri="${certificatePins.reportUri}"`
   ].filter(Boolean).join('; '));
   
   next();

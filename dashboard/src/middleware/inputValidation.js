@@ -128,11 +128,11 @@ function scanObject(obj, path = '', depth = 0) {
   
   if (Array.isArray(obj)) {
     obj.forEach((item, index) => {
-      threats = threats.concat(scanObject(item, \`\${path}[\${index}]\`, depth + 1));
+      threats = threats.concat(scanObject(item, `${path}[${index}]`, depth + 1));
     });
   } else if (obj && typeof obj === 'object') {
     for (const [key, value] of Object.entries(obj)) {
-      const fieldPath = path ? \`\${path}.\${key}\` : key;
+      const fieldPath = path ? `${path}.${key}` : key;
       threats = threats.concat(scanObject(value, fieldPath, depth + 1));
     }
   } else if (typeof obj === 'string') {
@@ -152,7 +152,7 @@ function validateBodySize(req, maxSizeKB = 1024) {
   if (contentLength > maxBytes) {
     return {
       valid: false,
-      error: \`Request body too large. Maximum size: \${maxSizeKB}KB\`
+      error: `Request body too large. Maximum size: ${maxSizeKB}KB`
     };
   }
   
@@ -191,7 +191,7 @@ export function inputValidation(req, res, next) {
   
   // If threats detected, log and block
   if (threats.length > 0) {
-    console.warn(\`[SECURITY] Malicious input detected from IP: \${req.ip}\`, {
+    console.warn(`[SECURITY] Malicious input detected from IP: ${req.ip}`, {
       path: req.path,
       method: req.method,
       threats
@@ -209,23 +209,25 @@ export function inputValidation(req, res, next) {
 
 /**
  * Sanitization middleware - sanitizes input without blocking
+ * Note: In Express 5, req.query and req.params are read-only,
+ * so we only sanitize req.body and store sanitized versions separately
  */
 export function inputSanitization(req, res, next) {
-  // Sanitize body
+  // Sanitize body (still writable in Express 5)
   if (req.body) {
     req.body = sanitizeObject(req.body);
   }
-  
-  // Sanitize query parameters
+
+  // Store sanitized versions of read-only properties
+  // Access via req.sanitizedQuery and req.sanitizedParams if needed
   if (req.query) {
-    req.query = sanitizeObject(req.query);
+    req.sanitizedQuery = sanitizeObject({ ...req.query });
   }
-  
-  // Sanitize URL parameters
+
   if (req.params) {
-    req.params = sanitizeObject(req.params);
+    req.sanitizedParams = sanitizeObject({ ...req.params });
   }
-  
+
   next();
 }
 
@@ -245,16 +247,16 @@ export function validateAndSanitize(req, res, next) {
   
   // Log threats but don't block (just sanitize)
   if (threats.length > 0) {
-    console.warn(\`[SECURITY] Suspicious input sanitized from IP: \${req.ip}\`, {
+    console.warn(`[SECURITY] Suspicious input sanitized from IP: ${req.ip}`, {
       path: req.path,
       threatCount: threats.length
     });
   }
   
-  // Sanitize everything
+  // Sanitize everything (body is writable, query/params are read-only in Express 5)
   if (req.body) req.body = sanitizeObject(req.body);
-  if (req.query) req.query = sanitizeObject(req.query);
-  if (req.params) req.params = sanitizeObject(req.params);
+  if (req.query) req.sanitizedQuery = sanitizeObject({ ...req.query });
+  if (req.params) req.sanitizedParams = sanitizeObject({ ...req.params });
   
   next();
 }

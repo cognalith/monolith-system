@@ -6,6 +6,14 @@ import { createClient } from '@supabase/supabase-js';
 import cors from 'cors';
 import { sendSlackNotification, sendEmailNotification, notifyDecision } from './notifications.js';
 
+// Phase 3: Security Middleware Imports
+import { securityHeaders, enforceHttps } from './middleware/securityHeaders.js';
+import { corsOptions, corsMiddleware } from './middleware/corsConfig.js';
+import { rateLimiter } from './middleware/rateLimiter.js';
+import { inputValidation, inputSanitization } from './middleware/inputValidation.js';
+import { requireAuth, optionalAuth } from './middleware/authMiddleware.js';
+import authRoutes from './api/authRoutes.js';
+
 // Phase 8: Dashboard UX Enhancement API Routes
 import rolesRoutes from './api/rolesRoutes.js';
 import roleTaskCountsRoutes from './api/roleTaskCountsRoutes.js';
@@ -18,21 +26,70 @@ import tasksRoutes from './api/tasksRoutes.js';
 import { getPendingTasks, getPrioritySummary, getCompletedTasks, getActiveWorkflows, getTaskCountsByRole } from './api/taskDataLoader.js';
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// ============================================
+// PHASE 3: SECURITY MIDDLEWARE STACK
+// ============================================
+
+// Apply security headers to all requests
+app.use(securityHeaders);
+
+// HTTPS enforcement (enabled in production)
+if (process.env.NODE_ENV === 'production') {
+  app.use(enforceHttps);
+}
+
+// CORS configuration - use custom middleware for more control
+app.use(corsMiddleware);
+
+// Rate limiting - applied globally
+app.use(rateLimiter);
+
+// Parse JSON bodies
+app.use(express.json({ limit: '1mb' }));
+
+// Input validation and sanitization for all requests with bodies
+app.use(inputValidation);
+app.use(inputSanitization);
+
+// ============================================
+// PUBLIC ROUTES (No Authentication Required)
+// ============================================
+
+// Health check endpoint - always public
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Auth routes - public for login/register
+app.use('/api/auth', authRoutes);
+
+// ============================================
+// PROTECTED ROUTES (Authentication Required)
+// ============================================
+// Note: In development, authentication can be bypassed by setting
+// DISABLE_AUTH=true in environment variables
+
+const authMiddleware = process.env.DISABLE_AUTH === 'true'
+  ? (req, res, next) => {
+      // Development bypass - attach mock user
+      req.user = { id: 'dev-user', email: 'dev@monolith.local', role: 'admin' };
+      next();
+    }
+  : requireAuth;
 
 // ============================================
 // PHASE 8: Dashboard UX Enhancement Routes
 // ============================================
-app.use('/api/roles', rolesRoutes);
-app.use('/api/role-task-counts', roleTaskCountsRoutes);
-app.use('/api/workflows/active', workflowsActiveRoutes);
-app.use('/api/tasks', tasksCompletedRoutes);
-app.use('/api/tasks', tasksRoutes);  // Task completion & agent execution
-app.use('/api/decisions', decisionsRoutes);
+// These routes are protected by authentication
+app.use('/api/roles', authMiddleware, rolesRoutes);
+app.use('/api/role-task-counts', authMiddleware, roleTaskCountsRoutes);
+app.use('/api/workflows/active', authMiddleware, workflowsActiveRoutes);
+app.use('/api/workflows', authMiddleware, workflowsActiveRoutes);  // Alias for /api/workflows
+app.use('/api/tasks', authMiddleware, tasksCompletedRoutes);
+app.use('/api/tasks', authMiddleware, tasksRoutes);  // Task completion & agent execution
+app.use('/api/decisions', authMiddleware, decisionsRoutes);
 
 // Initialize Supabase client (optional - works without it using JSON data)
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -45,9 +102,9 @@ if (supabaseUrl && supabaseAnonKey) {
   console.log('[SERVER] Running without Supabase - using JSON data only');
 }
 
-// GET /api/dashboard/stats - Returns dashboard statistics
+// GET /api/dashboard/stats - Returns dashboard statistics (protected)
 // Phase 9: Updated to use real NotebookLM-extracted JSON data as primary source
-app.get('/api/dashboard/stats', async (req, res) => {
+app.get('/api/dashboard/stats', authMiddleware, async (req, res) => {
   try {
     // Get real stats from NotebookLM-extracted JSON files
     const pendingTasks = getPendingTasks();
@@ -86,9 +143,9 @@ app.get('/api/dashboard/stats', async (req, res) => {
   }
 });
 
-// GET /api/recent-activity - Returns the last 10 rows from decision_logs
+// GET /api/recent-activity - Returns the last 10 rows from decision_logs (protected)
 // Phase 8.3.5: Added ?role= query parameter support
-app.get('/api/recent-activity', async (req, res) => {
+app.get('/api/recent-activity', authMiddleware, async (req, res) => {
   try {
     const { role } = req.query;
 
@@ -126,8 +183,8 @@ app.get('/api/recent-activity', async (req, res) => {
   }
 });
 
-// POST /api/decision - Allows the dashboard to write back to the system
-app.post('/api/decision', async (req, res) => {
+// POST /api/decision - Allows the dashboard to write back to the system (protected)
+app.post('/api/decision', authMiddleware, async (req, res) => {
   try {
     const { task_id, role, decision, financial_impact, rationale } = req.body;
     
@@ -163,10 +220,10 @@ app.post('/api/decision', async (req, res) => {
   }
 });
 
-// GET /api/pending-tasks - Returns pending tasks with full details
+// GET /api/pending-tasks - Returns pending tasks with full details (protected)
 // Phase 8.3.5: Added ?role= query parameter support
 // Phase 9: Updated to use NotebookLM-extracted JSON files as primary source
-app.get('/api/pending-tasks', async (req, res) => {
+app.get('/api/pending-tasks', authMiddleware, async (req, res) => {
   try {
     const { role } = req.query;
     let useJsonData = true;
@@ -250,8 +307,8 @@ app.get('/api/pending-tasks', async (req, res) => {
   }
 });
 
-// GET /api/decision-history - Returns decision history with task details
-app.get('/api/decision-history', async (req, res) => {
+// GET /api/decision-history - Returns decision history with task details (protected)
+app.get('/api/decision-history', authMiddleware, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('decision_logs')
@@ -279,17 +336,12 @@ app.get('/api/decision-history', async (req, res) => {
   }
 });
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
-});
-
 // ============================================
-// NOTIFICATION ENDPOINTS (Phase 6.2)
+// NOTIFICATION ENDPOINTS (Phase 6.2) - Protected
 // ============================================
 
 // POST /api/notifications/test - Test notification service
-app.post('/api/notifications/test', async (req, res) => {
+app.post('/api/notifications/test', authMiddleware, async (req, res) => {
   try {
       const { channel, message, priority, role } = req.body;
           
@@ -335,6 +387,6 @@ app.post('/api/notifications/test', async (req, res) => {
                                                                                                                                                                                               });
 
 // Start server
-app.listen(port, () => {
-  console.log(`Backend API server running on http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Backend API server running on port ${port}`);
 });

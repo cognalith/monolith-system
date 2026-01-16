@@ -42,7 +42,7 @@ RUN npm run build
 # ============================================
 FROM node:20-alpine AS production
 
-# Install Playwright dependencies and chromium
+# Install Playwright dependencies, chromium, and build tools for native modules
 RUN apk add --no-cache \
     chromium \
     nss \
@@ -51,7 +51,10 @@ RUN apk add --no-cache \
     harfbuzz \
     ca-certificates \
     ttf-freefont \
-    dumb-init
+    dumb-init \
+    python3 \
+    make \
+    g++
 
 # Set Playwright to use installed chromium
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
@@ -66,9 +69,13 @@ WORKDIR /app
 # Copy agents with production dependencies
 COPY --from=builder /app/agents ./agents
 
-# Copy dashboard server and built assets
+# Copy dashboard package.json and install production dependencies
 COPY --from=builder /app/dashboard/package*.json ./dashboard/
-COPY --from=builder /app/dashboard/node_modules ./dashboard/node_modules
+WORKDIR /app/dashboard
+RUN npm ci --omit=dev
+
+# Copy dashboard server and built assets
+WORKDIR /app
 COPY --from=builder /app/dashboard/dist ./dashboard/dist
 COPY --from=builder /app/dashboard/src/server.js ./dashboard/src/server.js
 COPY --from=builder /app/dashboard/src/api ./dashboard/src/api

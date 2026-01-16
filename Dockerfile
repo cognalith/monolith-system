@@ -86,8 +86,8 @@ RUN mkdir -p /app/logs && chown -R monolith:monolith /app
 # Switch to non-root user
 USER monolith
 
-# Set working directory for the server
-WORKDIR /app/dashboard/src
+# Set working directory for the server (where node_modules lives)
+WORKDIR /app/dashboard
 
 # Expose dashboard port
 EXPOSE 3000
@@ -96,4 +96,4 @@ EXPOSE 3000
 ENTRYPOINT ["dumb-init", "--"]
 
 # Default command: run dashboard server
-CMD ["node", "server.js"]
+CMD ["node", "src/server.js"]

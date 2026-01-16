@@ -72,12 +72,7 @@ COPY --from=builder /app/agents ./agents
 # Copy dashboard package.json and install production dependencies
 COPY --from=builder /app/dashboard/package*.json ./dashboard/
 WORKDIR /app/dashboard
-RUN echo "=== DEBUG: Current directory ===" && pwd && \
-    echo "=== DEBUG: package.json exists? ===" && ls -la package*.json && \
-    echo "=== DEBUG: Running npm ci ===" && \
-    npm ci --omit=dev && \
-    echo "=== DEBUG: node_modules contents ===" && ls -la node_modules/ | head -20 && \
-    echo "=== DEBUG: jsonwebtoken installed? ===" && ls -la node_modules/jsonwebtoken || echo "jsonwebtoken NOT FOUND"
+RUN npm ci --omit=dev
 
 # Copy dashboard server and built assets
 WORKDIR /app

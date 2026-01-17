@@ -1,12 +1,38 @@
 # Claude Code Session Context
 **Last Updated**: 2026-01-17
 **Branch**: main
-**Phase**: 6H (All Teams Deployed)
-**Last Commit**: pending
+**Phase**: 6H (All Teams Deployed + QA Fixes)
+**Last Commit**: 00971cf - fix(dashboard): resolve API 404/500 errors from QA testing
 
 ---
 
-## Phase 6G-6H: Finance & People Teams (Current)
+## QA Fixes (Latest)
+
+### Issues Found & Resolved
+| Issue | Root Cause | Fix Applied |
+|-------|-----------|-------------|
+| 404 on `/teams/product` | Missing team ID in TEAM_HIERARCHY | Added product team definition to teamRoutes.js |
+| 404 on `/teams/people` | Missing team ID in TEAM_HIERARCHY | Added people team definition to teamRoutes.js |
+| 404 on `/recommendation-queue` | Endpoint not implemented | Added endpoint in neuralStackRoutes.js |
+| 404 on `/learning-insights` | Endpoint not implemented | Added endpoint in neuralStackRoutes.js |
+| 404 on `/research-log` | Endpoint not implemented | Added endpoint in neuralStackRoutes.js |
+| 404 on `/teams/heatmap` | Endpoint not implemented | Added endpoint in neuralStackRoutes.js |
+| 404 on `/teams/activity-log` | Endpoint not implemented | Added endpoint in neuralStackRoutes.js |
+| 500 on `/recent-activity` | Unhandled Supabase error | Added graceful error handling |
+
+### Files Modified
+- `dashboard/src/api/teamRoutes.js` - Added product/people teams
+- `dashboard/src/api/neuralStackRoutes.js` - Added 5 endpoints, updated KNOWLEDGE_BOTS
+- `dashboard/src/server.js` - Graceful error handling for recent-activity
+
+### Production Status
+- Vercel frontend: Deployed ✅
+- Railway backend: Deployed ✅ (commit 00971cf)
+- All fixed endpoints responding correctly
+
+---
+
+## Phase 6G-6H: Finance & People Teams
 
 ### Overview
 Phases 6G and 6H complete the Team Deployment series by adding the final two teams: Finance Team (6G) and People Team (6H). Executed in parallel for efficiency.

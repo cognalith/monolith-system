@@ -141,7 +141,7 @@ app.get('/api/dashboard/stats', authMiddleware, async (req, res) => {
     if (supabase && supabaseUrl && supabaseAnonKey) {
       try {
         const { count: decisionCount, error: decisionError } = await supabase
-          .from('decision_logs')
+          .from('monolith_decisions')
           .select('*', { count: 'exact', head: true });
 
         if (!decisionError && decisionCount !== null) {
@@ -176,14 +176,14 @@ app.get('/api/recent-activity', authMiddleware, async (req, res) => {
     }
 
     let query = supabase
-      .from('decision_logs')
+      .from('monolith_decisions')
       .select('*')
       .order('timestamp', { ascending: false })
       .limit(10);
 
     // Filter by role if specified
     if (role) {
-      query = query.eq('role', role.toLowerCase());
+      query = query.eq('role_id', role.toLowerCase());
     }
 
     const { data, error } = await query;
@@ -213,30 +213,31 @@ app.get('/api/recent-activity', authMiddleware, async (req, res) => {
 // POST /api/decision - Allows the dashboard to write back to the system (protected)
 app.post('/api/decision', authMiddleware, async (req, res) => {
   try {
-    const { task_id, role, decision, financial_impact, rationale } = req.body;
-    
+    const { task_id, role, decision, action, reasoning } = req.body;
+
     // Validate required fields
     if (!decision) {
       return res.status(400).json({ error: 'Decision field is required' });
     }
-    
-    // Insert into decision_logs
+
+    // Insert into monolith_decisions
     const { data, error } = await supabase
-      .from('decision_logs')
+      .from('monolith_decisions')
       .insert([{
         task_id: task_id || null,
-        role: role || null,
+        role_id: role || null,
+        role_name: role ? role.toUpperCase() : null,
         decision: decision,
-        financial_impact: financial_impact || null,
-        rationale: rationale || null,
+        action: action || null,
+        reasoning: reasoning || null,
         timestamp: new Date().toISOString(),
       }])
       .select();
-    
+
     if (error) {
       throw new Error(error.message);
     }
-    
+
     res.status(201).json({
       message: 'Decision recorded successfully',
       data: data[0],
@@ -338,8 +339,8 @@ app.get('/api/pending-tasks', authMiddleware, async (req, res) => {
 app.get('/api/decision-history', authMiddleware, async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from('decision_logs')
-      .select('id, task_id, role, decision, financial_impact, rationale, timestamp, tasks(content, priority)')
+      .from('monolith_decisions')
+      .select('id, task_id, role_id, role_name, decision, action, reasoning, timestamp')
       .order('timestamp', { ascending: false });
 
     if (error) throw new Error(error.message);
@@ -347,12 +348,11 @@ app.get('/api/decision-history', authMiddleware, async (req, res) => {
     const decisions = data.map(d => ({
       id: d.id,
       task_id: d.task_id,
-      task_content: d.tasks?.content || 'Unknown',
-      task_priority: d.tasks?.priority || 'Unknown',
-      role: d.role,
+      role: d.role_id,
+      role_name: d.role_name || d.role_id,
       decision: d.decision,
-      financial_impact: d.financial_impact,
-      rationale: d.rationale,
+      action: d.action,
+      reasoning: d.reasoning,
       timestamp: d.timestamp
     }));
 

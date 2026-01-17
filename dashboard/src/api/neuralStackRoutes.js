@@ -114,7 +114,7 @@ router.get('/agent-health', async (req, res) => {
         trend,
         status,
         active_amendments: amendmentCounts[agent.agent_role] || 0,
-        tasks_completed: agent.tasks_completed || 0,
+        tasks_completed: agent.tasks_since_last_review || 0,
         last_active: agent.updated_at,
       };
     });
@@ -437,7 +437,7 @@ router.get('/heatmap', async (req, res) => {
     // Get aggregated metrics per agent
     const { data: agents, error: agentError } = await supabase
       .from('monolith_agent_memory')
-      .select('agent_role, tasks_completed, avg_success_rate, avg_time_variance');
+      .select('agent_role, tasks_since_last_review, deliverable_completion_rate, avg_variance_percent');
 
     if (agentError) throw agentError;
 

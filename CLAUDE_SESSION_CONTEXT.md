@@ -1,114 +1,290 @@
 # Claude Code Session Context
-**Last Updated**: 2026-01-13
+**Last Updated**: 2026-01-17
 **Branch**: main
-**Last Commit**: 5d8935b
+**Last Commit**: efd1244
 
-## What We Built This Session
+---
 
-### Task Completion & Agent Execution Feature
-A feature allowing users to complete tasks and send them to AI agents from the dashboard.
+## Phase 5E: Full Autonomy (Current)
 
-#### New Backend Files Created
-| File | Purpose |
-|------|---------|
-| `dashboard/src/api/taskDataWriter.js` | Atomic JSON updates, dependency resolution |
-| `dashboard/src/api/tasksRoutes.js` | API endpoints for task operations |
-| `dashboard/src/api/agentIntegration.js` | Bridge to TaskOrchestrator |
-| `dashboard/src/api/stepsGenerator.js` | Rule-based step generation |
+### Overview
+Phase 5E enables the Chief of Staff (CoS) to operate autonomously for standard Knowledge layer amendments, with exception-only escalation to the CEO. This completes the Neural Stack evolution from manual approval to autonomous operation.
 
-#### New Frontend Files Created
-| File | Purpose |
-|------|---------|
-| `dashboard/src/components/PendingTasksPanel/TaskExpandedDetails.jsx` | Expanded task view |
+### Deployment Status
+| Component | Status | URL |
+|-----------|--------|-----|
+| Frontend (Vercel) | Deployed | https://monolith-system.vercel.app |
+| Backend (Railway) | Deployed | monolith-system-production.up.railway.app |
+| Database (Supabase) | Active | ixeruhjgahfhqmgftouj.supabase.co |
 
-#### Modified Files
-- `dashboard/src/components/PendingTasksPanel/index.jsx` - Added expansion logic
-- `dashboard/src/components/PendingTasksPanel/PendingTasksPanel.css` - Added styles
-- `dashboard/src/server.js` - Mounted new routes
-- `dashboard/src/server-secured.js` - Mounted new routes
+### New Dashboard Widgets
+| Widget | Purpose |
+|--------|---------|
+| **Autonomy Status Panel** | Shows autonomous vs escalated amendment counts, autonomy rate |
+| **CoS Health Indicator** | Success rate gauge with hardcoded 50% threshold over 20 amendments |
+| **Exception Queue** | Pending CEO escalations with approve/reject actions |
+| **Baking Activity** | Tracks when proven amendments merge into standard_knowledge |
 
-### API Endpoints Added
+### Escalation Triggers (CEO Required)
+1. **Skills Layer Modifications** - Changes to agent capabilities
+2. **Persona Layer Modifications** - Changes to agent personality/behavior
+3. **3+ Consecutive Failures** - Same agent failing repeatedly
+4. **Cross-Agent Decline Patterns** - Multiple agents declining simultaneously
+
+### Hardcoded Safety Constraints
+```javascript
+const HARDCODED = Object.freeze({
+  ALERT_THRESHOLD: 0.50,        // 50% success rate triggers alert
+  WINDOW_SIZE: 20,              // Rolling window of amendments
+  MIN_AMENDMENTS_FOR_ALERT: 10, // Minimum sample before alerting
+  SELF_MODIFY_BLOCKED: true     // CoS cannot modify these values
+});
 ```
-GET    /api/tasks/:taskId          - Get single task
-PATCH  /api/tasks/:taskId/status   - Update task status
-POST   /api/tasks/:taskId/complete - Complete task + unblock dependents
-POST   /api/tasks/:taskId/send-to-agent - Queue for AI agent
-GET    /api/tasks/:taskId/steps    - Get/generate steps
+
+### Database Tables (Phase 5E)
+```sql
+-- Exception escalations requiring CEO action
+exception_escalations (id, amendment_id, reason, status, resolved_by, created_at)
+
+-- Proven amendments merged into standard_knowledge
+baked_amendments (id, original_amendment_id, agent_role, baked_changes, version_hashes)
+
+-- CoS self-monitoring metrics
+cos_monitoring (id, amendment_id, success, recorded_at)
+
+-- Reversion audit trail
+revert_log (id, amendment_id, reason, metrics, reverted_at)
+
+-- Consecutive failure tracking
+consecutive_failures (id, agent_role, failure_count, escalated)
+
+-- CEO health alerts
+ceo_alerts (id, alert_type, reason, metrics, acknowledged)
 ```
 
-### Features Implemented
-1. **Expandable Task Cards** - Click to expand, shows steps and action buttons
-2. **Complete Task Button** - Marks task done, resolves dependencies
-3. **Send to Agent Button** - Queues task for AI agent processing
-4. **Auto-Generated Steps** - Based on task content keywords (migration, setup, review, etc.)
-5. **Dependency Resolution** - Completing a task unblocks dependent tasks
+### Amendment Baking Process
+1. Agent reaches 10+ active amendments (threshold)
+2. Oldest proven amendment selected (5+ successful evaluations, 60%+ success rate)
+3. Amendment merged into `standard_knowledge` layer
+4. New `knowledge_version_hash` computed
+5. Amendment marked `is_baked = true` and archived
 
-## QA Testing Results
-All tests passed:
-- API endpoints working (GET, POST, PATCH)
-- Steps generator detects task types correctly
-- Dependency resolution works (blockedBy arrays updated)
-- Error handling returns appropriate messages
+---
 
-## Documentation Created
-- `agents/ARCHITECTURE.md` - Comprehensive system architecture docs
-- `agents/NOTEBOOKLM_GUIDE_PROMPT.md` - Prompt for NotebookLM content generation
+## Neural Stack Evolution (Phases 5A-5E)
 
-## How to Start the Server
+| Phase | Name | Description |
+|-------|------|-------------|
+| 5A | Data Foundation | Supabase tables for agent memory, task history, amendments |
+| 5B | Authorization Escalation | Financial Escalation Framework (MonA + Frank MFA) |
+| 5C | Amendment System | Knowledge amendments with CoS evaluation |
+| 5D | Neural Stack Dashboard | Health monitoring, variance tracking, amendment activity |
+| 5E | Full Autonomy | Exception-only escalation, auto-approval, amendment baking |
+
+---
+
+## Project Structure
+
+```
+/home/tinanaman/monolith-system/
+├── agents/                          # AI Agent System
+│   ├── core/
+│   │   ├── TaskOrchestrator.js     # Task routing and execution
+│   │   ├── RoleAgent.js            # Base agent class
+│   │   ├── EscalationEngine.js     # Phase 5E exception escalation
+│   │   ├── DecisionLogger.js       # Decision audit logging
+│   │   └── LLMRouter.js            # Model selection logic
+│   ├── intelligence/
+│   │   └── SmartRouter.js          # Intelligent task routing
+│   ├── neural-stack/
+│   │   ├── AmendmentEngine.js      # Amendment CRUD operations
+│   │   ├── AmendmentSafety.js      # Safety checks, auto-revert
+│   │   ├── ApprovalWorkflow.js     # Autonomous/strict modes
+│   │   ├── KnowledgeComputer.js    # Knowledge layer composition
+│   │   ├── ExceptionEscalation.js  # Phase 5E escalation logic
+│   │   ├── AmendmentBaking.js      # Phase 5E baking mechanism
+│   │   └── CoSSelfMonitor.js       # Phase 5E self-monitoring
+│   ├── roles/
+│   │   ├── ceo/agent.js            # CEO agent
+│   │   ├── cfo/agent.js            # CFO agent (financial oversight)
+│   │   ├── cto/agent.js            # CTO agent
+│   │   ├── cos/agent.js            # Chief of Staff (document management)
+│   │   ├── ciso/agent.js           # CISO agent (security)
+│   │   ├── cmo/agent.js            # CMO agent (marketing)
+│   │   ├── devops/agent.js         # DevOps agent
+│   │   └── software-engineer/      # Software Engineer agent
+│   ├── services/
+│   │   ├── BrowserService.js       # Playwright automation
+│   │   ├── DatabaseService.js      # Supabase operations
+│   │   ├── DocumentService.js      # Google Drive file ops
+│   │   ├── DocumentIndexer.js      # Document search index
+│   │   ├── GmailService.js         # Email operations
+│   │   ├── LoggingService.js       # Centralized logging
+│   │   ├── MeteringService.js      # Usage tracking
+│   │   ├── TenantService.js        # Multi-tenant support
+│   │   └── index.js                # Service exports
+│   ├── production/
+│   │   ├── ConfigManager.js        # Environment config
+│   │   └── validateSecrets.js      # Secret validation
+│   └── server.js                   # Agent API server
+│
+├── dashboard/                       # React Dashboard + Express API
+│   ├── src/
+│   │   ├── server.js               # Main Express server
+│   │   ├── api/
+│   │   │   ├── neuralStackRoutes.js # Neural Stack API endpoints
+│   │   │   ├── tasksRoutes.js      # Task management API
+│   │   │   ├── agentIntegration.js # Agent bridge
+│   │   │   └── taskDataWriter.js   # Atomic JSON updates
+│   │   ├── components/
+│   │   │   ├── NeuralStack/        # Phase 5D-5E dashboard
+│   │   │   │   ├── index.jsx       # Main dashboard component
+│   │   │   │   ├── AgentHealthGrid.jsx
+│   │   │   │   ├── AutonomyStatusPanel.jsx    # Phase 5E
+│   │   │   │   ├── CoSHealthIndicator.jsx     # Phase 5E
+│   │   │   │   ├── ExceptionQueueWidget.jsx   # Phase 5E
+│   │   │   │   ├── BakingActivityWidget.jsx   # Phase 5E
+│   │   │   │   ├── EscalationWidget.jsx
+│   │   │   │   ├── VarianceTrendChart.jsx
+│   │   │   │   ├── AmendmentActivityLog.jsx
+│   │   │   │   ├── AgentHeatmap.jsx
+│   │   │   │   └── NeuralStack.css
+│   │   │   └── ...other components
+│   │   ├── hooks/
+│   │   │   └── useNeuralStack.js   # Neural Stack data hooks
+│   │   └── data/tasks/             # Task JSON files
+│   └── package.json
+│
+├── database/
+│   ├── schema.sql                  # Core database schema
+│   ├── tenant-schema.sql           # Multi-tenant schema
+│   └── migrations/
+│       └── 005_phase5e_full_autonomy.sql  # Phase 5E tables
+│
+├── railway.toml                    # Railway deployment config
+├── Dockerfile                      # Container configuration
+├── CLAUDE.md                       # Claude Code instructions
+└── CLAUDE_SESSION_CONTEXT.md       # This file
+```
+
+---
+
+## API Endpoints
+
+### Neural Stack API (`/api/neural-stack/`)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/agent-health` | GET | Health metrics for all 15 agents |
+| `/variance-history/:agentRole` | GET | Variance trend data |
+| `/escalations` | GET | Financial escalations (Phase 5B) |
+| `/amendments` | GET | Amendment activity log |
+| `/heatmap` | GET | Cross-agent performance matrix |
+| `/cos-health` | GET | CoS success rate and alerts (Phase 5E) |
+| `/exception-escalations` | GET | Pending CEO exceptions (Phase 5E) |
+| `/exception-escalations/:id/resolve` | POST | Resolve exception (Phase 5E) |
+| `/baked-amendments` | GET | Baked amendment history (Phase 5E) |
+| `/autonomy-stats` | GET | Autonomous vs escalated counts (Phase 5E) |
+
+### Task API (`/api/tasks/`)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/:taskId` | GET | Get single task |
+| `/:taskId/status` | PATCH | Update task status |
+| `/:taskId/complete` | POST | Complete task + unblock dependents |
+| `/:taskId/send-to-agent` | POST | Queue for AI agent |
+| `/:taskId/steps` | GET | Get/generate task steps |
+
+---
+
+## Environment Variables
+
+### Dashboard (Vercel/Railway)
+```bash
+SUPABASE_URL=https://ixeruhjgahfhqmgftouj.supabase.co
+SUPABASE_ANON_KEY=<jwt-token>
+SUPABASE_SERVICE_ROLE_KEY=<service-key>  # Optional, for admin ops
+NODE_ENV=production
+```
+
+### Agents
+```bash
+ANTHROPIC_API_KEY=<key>
+OPENAI_API_KEY=<key>
+DOCUMENT_ROOT=/mnt/h/My Drive/MONOLITH_OS
+ENABLE_DOCUMENT_MANAGEMENT=true
+```
+
+---
+
+## Google Drive Integration
+
+### Document Repository
+- **Path**: `H:\My Drive\MONOLITH_OS` (WSL: `/mnt/h/My Drive/MONOLITH_OS`)
+- **Managed By**: Chief of Staff Agent
+
+### Folder Structure
+```
+MONOLITH_OS/
+├── 00_INBOX/      # Unprocessed incoming documents
+├── 01_EXECUTIVE/  # CEO directives, board docs
+├── 02_FINANCE/    # Budgets, reports, invoices
+├── 03_TECHNOLOGY/ # Architecture docs, specs
+├── 04_LEGAL/      # Contracts, compliance
+├── 05_OPERATIONS/ # SOPs, workflows
+├── 06_PRODUCT/    # PRDs, roadmaps
+├── 07_PEOPLE/     # HR policies, org charts
+├── 08_MARKETING/  # Brand assets, campaigns
+├── 09_SECURITY/   # Security policies, audits
+├── 10_PROJECTS/   # Active project workspaces
+├── 99_ARCHIVE/    # Completed/obsolete documents
+└── _INDEX.md      # Repository guide
+```
+
+### WSL Mount Command
+```bash
+sudo mkdir -p /mnt/h && sudo mount -t drvfs H: /mnt/h
+```
+
+---
+
+## How to Start
+
+### Dashboard Server
 ```bash
 cd /home/tinanaman/monolith-system/dashboard
 node src/server.js
 # Server runs on http://localhost:3000
 ```
 
-## How to Test
-```bash
-# Get a task
-curl http://localhost:3000/api/tasks/ceo-001
+### View Dashboard
+- Local: http://localhost:3000
+- Production: https://monolith-system.vercel.app
 
-# Get task steps
-curl http://localhost:3000/api/tasks/ceo-001/steps
+---
 
-# Complete a task
-curl -X POST http://localhost:3000/api/tasks/ceo-010/complete \
-  -H "Content-Type: application/json" \
-  -d '{"completedBy": "manual"}'
+## Recent Commits
 
-# Send to agent
-curl -X POST http://localhost:3000/api/tasks/cfo-002/send-to-agent \
-  -H "Content-Type: application/json" \
-  -d '{"priority": "normal"}'
 ```
+efd1244 feat(phase-5e): complete Full Autonomy implementation
+0f1a4d6 fix: update heatmap query to use existing column names
+c877db9 chore: trigger Railway Dockerfile rebuild for Phase 5E
+6d350e3 feat(neural-stack): implement Phase 5E Full Autonomy
+b3ad7e8 feat(dashboard): implement Cognalith Cyber-Noir UI redesign
+bd3ad78 feat(dashboard): add Phase 5D Neural Stack Dashboard
+cf0fa91 feat(neural-stack): add Phase 5C Amendment System
+6c4b367 feat(neural-stack): add Phase 5B Authorization Escalation Framework
+82d87a6 feat(neural-stack): add Phase 5A Data Foundation
+```
+
+---
 
 ## Next Steps / Potential Work
-- [ ] Add real-time WebSocket updates when tasks complete
-- [ ] Persist generated steps to task data
-- [ ] Add step completion tracking (checkbox functionality)
-- [ ] Connect to live agent system (currently uses mock when agents not running)
-- [ ] Add confirmation dialog before completing tasks
 
-## Key File Locations
-```
-/home/tinanaman/monolith-system/
-├── dashboard/
-│   ├── src/
-│   │   ├── server.js              # Main server (running)
-│   │   ├── server-secured.js      # Secured server (Phase 7)
-│   │   ├── api/
-│   │   │   ├── taskDataWriter.js  # NEW - Task updates
-│   │   │   ├── tasksRoutes.js     # NEW - Task API
-│   │   │   ├── agentIntegration.js # NEW - Agent bridge
-│   │   │   └── stepsGenerator.js  # NEW - Step generation
-│   │   ├── components/
-│   │   │   └── PendingTasksPanel/
-│   │   │       ├── index.jsx      # MODIFIED - Expandable cards
-│   │   │       ├── TaskExpandedDetails.jsx # NEW
-│   │   │       └── PendingTasksPanel.css   # MODIFIED
-│   │   └── data/tasks/            # Task JSON files
-│   └── package.json
-└── agents/
-    ├── ARCHITECTURE.md            # NEW - System docs
-    ├── NOTEBOOKLM_GUIDE_PROMPT.md # NEW - NotebookLM prompt
-    └── core/
-        └── TaskOrchestrator.js    # Agent orchestration
-```
+- [ ] Implement real-time WebSocket updates for dashboard
+- [ ] Add amendment evaluation simulation for testing
+- [ ] Connect live agent system to Neural Stack
+- [ ] Add cross-agent pattern detection analytics
+- [ ] Implement amendment rollback UI
+- [ ] Add CoS health trend visualization

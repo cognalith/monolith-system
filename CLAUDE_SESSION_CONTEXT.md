@@ -1,11 +1,58 @@
 # Claude Code Session Context
 **Last Updated**: 2026-01-17
 **Branch**: main
-**Last Commit**: efd1244
+**Phase**: 6F (Operations Team Panel)
+**Last Commit**: pending
 
 ---
 
-## Phase 5E: Full Autonomy (Current)
+## Phase 6F: Operations Team Panel (Current)
+
+### Overview
+Phase 6F completes the Team Deployment series by adding the Operations Team specialized panel to the Neural Stack Dashboard. This is the fourth and final team panel, following Tech (6C), Marketing (6D), and Product (6E) teams.
+
+### Operations Team Structure
+| Role | Reports To | Specialties |
+|------|-----------|-------------|
+| **COO** (Team Lead) | CoS | Vendor management, process automation, operational excellence |
+| **Vendor Management Lead** | COO | Contract negotiation, SLA management, procurement |
+| **Process Automation Lead** | COO | Workflow automation, system integration, no-code tools |
+| **ops_knowledge_bot** (Advisory) | COO | Research best practices for subordinates |
+
+### New Dashboard Components
+| Component | File | Purpose |
+|-----------|------|---------|
+| `OperationsTeamPanel` | `OperationsTeamPanel.jsx` | Operations Team monitoring dashboard |
+| Orange color scheme | `NeuralStack.css` | --neon-orange: #ff8c00 |
+
+### API Endpoints (Phase 6F)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/neural-stack/teams/operations` | GET | Operations Team health and activity |
+| `/api/neural-stack/knowledge-bots/ops-kb/research` | POST | Trigger ops knowledge bot research |
+
+### Key Files
+- `dashboard/src/components/NeuralStack/OperationsTeamPanel.jsx` - Main panel component
+- `agents/neural-stack/operations-team-configs.js` - Agent configurations
+- `agents/neural-stack/operations-team.test.js` - 67 tests (all passing)
+- `agents/neural-stack/009_operations_team_seed.sql` - Database seed
+
+---
+
+## Phase 6 Series: Team Deployment
+
+| Phase | Team | Lead | Color | Status |
+|-------|------|------|-------|--------|
+| 6A | Team Hierarchy | - | - | Complete (schema + overview panels) |
+| 6B | Knowledge Bots | - | - | Complete (6 knowledge bots) |
+| 6C | Tech Team | CTO | Cyan (#00b4d8) | Complete |
+| 6D | Marketing Team | CMO | Magenta (#c832c8) | Complete |
+| 6E | Product Team | CPO | Teal (#00c9a7) | Complete |
+| 6F | Operations Team | COO | Orange (#ff8c00) | Complete |
+
+---
+
+## Phase 5E: Full Autonomy
 
 ### Overview
 Phase 5E enables the Chief of Staff (CoS) to operate autonomously for standard Knowledge layer amendments, with exception-only escalation to the CEO. This completes the Neural Stack evolution from manual approval to autonomous operation.

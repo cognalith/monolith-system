@@ -1043,4 +1043,249 @@ router.get('/consecutive-failures', async (req, res) => {
   }
 });
 
+// ============================================================================
+// PHASE 6B: KNOWLEDGE BOT RECOMMENDATIONS
+// ============================================================================
+
+// Knowledge Bot configuration (duplicated for standalone route access)
+const KNOWLEDGE_BOTS = {
+  'executive-kb': {
+    role: 'executive-kb',
+    team_id: 'executive',
+    subordinates: ['cfo', 'coo', 'cto', 'cmo', 'chro', 'ciso', 'clo'],
+    name: 'Executive Knowledge Bot',
+  },
+  'tech-kb': {
+    role: 'tech-kb',
+    team_id: 'technology',
+    subordinates: ['devops', 'data', 'qa', 'ciso'],
+    name: 'Technology Knowledge Bot',
+  },
+  'ops-kb': {
+    role: 'ops-kb',
+    team_id: 'operations',
+    subordinates: ['cos', 'cpo', 'cco'],
+    name: 'Operations Knowledge Bot',
+  },
+  'finance-kb': {
+    role: 'finance-kb',
+    team_id: 'finance',
+    subordinates: ['cro'],
+    name: 'Finance Knowledge Bot',
+  },
+  'marketing-kb': {
+    role: 'marketing-kb',
+    team_id: 'marketing',
+    subordinates: [],
+    name: 'Marketing Knowledge Bot',
+  },
+  'hr-kb': {
+    role: 'hr-kb',
+    team_id: 'hr',
+    subordinates: [],
+    name: 'HR Knowledge Bot',
+  },
+};
+
+// Helper to find Knowledge Bot for a subordinate
+const findKnowledgeBotForSubordinate = (subordinateRole) => {
+  for (const kb of Object.values(KNOWLEDGE_BOTS)) {
+    if (kb.subordinates.includes(subordinateRole)) {
+      return kb;
+    }
+  }
+  return null;
+};
+
+// Helper to get full role name
+function getFullRoleName(roleId) {
+  const roleNames = {
+    ceo: 'Chief Executive Officer',
+    cfo: 'Chief Financial Officer',
+    coo: 'Chief Operating Officer',
+    cto: 'Chief Technology Officer',
+    cmo: 'Chief Marketing Officer',
+    chro: 'Chief Human Resources Officer',
+    ciso: 'Chief Information Security Officer',
+    clo: 'General Counsel',
+    cos: 'Chief of Staff',
+    cco: 'Chief Compliance Officer',
+    cpo: 'Chief Product Officer',
+    cro: 'Chief Revenue Officer',
+    devops: 'DevOps & Infrastructure Lead',
+    data: 'Data Engineer',
+    qa: 'QA Lead',
+  };
+  return roleNames[roleId] || roleId.toUpperCase();
+}
+
+/**
+ * GET /api/neural-stack/recommendations/:subordinateRole
+ * Returns recommendations for a specific subordinate from their team's Knowledge Bot
+ * Query params: ?status=pending&limit=10
+ */
+router.get('/recommendations/:subordinateRole', async (req, res) => {
+  try {
+    const { subordinateRole } = req.params;
+    const { status } = req.query;
+    const limit = parseInt(req.query.limit) || 10;
+
+    // Find the Knowledge Bot for this subordinate
+    const kbConfig = findKnowledgeBotForSubordinate(subordinateRole);
+    if (!kbConfig) {
+      return res.status(404).json({
+        error: `No Knowledge Bot found for subordinate '${subordinateRole}'`,
+        message: 'This role may not be assigned to any team or may be a team lead.',
+      });
+    }
+
+    // Build query
+    let query = supabase
+      .from('monolith_kb_recommendations')
+      .select('*')
+      .eq('subordinate_role', subordinateRole)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (status) {
+      query = query.eq('status', status);
+    }
+
+    const { data: recommendations, error } = await query;
+
+    if (error) {
+      if (error.code === '42P01') {
+        return res.json({
+          recommendations: [],
+          subordinate_role: subordinateRole,
+          knowledge_bot: kbConfig.role,
+          message: 'Recommendations table not yet created. Run Phase 6B migration.',
+        });
+      }
+      throw error;
+    }
+
+    res.json({
+      recommendations: (recommendations || []).map(r => ({
+        id: r.id,
+        type: r.type,
+        content: r.content,
+        expected_impact: r.expected_impact,
+        confidence: r.confidence,
+        status: r.status,
+        research_source: r.research_source,
+        created_at: r.created_at,
+        applied_at: r.applied_at,
+        amendment_id: r.amendment_id,
+      })),
+      subordinate_role: subordinateRole,
+      subordinate_name: getFullRoleName(subordinateRole),
+      knowledge_bot: kbConfig.role,
+      knowledge_bot_name: kbConfig.name,
+      filters: { status, limit },
+      total: (recommendations || []).length,
+    });
+  } catch (error) {
+    console.error('[NEURAL-STACK] get subordinate recommendations error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/neural-stack/recommendations/:id/select
+ * Selects a recommendation to apply as an amendment
+ */
+router.post('/recommendations/:id/select', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Get the recommendation
+    const { data: recommendation, error: recError } = await supabase
+      .from('monolith_kb_recommendations')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (recError) {
+      if (recError.code === 'PGRST116') {
+        return res.status(404).json({ error: `Recommendation '${id}' not found` });
+      }
+      throw recError;
+    }
+
+    // Validate recommendation is in pending status
+    if (recommendation.status !== 'pending') {
+      return res.status(400).json({
+        error: `Recommendation is not in 'pending' status`,
+        current_status: recommendation.status,
+        message: 'Only pending recommendations can be selected for amendment.',
+      });
+    }
+
+    // Create amendment from recommendation
+    const amendmentData = {
+      amendment_id: `kb-${recommendation.knowledge_bot_role}-${recommendation.subordinate_role}-${Date.now()}`,
+      agent_role: recommendation.subordinate_role,
+      trigger_reason: `Knowledge Bot recommendation: ${recommendation.type}`,
+      trigger_pattern: 'knowledge_bot_recommendation',
+      amendment_type: 'append',
+      target_area: recommendation.type,
+      content: recommendation.content,
+      performance_before: recommendation.research_context || {},
+      evaluation_status: 'pending',
+      approval_status: 'pending',
+      is_active: false,
+      approval_required: true,
+      source_recommendation_id: recommendation.id,
+      source_knowledge_bot: recommendation.knowledge_bot_role,
+    };
+
+    const { data: amendment, error: amendError } = await supabase
+      .from('monolith_amendments')
+      .insert([amendmentData])
+      .select()
+      .single();
+
+    if (amendError) {
+      throw amendError;
+    }
+
+    // Update recommendation status
+    const { error: updateError } = await supabase
+      .from('monolith_kb_recommendations')
+      .update({
+        status: 'applied',
+        applied_at: new Date().toISOString(),
+        amendment_id: amendment.id,
+      })
+      .eq('id', id);
+
+    if (updateError) {
+      console.warn('[NEURAL-STACK] Could not update recommendation status:', updateError.message);
+    }
+
+    console.log(`[NEURAL-STACK] Recommendation ${id} selected, amendment ${amendment.id} created`);
+
+    res.json({
+      success: true,
+      recommendation_id: id,
+      amendment_id: amendment.id,
+      amendment: {
+        id: amendment.id,
+        amendment_id: amendment.amendment_id,
+        agent_role: amendment.agent_role,
+        amendment_type: amendment.amendment_type,
+        target_area: amendment.target_area,
+        content: amendment.content,
+        approval_status: amendment.approval_status,
+        created_at: amendment.created_at,
+      },
+      message: 'Amendment created and awaiting approval.',
+    });
+  } catch (error) {
+    console.error('[NEURAL-STACK] select recommendation error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

@@ -28,6 +28,12 @@ import { getPendingTasks, getPrioritySummary, getCompletedTasks, getActiveWorkfl
 // Phase 5D: Neural Stack Dashboard Routes
 import neuralStackRoutes from './api/neuralStackRoutes.js';
 
+// Phase 6A: Team Hierarchy Routes
+import teamRoutes from './api/teamRoutes.js';
+
+// Phase 6B: Knowledge Bot Routes
+import knowledgeBotRoutes from './api/knowledgeBotRoutes.js';
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -96,6 +102,12 @@ app.use('/api/decisions', authMiddleware, decisionsRoutes);
 
 // Phase 5D: Neural Stack Dashboard Routes
 app.use('/api/neural-stack', authMiddleware, neuralStackRoutes);
+
+// Phase 6A: Team Hierarchy Routes (mounted under neural-stack for consistency)
+app.use('/api/neural-stack/teams', authMiddleware, teamRoutes);
+
+// Phase 6B: Knowledge Bot Routes (mounted under neural-stack for consistency)
+app.use('/api/neural-stack/knowledge-bots', authMiddleware, knowledgeBotRoutes);
 
 // Initialize Supabase client (optional - works without it using JSON data)
 const supabaseUrl = process.env.SUPABASE_URL;

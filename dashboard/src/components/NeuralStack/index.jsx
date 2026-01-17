@@ -1,5 +1,5 @@
 /**
- * NEURAL STACK DASHBOARD - Phase 5E
+ * NEURAL STACK DASHBOARD - Phase 6F
  * Cognalith Inc. | Monolith System
  *
  * Master component integrating all Neural Stack dashboard widgets.
@@ -10,6 +10,30 @@
  * - ExceptionQueueWidget
  * - CoSHealthIndicator
  * - BakingActivityWidget
+ *
+ * PHASE 6A: Added team hierarchy visualization
+ * - TeamOverviewPanel
+ * - TeamDrillDown
+ * - TeamLeadActivityLog
+ * - TeamHeatmap
+ *
+ * PHASE 6B: Added Knowledge Bot components
+ * - KnowledgeBotPanel
+ * - RecommendationQueue
+ * - LearningInsightsPanel
+ * - ResearchLogPanel
+ *
+ * PHASE 6C: Added Tech Team specialized panel
+ * - TechTeamPanel (first deployed team)
+ *
+ * PHASE 6D: Added Marketing Team specialized panel
+ * - MarketingTeamPanel
+ *
+ * PHASE 6E: Added Product Team specialized panel
+ * - ProductTeamPanel
+ *
+ * PHASE 6F: Added Operations Team specialized panel
+ * - OperationsTeamPanel
  */
 
 import React, { useState, useEffect } from 'react';
@@ -23,6 +47,24 @@ import { AutonomyStatusPanel } from './AutonomyStatusPanel.jsx';
 import { ExceptionQueueWidget } from './ExceptionQueueWidget.jsx';
 import { CoSHealthIndicator } from './CoSHealthIndicator.jsx';
 import { BakingActivityWidget } from './BakingActivityWidget.jsx';
+// Phase 6A widgets
+import { TeamOverviewPanel } from './TeamOverviewPanel.jsx';
+import { TeamDrillDown } from './TeamDrillDown.jsx';
+import { TeamLeadActivityLog } from './TeamLeadActivityLog.jsx';
+import { TeamHeatmap } from './TeamHeatmap.jsx';
+// Phase 6B widgets
+import { KnowledgeBotPanel } from './KnowledgeBotPanel.jsx';
+import { RecommendationQueue } from './RecommendationQueue.jsx';
+import { LearningInsightsPanel } from './LearningInsightsPanel.jsx';
+import { ResearchLogPanel } from './ResearchLogPanel.jsx';
+// Phase 6C widgets
+import { TechTeamPanel } from './TechTeamPanel.jsx';
+// Phase 6D widgets
+import { MarketingTeamPanel } from './MarketingTeamPanel.jsx';
+// Phase 6E widgets
+import { ProductTeamPanel } from './ProductTeamPanel.jsx';
+// Phase 6F widgets
+import { OperationsTeamPanel } from './OperationsTeamPanel.jsx';
 import './NeuralStack.css';
 
 /**
@@ -81,6 +123,8 @@ function DashboardHeader({ selectedAgent, onAgentClear, lastUpdated }) {
  */
 export function NeuralStackDashboard({ layout = LAYOUTS.default }) {
   const [selectedAgent, setSelectedAgent] = useState(null);
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [selectedBot, setSelectedBot] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
   // Update timestamp periodically
@@ -99,6 +143,23 @@ export function NeuralStackDashboard({ layout = LAYOUTS.default }) {
     setSelectedAgent(null);
   };
 
+  const handleTeamSelect = (team) => {
+    setSelectedTeam(team);
+  };
+
+  const handleTeamBack = () => {
+    setSelectedTeam(null);
+  };
+
+  const handleBotSelect = (bot) => {
+    setSelectedBot(bot);
+  };
+
+  const handleRecommendationSelect = (recommendation) => {
+    // Handle recommendation selection - can be used to trigger amendment creation
+    console.log('Selected recommendation:', recommendation);
+  };
+
   return (
     <div className="neural-stack-container">
       <DashboardHeader
@@ -115,6 +176,45 @@ export function NeuralStackDashboard({ layout = LAYOUTS.default }) {
             <CoSHealthIndicator />
             <ExceptionQueueWidget />
           </div>
+        </section>
+
+        {/* Phase 6C: Tech Team Panel (First Deployed Team) */}
+        <section className="neural-stack-section tech-team-section">
+          <TechTeamPanel />
+        </section>
+
+        {/* Phase 6D: Marketing Team Panel */}
+        <section className="neural-stack-section marketing-team-section">
+          <MarketingTeamPanel />
+        </section>
+
+        {/* Phase 6E: Product Team Panel */}
+        <section className="neural-stack-section product-team-section">
+          <ProductTeamPanel />
+        </section>
+
+        {/* Phase 6F: Operations Team Panel */}
+        <section className="neural-stack-section operations-team-section">
+          <OperationsTeamPanel />
+        </section>
+
+        {/* Phase 6A: Team Hierarchy Section */}
+        <section className="neural-stack-section team-section">
+          {selectedTeam ? (
+            <TeamDrillDown team={selectedTeam} onBack={handleTeamBack} />
+          ) : (
+            <TeamOverviewPanel onTeamSelect={handleTeamSelect} />
+          )}
+        </section>
+
+        {/* Phase 6B: Knowledge Bots Section */}
+        <section className="neural-stack-section knowledge-bots-section">
+          <KnowledgeBotPanel onBotSelect={handleBotSelect} />
+        </section>
+
+        {/* Phase 6B: Recommendation Queue Section */}
+        <section className="neural-stack-section recommendation-queue-section">
+          <RecommendationQueue onSelectRecommendation={handleRecommendationSelect} />
         </section>
 
         {/* Top Row: Agent Health + Financial Escalations */}
@@ -136,6 +236,11 @@ export function NeuralStackDashboard({ layout = LAYOUTS.default }) {
           </div>
         </section>
 
+        {/* Phase 6B: Learning Insights Section */}
+        <section className="neural-stack-section learning-insights-section">
+          <LearningInsightsPanel />
+        </section>
+
         {/* Phase 5E: Baking Activity Row */}
         <section className="neural-stack-section baking-section">
           <div className="section-grid full-width">
@@ -143,7 +248,24 @@ export function NeuralStackDashboard({ layout = LAYOUTS.default }) {
           </div>
         </section>
 
-        {/* Bottom Row: Heatmap */}
+        {/* Phase 6B: Research Log Section */}
+        <section className="neural-stack-section research-log-section">
+          <ResearchLogPanel />
+        </section>
+
+        {/* Phase 6A: Team Lead Activity Log */}
+        <section className="neural-stack-section activity-log-section">
+          <div className="section-grid full-width">
+            <TeamLeadActivityLog limit={30} />
+          </div>
+        </section>
+
+        {/* Phase 6A: Team Heatmap */}
+        <section className="neural-stack-section team-heatmap-section">
+          <TeamHeatmap onTeamSelect={handleTeamSelect} />
+        </section>
+
+        {/* Bottom Row: Agent Heatmap */}
         <section className="neural-stack-section bottom-section">
           <AgentHeatmap
             metrics={['variance', 'cos_score', 'success_rate', 'avg_time_min', 'amendments']}
@@ -154,9 +276,9 @@ export function NeuralStackDashboard({ layout = LAYOUTS.default }) {
       {/* Footer */}
       <footer className="neural-stack-footer">
         <div className="footer-left">
-          <span>Monolith System v5.0</span>
+          <span>Monolith System v6.4</span>
           <span className="separator">|</span>
-          <span>Phase 5E Full Autonomy</span>
+          <span>Phase 6F Operations Team Deployed</span>
         </div>
         <div className="footer-right">
           <span>Cognalith Inc.</span>
@@ -178,6 +300,24 @@ export {
   ExceptionQueueWidget,
   CoSHealthIndicator,
   BakingActivityWidget,
+  // Phase 6A widgets
+  TeamOverviewPanel,
+  TeamDrillDown,
+  TeamLeadActivityLog,
+  TeamHeatmap,
+  // Phase 6B widgets
+  KnowledgeBotPanel,
+  RecommendationQueue,
+  LearningInsightsPanel,
+  ResearchLogPanel,
+  // Phase 6C widgets
+  TechTeamPanel,
+  // Phase 6D widgets
+  MarketingTeamPanel,
+  // Phase 6E widgets
+  ProductTeamPanel,
+  // Phase 6F widgets
+  OperationsTeamPanel,
 };
 
 export default NeuralStackDashboard;

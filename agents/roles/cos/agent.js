@@ -6,10 +6,53 @@
  * - Cross-department coordination
  * - CEO calendar and priority management
  * - Risk and issue escalation
+ *
+ * PHASE 6A UPDATES:
+ * - Review scope narrowed to 6 Team Leads only (CTO, CMO, CPO, COO, CFO, CHRO)
+ * - Team Lead Evaluation based on aggregate team metrics
+ * - Cross-Team Pattern Detection
+ * - Systemic Escalation Handling from Team Leads
  */
 
 import RoleAgent from '../../core/RoleAgent.js';
 import documentService from '../../services/DocumentService.js';
+
+// PHASE 6A: Team Lead definitions (CoS only reviews these 6 roles)
+const TEAM_LEADS = Object.freeze({
+  CTO: {
+    role: 'cto',
+    name: 'Chief Technology Officer',
+    subordinates: ['software-engineer', 'devops', 'qa', 'data'],
+  },
+  CMO: {
+    role: 'cmo',
+    name: 'Chief Marketing Officer',
+    subordinates: [],
+  },
+  CPO: {
+    role: 'cpo',
+    name: 'Chief Product Officer',
+    subordinates: [],
+  },
+  COO: {
+    role: 'coo',
+    name: 'Chief Operating Officer',
+    subordinates: [],
+  },
+  CFO: {
+    role: 'cfo',
+    name: 'Chief Financial Officer',
+    subordinates: [],
+  },
+  CHRO: {
+    role: 'chro',
+    name: 'Chief Human Resources Officer',
+    subordinates: [],
+  },
+});
+
+// Team Lead roles array for iteration
+const TEAM_LEAD_ROLES = Object.values(TEAM_LEADS).map(tl => tl.role);
 
 const COS_CONFIG = {
   roleId: 'cos',
@@ -27,6 +70,10 @@ const COS_CONFIG = {
     'Manage company document repository and filing system',
     'Triage incoming documents to appropriate department folders',
     'Maintain document index and ensure proper categorization',
+    // PHASE 6A: New responsibilities
+    'Team Lead Evaluation - Monitor aggregate team metrics for 6 Team Leads',
+    'Cross-Team Pattern Detection - Identify systemic issues spanning multiple teams',
+    'Systemic Escalation Handling - Process escalations from Team Leads about subordinates',
   ],
 
   authorityLimits: {
@@ -37,10 +84,17 @@ const COS_CONFIG = {
     canManageDocuments: true,
     canTriageInbox: true,
     canArchiveDocuments: true,
+    // PHASE 6A: New authority limits
+    canReviewTeamLeads: true,
+    canGenerateTeamLeadAmendments: true,
+    canHandleTeamLeadEscalations: true,
   },
 
   reportsTo: 'ceo',
   directReports: [],
+
+  // PHASE 6A: Team Leads that CoS reviews
+  reviewScope: TEAM_LEAD_ROLES,
 
   roleDescription: `You are the Chief of Staff, the CEO's right hand. Your primary role is to:
 1. Be the information hub - gather updates from all departments
@@ -48,6 +102,12 @@ const COS_CONFIG = {
 3. Identify risks, blockers, and coordination failures before they become problems
 4. Ensure the CEO's time is spent on the highest-priority decisions
 5. Drive execution of CEO priorities across the organization
+
+PHASE 6A - Team Lead Focus:
+6. Review only the 6 Team Leads (CTO, CMO, CPO, COO, CFO, CHRO)
+7. Evaluate Team Leads based on their team's aggregate performance metrics
+8. Detect cross-team patterns and systemic issues
+9. Handle escalations from Team Leads about their subordinates
 
 You have broad visibility across the organization but limited direct authority.
 Your power comes from your access to the CEO and your role as coordinator.`,
@@ -609,7 +669,491 @@ ${message}
       requiresAttention: uniqueEmails.length > 0,
     };
   }
+
+  // ==========================================
+  // PHASE 6A: TEAM LEAD REVIEW METHODS
+  // ==========================================
+
+  /**
+   * Get the list of Team Lead roles that CoS reviews
+   * PHASE 6A: Only 6 Team Leads, not all 15 agents
+   */
+  getReviewScope() {
+    return TEAM_LEAD_ROLES;
+  }
+
+  /**
+   * Get Team Lead configuration by role
+   */
+  getTeamLeadConfig(role) {
+    return Object.values(TEAM_LEADS).find(tl => tl.role === role) || null;
+  }
+
+  /**
+   * Run daily review for Team Leads only
+   * PHASE 6A: Only pulls task history for the 6 Team Leads
+   * Calculates Team Lead performance based on their team's aggregate metrics
+   * Only generates amendments for Team Leads, not subordinates
+   *
+   * @param {Object} supabase - Supabase client for database access
+   * @returns {Promise<Object>} Review results with Team Lead metrics and amendments
+   */
+  async runDailyReview(supabase) {
+    if (!supabase) {
+      return { success: false, error: 'Database client required for daily review' };
+    }
+
+    const reviewResults = {
+      reviewedAt: new Date().toISOString(),
+      teamLeadReviews: [],
+      crossTeamPatterns: [],
+      amendments: [],
+      escalations: [],
+    };
+
+    // Review each Team Lead
+    for (const teamLeadRole of TEAM_LEAD_ROLES) {
+      const teamLeadConfig = this.getTeamLeadConfig(teamLeadRole);
+      if (!teamLeadConfig) continue;
+
+      try {
+        const teamLeadReview = await this.reviewTeamLead(supabase, teamLeadConfig);
+        reviewResults.teamLeadReviews.push(teamLeadReview);
+
+        // Generate amendments if needed (only for Team Lead, not subordinates)
+        if (teamLeadReview.needsAmendment) {
+          const amendment = await this.generateTeamLeadAmendment(supabase, teamLeadConfig, teamLeadReview);
+          if (amendment) {
+            reviewResults.amendments.push(amendment);
+          }
+        }
+      } catch (error) {
+        reviewResults.teamLeadReviews.push({
+          role: teamLeadRole,
+          success: false,
+          error: error.message,
+        });
+      }
+    }
+
+    // Detect cross-team patterns
+    reviewResults.crossTeamPatterns = this.detectCrossTeamPatterns(reviewResults.teamLeadReviews);
+
+    return {
+      success: true,
+      ...reviewResults,
+    };
+  }
+
+  /**
+   * Review a single Team Lead based on their team's aggregate metrics
+   * PHASE 6A: Evaluates Team Lead performance via subordinate metrics
+   *
+   * @param {Object} supabase - Supabase client
+   * @param {Object} teamLeadConfig - Team Lead configuration from TEAM_LEADS
+   * @returns {Promise<Object>} Team Lead review with aggregate metrics
+   */
+  async reviewTeamLead(supabase, teamLeadConfig) {
+    const { role, name, subordinates } = teamLeadConfig;
+
+    // Get Team Lead's own task history
+    const { data: leadTasks, error: leadError } = await supabase
+      .from('monolith_task_history')
+      .select('*')
+      .eq('agent_role', role)
+      .order('completed_at', { ascending: false })
+      .limit(20);
+
+    if (leadError) {
+      throw new Error(`Failed to fetch ${role} tasks: ${leadError.message}`);
+    }
+
+    // Calculate Team Lead's own metrics
+    const leadMetrics = this.calculateAgentMetrics(leadTasks || []);
+
+    // Get aggregate metrics from subordinates (if any)
+    let teamMetrics = { total: 0, successes: 0, failures: 0, avgQuality: 0 };
+
+    if (subordinates.length > 0) {
+      const { data: subTasks, error: subError } = await supabase
+        .from('monolith_task_history')
+        .select('*')
+        .in('agent_role', subordinates)
+        .order('completed_at', { ascending: false })
+        .limit(50);
+
+      if (!subError && subTasks) {
+        teamMetrics = this.calculateTeamMetrics(subTasks);
+      }
+    }
+
+    // Determine if amendment is needed based on thresholds
+    const needsAmendment = this.shouldGenerateTeamLeadAmendment(leadMetrics, teamMetrics);
+
+    return {
+      role,
+      name,
+      subordinates,
+      reviewedAt: new Date().toISOString(),
+      leadMetrics,
+      teamMetrics,
+      compositeScore: this.calculateCompositeScore(leadMetrics, teamMetrics),
+      needsAmendment,
+      issues: this.identifyTeamLeadIssues(leadMetrics, teamMetrics),
+    };
+  }
+
+  /**
+   * Calculate metrics for a single agent
+   */
+  calculateAgentMetrics(tasks) {
+    if (!tasks || tasks.length === 0) {
+      return { total: 0, successRate: 0, avgQuality: 0, avgTime: 0 };
+    }
+
+    const successes = tasks.filter(t => t.success).length;
+    const qualities = tasks.filter(t => t.quality_score).map(t => parseFloat(t.quality_score));
+    const times = tasks.filter(t => t.time_taken_seconds).map(t => t.time_taken_seconds);
+
+    return {
+      total: tasks.length,
+      successRate: successes / tasks.length,
+      avgQuality: qualities.length > 0
+        ? qualities.reduce((a, b) => a + b, 0) / qualities.length
+        : 0,
+      avgTime: times.length > 0
+        ? times.reduce((a, b) => a + b, 0) / times.length
+        : 0,
+    };
+  }
+
+  /**
+   * Calculate aggregate metrics for a team
+   */
+  calculateTeamMetrics(tasks) {
+    if (!tasks || tasks.length === 0) {
+      return { total: 0, successes: 0, failures: 0, avgQuality: 0, successRate: 0 };
+    }
+
+    const successes = tasks.filter(t => t.success).length;
+    const failures = tasks.filter(t => !t.success).length;
+    const qualities = tasks.filter(t => t.quality_score).map(t => parseFloat(t.quality_score));
+
+    return {
+      total: tasks.length,
+      successes,
+      failures,
+      successRate: successes / tasks.length,
+      avgQuality: qualities.length > 0
+        ? qualities.reduce((a, b) => a + b, 0) / qualities.length
+        : 0,
+    };
+  }
+
+  /**
+   * Calculate composite score for Team Lead (own + team performance)
+   */
+  calculateCompositeScore(leadMetrics, teamMetrics) {
+    // Weight: 40% own performance, 60% team performance (if team exists)
+    const ownScore = (leadMetrics.successRate * 0.6) + (leadMetrics.avgQuality * 0.4);
+
+    if (teamMetrics.total === 0) {
+      return ownScore;
+    }
+
+    const teamScore = (teamMetrics.successRate * 0.6) + (teamMetrics.avgQuality * 0.4);
+    return (ownScore * 0.4) + (teamScore * 0.6);
+  }
+
+  /**
+   * Determine if Team Lead needs an amendment
+   */
+  shouldGenerateTeamLeadAmendment(leadMetrics, teamMetrics) {
+    // Thresholds for amendment generation
+    const THRESHOLDS = {
+      MIN_TASKS: 5,
+      LOW_SUCCESS_RATE: 0.6,
+      LOW_QUALITY: 0.5,
+      LOW_COMPOSITE: 0.55,
+    };
+
+    if (leadMetrics.total < THRESHOLDS.MIN_TASKS) {
+      return false; // Not enough data
+    }
+
+    // Check individual metrics
+    if (leadMetrics.successRate < THRESHOLDS.LOW_SUCCESS_RATE) return true;
+    if (leadMetrics.avgQuality < THRESHOLDS.LOW_QUALITY) return true;
+
+    // Check composite score
+    const composite = this.calculateCompositeScore(leadMetrics, teamMetrics);
+    if (composite < THRESHOLDS.LOW_COMPOSITE) return true;
+
+    return false;
+  }
+
+  /**
+   * Identify specific issues for Team Lead review
+   */
+  identifyTeamLeadIssues(leadMetrics, teamMetrics) {
+    const issues = [];
+
+    if (leadMetrics.successRate < 0.6) {
+      issues.push({
+        type: 'low_success_rate',
+        severity: 'high',
+        message: `Own success rate ${(leadMetrics.successRate * 100).toFixed(1)}% is below 60%`,
+      });
+    }
+
+    if (leadMetrics.avgQuality < 0.5) {
+      issues.push({
+        type: 'low_quality',
+        severity: 'medium',
+        message: `Own quality score ${leadMetrics.avgQuality.toFixed(2)} is below 0.5`,
+      });
+    }
+
+    if (teamMetrics.total > 0 && teamMetrics.successRate < 0.6) {
+      issues.push({
+        type: 'team_underperformance',
+        severity: 'high',
+        message: `Team success rate ${(teamMetrics.successRate * 100).toFixed(1)}% is below 60%`,
+      });
+    }
+
+    return issues;
+  }
+
+  /**
+   * Generate amendment for a Team Lead
+   * PHASE 6A: Only generates amendments for Team Leads, not subordinates
+   */
+  async generateTeamLeadAmendment(supabase, teamLeadConfig, review) {
+    const { role, name } = teamLeadConfig;
+    const { leadMetrics, teamMetrics, issues } = review;
+
+    // Build instruction delta based on issues
+    const instructionParts = [];
+
+    for (const issue of issues) {
+      switch (issue.type) {
+        case 'low_success_rate':
+          instructionParts.push(`Focus on improving task completion reliability. Current success rate: ${(leadMetrics.successRate * 100).toFixed(1)}%.`);
+          break;
+        case 'low_quality':
+          instructionParts.push(`Prioritize quality in deliverables. Current quality score: ${leadMetrics.avgQuality.toFixed(2)}.`);
+          break;
+        case 'team_underperformance':
+          instructionParts.push(`Address team performance issues. Team success rate: ${(teamMetrics.successRate * 100).toFixed(1)}%. Consider reviewing subordinate workload and guidance.`);
+          break;
+      }
+    }
+
+    if (instructionParts.length === 0) {
+      return null;
+    }
+
+    const amendment = {
+      agent_role: role,
+      amendment_type: 'team_lead_review',
+      trigger_pattern: `team_lead:${role}:daily_review`,
+      instruction_delta: instructionParts.join(' '),
+      knowledge_mutation: {
+        team_lead_guidance: {
+          identified_issues: issues,
+          lead_metrics: leadMetrics,
+          team_metrics: teamMetrics,
+          review_date: review.reviewedAt,
+        },
+      },
+      source_pattern: {
+        type: 'cos_daily_review',
+        team_lead: role,
+        composite_score: review.compositeScore,
+      },
+      pattern_confidence: Math.min(0.9, 0.5 + (issues.length * 0.15)),
+    };
+
+    // Insert amendment into database
+    const { data, error } = await supabase
+      .from('monolith_amendments')
+      .insert([{
+        ...amendment,
+        approval_status: 'auto_approved',
+        auto_approved: true,
+        is_active: true,
+        evaluation_status: 'evaluating',
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error(`[COS] Failed to create amendment for ${role}: ${error.message}`);
+      return null;
+    }
+
+    console.log(`[COS] Created Team Lead amendment for ${role}: ${amendment.trigger_pattern}`);
+    return data;
+  }
+
+  /**
+   * Detect patterns that span multiple teams
+   * PHASE 6A: Cross-Team Pattern Detection
+   */
+  detectCrossTeamPatterns(teamLeadReviews) {
+    const patterns = [];
+
+    // Check for systemic low success rate
+    const lowSuccessTeams = teamLeadReviews.filter(
+      r => r.leadMetrics && r.leadMetrics.successRate < 0.6
+    );
+
+    if (lowSuccessTeams.length >= 3) {
+      patterns.push({
+        type: 'systemic_low_success',
+        severity: 'critical',
+        affectedTeams: lowSuccessTeams.map(r => r.role),
+        message: `${lowSuccessTeams.length} Team Leads have success rate below 60%. This may indicate systemic issues.`,
+        recommendedAction: 'Escalate to CEO for organization-wide review',
+      });
+    }
+
+    // Check for systemic quality issues
+    const lowQualityTeams = teamLeadReviews.filter(
+      r => r.leadMetrics && r.leadMetrics.avgQuality < 0.5
+    );
+
+    if (lowQualityTeams.length >= 2) {
+      patterns.push({
+        type: 'systemic_low_quality',
+        severity: 'high',
+        affectedTeams: lowQualityTeams.map(r => r.role),
+        message: `${lowQualityTeams.length} Team Leads have quality scores below 0.5. Quality standards may need reinforcement.`,
+        recommendedAction: 'Review quality standards and training across teams',
+      });
+    }
+
+    // Check for team underperformance affecting multiple leads
+    const teamIssues = teamLeadReviews.filter(
+      r => r.issues && r.issues.some(i => i.type === 'team_underperformance')
+    );
+
+    if (teamIssues.length >= 2) {
+      patterns.push({
+        type: 'widespread_team_issues',
+        severity: 'high',
+        affectedTeams: teamIssues.map(r => r.role),
+        message: `${teamIssues.length} teams are underperforming. May indicate workload or resource issues.`,
+        recommendedAction: 'Review resource allocation and task distribution',
+      });
+    }
+
+    return patterns;
+  }
+
+  /**
+   * Handle escalation from a Team Lead about a subordinate
+   * PHASE 6A: Systemic Escalation Handling
+   *
+   * @param {string} teamLeadRole - The Team Lead escalating the issue
+   * @param {string} subordinateRole - The subordinate with the issue
+   * @param {string} reason - Reason for escalation
+   * @param {Object} details - Additional details about the escalation
+   * @returns {Promise<Object>} Escalation handling result
+   */
+  async handleTeamLeadEscalation(teamLeadRole, subordinateRole, reason, details = {}) {
+    // Validate Team Lead role
+    if (!TEAM_LEAD_ROLES.includes(teamLeadRole)) {
+      return {
+        success: false,
+        error: `${teamLeadRole} is not a recognized Team Lead role`,
+      };
+    }
+
+    // Get Team Lead config to verify subordinate relationship
+    const teamLeadConfig = this.getTeamLeadConfig(teamLeadRole);
+    if (!teamLeadConfig.subordinates.includes(subordinateRole)) {
+      return {
+        success: false,
+        error: `${subordinateRole} is not a subordinate of ${teamLeadRole}`,
+      };
+    }
+
+    const escalation = {
+      id: `esc-${Date.now()}`,
+      type: 'team_lead_subordinate_escalation',
+      teamLead: teamLeadRole,
+      subordinate: subordinateRole,
+      reason,
+      details,
+      status: 'received',
+      receivedAt: new Date().toISOString(),
+    };
+
+    // Analyze escalation to determine action
+    const analysis = await this.analyzeTeamLeadEscalation(escalation);
+
+    // Track in risk register
+    this.registerRisk({
+      id: escalation.id,
+      type: 'team_lead_escalation',
+      severity: analysis.severity,
+      source: teamLeadRole,
+      subject: subordinateRole,
+      description: reason,
+      analysis: analysis,
+    });
+
+    console.log(`[COS] Received escalation from ${teamLeadRole} about ${subordinateRole}: ${reason}`);
+
+    return {
+      success: true,
+      escalation,
+      analysis,
+      recommendedActions: analysis.recommendedActions,
+    };
+  }
+
+  /**
+   * Analyze escalation to determine severity and recommended actions
+   */
+  async analyzeTeamLeadEscalation(escalation) {
+    const { reason, details } = escalation;
+
+    // Determine severity based on reason keywords
+    let severity = 'medium';
+    const lowerReason = reason.toLowerCase();
+
+    if (lowerReason.includes('critical') || lowerReason.includes('blocking') || lowerReason.includes('urgent')) {
+      severity = 'critical';
+    } else if (lowerReason.includes('repeated') || lowerReason.includes('persistent') || lowerReason.includes('multiple')) {
+      severity = 'high';
+    }
+
+    // Build recommended actions
+    const recommendedActions = [];
+
+    if (severity === 'critical') {
+      recommendedActions.push('Immediate attention required - consider escalating to CEO');
+      recommendedActions.push('Temporarily reassign critical tasks from subordinate');
+    }
+
+    recommendedActions.push(`Review ${escalation.subordinate}'s recent task history`);
+    recommendedActions.push('Schedule coordination meeting between Team Lead and subordinate');
+
+    if (details.consecutiveFailures && details.consecutiveFailures >= 3) {
+      recommendedActions.push('Consider generating performance amendment for subordinate');
+    }
+
+    return {
+      severity,
+      recommendedActions,
+      requiresCEOAttention: severity === 'critical',
+      analyzedAt: new Date().toISOString(),
+    };
+  }
 }
 
 export default ChiefOfStaffAgent;
-export { COS_CONFIG };
+export { COS_CONFIG, TEAM_LEADS, TEAM_LEAD_ROLES };

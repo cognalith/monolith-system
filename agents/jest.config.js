@@ -28,6 +28,8 @@ export default {
   collectCoverageFrom: [
     'core/**/*.js',
     'services/**/*.js',
+    'neural-stack/**/*.js',
+    '!neural-stack/**/*.test.js',
     '!**/node_modules/**'
   ],
 

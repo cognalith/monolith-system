@@ -191,11 +191,11 @@ const CompletedTasksPanel = ({ isOpen, onClose, selectedRole = null }) => {
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div
-        className="glass-tile w-full max-w-4xl max-h-[80vh] flex flex-col"
+        className="w-full max-w-4xl max-h-[80vh] flex flex-col bg-[rgba(0,5,10,0.6)] backdrop-blur-xl border border-[rgba(0,240,255,0.4)] rounded-lg shadow-[0_0_30px_rgba(0,240,255,0.15)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

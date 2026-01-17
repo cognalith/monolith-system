@@ -36,8 +36,29 @@ export {
   CEO_DECISIONS_TABLE,
 } from './ResolutionSystem.js';
 
+// Dependency Parser exports
+export {
+  parseDependencies,
+  findMatchingTasks,
+  buildDependencyGraph,
+  getExecutionOrder,
+  getAllDependenciesFor,
+  getAllDependentsOf,
+  detectCycles,
+  normalizeText,
+  inferRoleFromText,
+  calculateConfidence,
+  extractKeywords,
+  getTaskSearchText,
+  DEPENDENCY_PATTERNS,
+  TASK_ID_PATTERNS,
+  PHRASE_TO_ROLE_MAPPING,
+  KNOWN_WORKFLOWS,
+} from './DependencyParser.js';
+
 // Re-export defaults
 import TaskRouterDefault from './TaskRouter.js';
 import ExecutionEngineDefault from './ExecutionEngine.js';
 import ResolutionSystemDefault from './ResolutionSystem.js';
-export { TaskRouterDefault, ExecutionEngineDefault, ResolutionSystemDefault };
+import DependencyParserDefault from './DependencyParser.js';
+export { TaskRouterDefault, ExecutionEngineDefault, ResolutionSystemDefault, DependencyParserDefault };

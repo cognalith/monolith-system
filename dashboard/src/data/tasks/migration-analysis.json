@@ -1,0 +1,197 @@
+{
+  "analysis_date": "2026-01-17",
+  "total_tasks": 286,
+  "tasks_by_role": {
+    "ceo": 22,
+    "cfo": 11,
+    "cto": 32,
+    "coo": 18,
+    "cpo": 14,
+    "cmo": 12,
+    "clo": 12,
+    "ciso": 7,
+    "cco": 7,
+    "chro": 20,
+    "cro": 10,
+    "cos": 12,
+    "devops-lead": 10,
+    "qa-lead": 9,
+    "head-cs": 13,
+    "vp-employer-branding": 16,
+    "dir-communications": 13,
+    "dir-learning-dev": 17,
+    "lead-web-designer": 9,
+    "internal-creative-director": 12,
+    "change-mgmt-lead": 11,
+    "remediation-tasks": 38
+  },
+  "tasks_by_status": {
+    "pending": 73,
+    "in_progress": 32,
+    "completed": 28,
+    "ongoing": 24,
+    "not_started": 13,
+    "active": 18,
+    "not_specified": 20,
+    "not_yet_set_up": 10,
+    "on_track": 6,
+    "blocked": 1,
+    "at_risk": 2,
+    "deliverable": 8,
+    "active_ongoing": 8,
+    "required_deliverable": 4,
+    "assigned": 1,
+    "deployed": 1,
+    "upcoming": 1,
+    "not_yet_created": 1,
+    "not_yet_established": 2
+  },
+  "tasks_by_priority": {
+    "CRITICAL": 46,
+    "HIGH": 133,
+    "MEDIUM": 82,
+    "LOW": 25
+  },
+  "dependency_candidates": [
+    "coo-002",
+    "chro-003",
+    "rem-1.2.1",
+    "rem-1.2.2",
+    "rem-1.2.3",
+    "rem-1.2.4",
+    "rem-1.3.1",
+    "rem-1.3.2",
+    "rem-1.4.1",
+    "rem-1.4.2",
+    "rem-1.5",
+    "rem-2.1.2",
+    "rem-2.2",
+    "rem-2.3",
+    "rem-2.4",
+    "rem-3.1.2",
+    "rem-3.2",
+    "rem-4.3",
+    "rem-5.1.2",
+    "rem-7.1.1",
+    "rem-7.1.2",
+    "rem-7.2",
+    "rem-7.3",
+    "ceo-001"
+  ],
+  "all_fields": [
+    "id",
+    "content",
+    "title",
+    "priority",
+    "status",
+    "due_date",
+    "workflow",
+    "notes",
+    "created_at",
+    "updated_at",
+    "completedAt",
+    "completedBy",
+    "sentToAgent",
+    "sentToAgentAt",
+    "steps",
+    "blockedBy",
+    "assignedTo",
+    "estimatedHours"
+  ],
+  "notes_with_dependency_patterns": {
+    "coo-002": "Awaiting CTO recommendation",
+    "chro-003": "Dependent on Business Number receipt. GUIDE: /07_PEOPLE/CRA_Payroll_Registration_Guide.md",
+    "ceo-001": "AT RISK - Cross-functional dependency with CTO/COO"
+  },
+  "remediation_tasks_with_blockedBy": [
+    {
+      "id": "rem-1.2.1",
+      "blockedBy": ["rem-1.1"]
+    },
+    {
+      "id": "rem-1.2.2",
+      "blockedBy": ["rem-1.1"]
+    },
+    {
+      "id": "rem-1.2.3",
+      "blockedBy": ["rem-1.1"]
+    },
+    {
+      "id": "rem-1.2.4",
+      "blockedBy": ["rem-1.1"]
+    },
+    {
+      "id": "rem-1.3.1",
+      "blockedBy": ["rem-1.1"]
+    },
+    {
+      "id": "rem-1.3.2",
+      "blockedBy": ["rem-1.1"]
+    },
+    {
+      "id": "rem-1.4.1",
+      "blockedBy": ["rem-1.1"]
+    },
+    {
+      "id": "rem-1.4.2",
+      "blockedBy": ["rem-1.1"]
+    },
+    {
+      "id": "rem-1.5",
+      "blockedBy": ["rem-1.2.1", "rem-1.2.2"]
+    },
+    {
+      "id": "rem-2.1.2",
+      "blockedBy": ["rem-2.1.1"]
+    },
+    {
+      "id": "rem-2.2",
+      "blockedBy": ["rem-2.1.2"]
+    },
+    {
+      "id": "rem-2.3",
+      "blockedBy": ["rem-2.1.2"]
+    },
+    {
+      "id": "rem-2.4",
+      "blockedBy": ["rem-2.1.2"]
+    },
+    {
+      "id": "rem-3.1.2",
+      "blockedBy": ["rem-3.1.1"]
+    },
+    {
+      "id": "rem-3.2",
+      "blockedBy": ["rem-3.1.2"]
+    },
+    {
+      "id": "rem-4.3",
+      "blockedBy": ["rem-4.1"]
+    },
+    {
+      "id": "rem-5.1.2",
+      "blockedBy": ["rem-5.1.1"]
+    },
+    {
+      "id": "rem-7.1.1",
+      "blockedBy": ["rem-2.1.1"]
+    },
+    {
+      "id": "rem-7.1.2",
+      "blockedBy": ["rem-7.1.1"]
+    },
+    {
+      "id": "rem-7.2",
+      "blockedBy": ["rem-7.1.2"]
+    },
+    {
+      "id": "rem-7.3",
+      "blockedBy": ["rem-7.2"]
+    }
+  ],
+  "file_structure_summary": {
+    "total_files": 22,
+    "role_based_files": 21,
+    "special_files": ["remediation-tasks.json"]
+  }
+}

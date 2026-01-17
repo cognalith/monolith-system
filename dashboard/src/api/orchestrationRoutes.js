@@ -945,6 +945,407 @@ router.get('/agents', async (req, res) => {
   }
 });
 
+// ============================================================================
+// BULK IMPORT ENDPOINTS
+// ============================================================================
+
+/**
+ * POST /tasks/bulk
+ * Bulk import tasks into the queue
+ * Body: { tasks: [{ title, description, assigned_agent, assigned_team, priority, tags, deliverables, status }] }
+ */
+router.post('/tasks/bulk', async (req, res) => {
+  try {
+    const { tasks } = req.body;
+
+    // Validate input
+    if (!Array.isArray(tasks)) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Request body must contain a "tasks" array',
+      });
+    }
+
+    if (tasks.length === 0) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Tasks array cannot be empty',
+      });
+    }
+
+    if (tasks.length > 100) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Maximum 100 tasks per bulk import',
+      });
+    }
+
+    const results = {
+      success_count: 0,
+      error_count: 0,
+      errors: [],
+      inserted_ids: [],
+    };
+
+    // Validate and prepare tasks
+    const validTasks = [];
+    for (let i = 0; i < tasks.length; i++) {
+      const task = tasks[i];
+
+      // Validate required fields
+      if (!task.title) {
+        results.error_count++;
+        results.errors.push({
+          index: i,
+          error: 'Title is required',
+          task: task,
+        });
+        continue;
+      }
+
+      // Validate status if provided
+      if (task.status && !VALID_STATUSES.includes(task.status.toLowerCase())) {
+        results.error_count++;
+        results.errors.push({
+          index: i,
+          error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}`,
+          task: task,
+        });
+        continue;
+      }
+
+      // Validate priority if provided
+      if (task.priority && typeof task.priority === 'string' && !VALID_PRIORITIES.includes(task.priority.toLowerCase())) {
+        results.error_count++;
+        results.errors.push({
+          index: i,
+          error: `Invalid priority. Must be one of: ${VALID_PRIORITIES.join(', ')}`,
+          task: task,
+        });
+        continue;
+      }
+
+      // Build task object - handle both string and integer priorities
+      let priorityInt = 50;
+      if (task.priority) {
+        if (typeof task.priority === 'number') {
+          priorityInt = task.priority;
+        } else if (typeof task.priority === 'string') {
+          priorityInt = PRIORITY_MAP[task.priority.toLowerCase()] || 50;
+        }
+      }
+
+      const taskData = {
+        task_id: task.task_id || generateTaskId(),
+        title: task.title,
+        description: task.description || null,
+        assigned_agent: task.assigned_agent?.toLowerCase() || null,
+        assigned_team: task.assigned_team?.toLowerCase() || null,
+        priority: priorityInt,
+        tags: task.tags || [],
+        deliverables: task.deliverables || [],
+        status: task.status?.toLowerCase() || 'queued',
+        created_at: task.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      // Include optional fields if provided
+      if (task.started_at) taskData.started_at = task.started_at;
+      if (task.completed_at) taskData.completed_at = task.completed_at;
+      if (task.due_date) taskData.due_date = task.due_date;
+      if (task.parent_task_id) taskData.parent_task_id = task.parent_task_id;
+      if (task.source_system) taskData.source_system = task.source_system;
+      if (task.external_id) taskData.external_id = task.external_id;
+
+      validTasks.push({ index: i, data: taskData });
+    }
+
+    // Batch insert valid tasks
+    if (validTasks.length > 0) {
+      const { data: insertedTasks, error } = await supabase
+        .from('monolith_task_queue')
+        .insert(validTasks.map(t => t.data))
+        .select();
+
+      if (error) {
+        // If batch insert fails, try individual inserts
+        console.warn('[ORCHESTRATION] Bulk insert failed, trying individual inserts:', error.message);
+
+        for (const validTask of validTasks) {
+          const { data: singleTask, error: singleError } = await supabase
+            .from('monolith_task_queue')
+            .insert([validTask.data])
+            .select()
+            .single();
+
+          if (singleError) {
+            results.error_count++;
+            results.errors.push({
+              index: validTask.index,
+              error: singleError.message,
+              task: tasks[validTask.index],
+            });
+          } else {
+            results.success_count++;
+            results.inserted_ids.push(singleTask.id);
+          }
+        }
+      } else {
+        results.success_count = (insertedTasks || []).length;
+        results.inserted_ids = (insertedTasks || []).map(t => t.id);
+      }
+    }
+
+    console.log(`[ORCHESTRATION] Bulk import: ${results.success_count} success, ${results.error_count} errors`);
+
+    res.status(results.error_count > 0 && results.success_count === 0 ? 400 : 201).json({
+      success: results.success_count > 0,
+      ...results,
+      total_submitted: tasks.length,
+    });
+  } catch (error) {
+    console.error('[ORCHESTRATION] POST /tasks/bulk error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /dependencies/bulk
+ * Bulk import task dependencies
+ * Body: { dependencies: [{ task_id, depends_on_task_id, dependency_type }] }
+ */
+router.post('/dependencies/bulk', async (req, res) => {
+  try {
+    const { dependencies } = req.body;
+
+    // Validate input
+    if (!Array.isArray(dependencies)) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Request body must contain a "dependencies" array',
+      });
+    }
+
+    if (dependencies.length === 0) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Dependencies array cannot be empty',
+      });
+    }
+
+    if (dependencies.length > 500) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Maximum 500 dependencies per bulk import',
+      });
+    }
+
+    const validDependencyTypes = ['blocks', 'soft', 'sequential'];
+
+    const results = {
+      success_count: 0,
+      error_count: 0,
+      errors: [],
+      inserted_ids: [],
+    };
+
+    // Validate and prepare dependencies
+    const validDeps = [];
+    for (let i = 0; i < dependencies.length; i++) {
+      const dep = dependencies[i];
+
+      // Validate required fields
+      if (!dep.task_id) {
+        results.error_count++;
+        results.errors.push({
+          index: i,
+          error: 'task_id is required',
+          dependency: dep,
+        });
+        continue;
+      }
+
+      if (!dep.depends_on_task_id) {
+        results.error_count++;
+        results.errors.push({
+          index: i,
+          error: 'depends_on_task_id is required',
+          dependency: dep,
+        });
+        continue;
+      }
+
+      // Validate dependency type if provided
+      const depType = dep.dependency_type?.toLowerCase() || 'blocks';
+      if (!validDependencyTypes.includes(depType)) {
+        results.error_count++;
+        results.errors.push({
+          index: i,
+          error: `Invalid dependency_type. Must be one of: ${validDependencyTypes.join(', ')}`,
+          dependency: dep,
+        });
+        continue;
+      }
+
+      const depData = {
+        task_id: dep.task_id,
+        depends_on_task_id: dep.depends_on_task_id,
+        dependency_type: depType,
+        resolved: dep.resolved || false,
+        created_at: new Date().toISOString(),
+      };
+
+      validDeps.push({ index: i, data: depData });
+    }
+
+    // Batch insert valid dependencies
+    if (validDeps.length > 0) {
+      const { data: insertedDeps, error } = await supabase
+        .from('monolith_task_dependencies')
+        .insert(validDeps.map(d => d.data))
+        .select();
+
+      if (error) {
+        // If batch insert fails, try individual inserts
+        console.warn('[ORCHESTRATION] Bulk dependency insert failed, trying individual inserts:', error.message);
+
+        for (const validDep of validDeps) {
+          const { data: singleDep, error: singleError } = await supabase
+            .from('monolith_task_dependencies')
+            .insert([validDep.data])
+            .select()
+            .single();
+
+          if (singleError) {
+            results.error_count++;
+            results.errors.push({
+              index: validDep.index,
+              error: singleError.message,
+              dependency: dependencies[validDep.index],
+            });
+          } else {
+            results.success_count++;
+            results.inserted_ids.push(singleDep.id);
+          }
+        }
+      } else {
+        results.success_count = (insertedDeps || []).length;
+        results.inserted_ids = (insertedDeps || []).map(d => d.id);
+      }
+    }
+
+    console.log(`[ORCHESTRATION] Bulk dependency import: ${results.success_count} success, ${results.error_count} errors`);
+
+    res.status(results.error_count > 0 && results.success_count === 0 ? 400 : 201).json({
+      success: results.success_count > 0,
+      ...results,
+      total_submitted: dependencies.length,
+    });
+  } catch (error) {
+    console.error('[ORCHESTRATION] POST /dependencies/bulk error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /migration/status
+ * Get migration statistics
+ * Returns count of migrated tasks, dependencies, and orphaned dependencies
+ */
+router.get('/migration/status', async (req, res) => {
+  try {
+    // Get total task count
+    const { data: tasks, error: taskError } = await supabase
+      .from('monolith_task_queue')
+      .select('id, status, source_system, created_at');
+
+    if (taskError) throw taskError;
+
+    const allTasks = tasks || [];
+    const taskIds = new Set(allTasks.map(t => t.id));
+
+    // Get dependency count
+    const { data: dependencies, error: depError } = await supabase
+      .from('monolith_task_dependencies')
+      .select('id, task_id, depends_on_task_id, resolved');
+
+    if (depError) throw depError;
+
+    const allDeps = dependencies || [];
+
+    // Find orphaned dependencies (where task_id or depends_on_task_id doesn't exist in tasks)
+    const orphanedDeps = allDeps.filter(dep =>
+      !taskIds.has(dep.task_id) || !taskIds.has(dep.depends_on_task_id)
+    );
+
+    // Count tasks by source system (for migration tracking)
+    const bySourceSystem = {};
+    allTasks.forEach(task => {
+      const source = task.source_system || 'native';
+      if (!bySourceSystem[source]) {
+        bySourceSystem[source] = 0;
+      }
+      bySourceSystem[source]++;
+    });
+
+    // Count tasks by status
+    const byStatus = {};
+    allTasks.forEach(task => {
+      if (!byStatus[task.status]) {
+        byStatus[task.status] = 0;
+      }
+      byStatus[task.status]++;
+    });
+
+    // Count resolved vs unresolved dependencies
+    const resolvedDeps = allDeps.filter(d => d.resolved).length;
+    const unresolvedDeps = allDeps.filter(d => !d.resolved).length;
+
+    // Get oldest and newest task dates
+    const sortedTasks = [...allTasks].sort((a, b) =>
+      new Date(a.created_at) - new Date(b.created_at)
+    );
+    const oldestTask = sortedTasks.length > 0 ? sortedTasks[0].created_at : null;
+    const newestTask = sortedTasks.length > 0 ? sortedTasks[sortedTasks.length - 1].created_at : null;
+
+    res.json({
+      migration_status: 'complete',
+      timestamp: new Date().toISOString(),
+      tasks: {
+        total: allTasks.length,
+        by_status: byStatus,
+        by_source_system: bySourceSystem,
+        oldest_created: oldestTask,
+        newest_created: newestTask,
+      },
+      dependencies: {
+        total: allDeps.length,
+        resolved: resolvedDeps,
+        unresolved: unresolvedDeps,
+        orphaned_count: orphanedDeps.length,
+        orphaned_dependencies: orphanedDeps.map(d => ({
+          id: d.id,
+          task_id: d.task_id,
+          depends_on_task_id: d.depends_on_task_id,
+          task_exists: taskIds.has(d.task_id),
+          depends_on_exists: taskIds.has(d.depends_on_task_id),
+        })),
+      },
+      health: {
+        has_orphaned_dependencies: orphanedDeps.length > 0,
+        dependency_integrity: orphanedDeps.length === 0 ? 'healthy' : 'needs_cleanup',
+      },
+    });
+  } catch (error) {
+    console.error('[ORCHESTRATION] GET /migration/status error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// THROUGHPUT ENDPOINTS
+// ============================================================================
+
 /**
  * GET /throughput
  * Throughput metrics

@@ -15,8 +15,16 @@
 
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
+import { AgentExecutor, TokenTracker } from '../../../agents/orchestration/index.js';
 
 const router = express.Router();
+
+// Initialize AgentExecutor (will use simulation mode if no OPENAI_API_KEY)
+const agentExecutor = new AgentExecutor({
+  model: process.env.LLM_MODEL || 'gpt-4o-mini',
+  maxTokens: 2000,
+  temperature: 0.7,
+});
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -1727,20 +1735,65 @@ router.post('/execute/:agentRole', async (req, res) => {
 
     console.log(`[ORCHESTRATION] Started execution for ${normalizedRole}: ${task.title}`);
 
-    // Note: In production, this would trigger the actual AgentExecutor
-    // For now, we just mark it as started and return the task info
+    // Execute the task using AgentExecutor
+    const executionResult = await agentExecutor.executeTask(normalizedRole, activeTask);
 
-    res.json({
-      success: true,
-      message: `Task execution started for ${normalizedRole}`,
-      agent_role: normalizedRole,
-      agent_name: getRoleFullName(normalizedRole),
-      task: {
-        ...activeTask,
-        assigned_agent_name: getRoleFullName(activeTask.assigned_agent),
-      },
-      note: 'Task marked as active. AgentExecutor integration pending.',
-    });
+    // Update task with execution results
+    if (executionResult.blocked) {
+      // Task is blocked - update status and store blocker info
+      const { error: blockerError } = await supabase
+        .from('monolith_task_queue')
+        .update({
+          status: 'blocked',
+          blocked_type: executionResult.blockerInfo.type,
+          blocked_context: executionResult.blockerInfo.reason,
+          blocked_at: new Date().toISOString(),
+          outputs: [{ type: 'partial', content: executionResult.partialOutput }],
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', task.id);
+
+      if (blockerError) console.error('[ORCHESTRATION] Failed to update blocked task:', blockerError);
+
+      res.json({
+        success: true,
+        message: `Task execution blocked for ${normalizedRole}`,
+        agent_role: normalizedRole,
+        agent_name: getRoleFullName(normalizedRole),
+        task_id: task.id,
+        status: 'blocked',
+        blocker: executionResult.blockerInfo,
+        partial_output: executionResult.partialOutput,
+      });
+    } else {
+      // Task completed successfully
+      const { error: completeError } = await supabase
+        .from('monolith_task_queue')
+        .update({
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          outputs: [executionResult.outputs],
+          tokens_total: executionResult.outputs.tokensUsed || 0,
+          model_used: executionResult.outputs.model,
+          llm_calls: 1,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', task.id);
+
+      if (completeError) console.error('[ORCHESTRATION] Failed to update completed task:', completeError);
+
+      res.json({
+        success: true,
+        message: `Task execution completed for ${normalizedRole}`,
+        agent_role: normalizedRole,
+        agent_name: getRoleFullName(normalizedRole),
+        task_id: task.id,
+        task_title: task.title,
+        status: 'completed',
+        output: executionResult.outputs,
+        execution_stats: agentExecutor.getStats(),
+      });
+    }
   } catch (error) {
     console.error('[ORCHESTRATION] POST /execute/:agentRole error:', error);
     res.status(500).json({ error: error.message });

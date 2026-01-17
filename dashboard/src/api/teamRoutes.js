@@ -55,33 +55,50 @@ const TEAM_HIERARCHY = {
     team_id: 'operations',
     team_name: 'Operations Team',
     team_lead_role: 'coo',
-    subordinates: ['cos', 'cpo', 'cco'],
+    subordinates: ['vendor_management_lead', 'process_automation_lead'],
     knowledge_bot: 'ops-kb',
-    description: 'Operations, product, and compliance teams',
+    description: 'Operations and process automation teams',
   },
   finance: {
     team_id: 'finance',
     team_name: 'Finance Team',
     team_lead_role: 'cfo',
-    subordinates: ['cro'],
+    subordinates: ['expense_tracking_lead', 'revenue_analytics_lead'],
     knowledge_bot: 'finance-kb',
-    description: 'Finance and revenue teams',
+    description: 'Finance, expense management, and revenue analytics teams',
   },
   marketing: {
     team_id: 'marketing',
     team_name: 'Marketing Team',
     team_lead_role: 'cmo',
-    subordinates: [],
+    subordinates: ['content_strategy_lead', 'growth_analytics_lead'],
     knowledge_bot: 'marketing-kb',
-    description: 'Marketing and communications teams',
+    description: 'Marketing, content strategy, and growth teams',
   },
+  product: {
+    team_id: 'product',
+    team_name: 'Product Team',
+    team_lead_role: 'cpo',
+    subordinates: ['ux_research_lead', 'product_analytics_lead', 'feature_spec_lead'],
+    knowledge_bot: 'product-kb',
+    description: 'Product management, UX research, and analytics teams',
+  },
+  people: {
+    team_id: 'people',
+    team_name: 'People Team',
+    team_lead_role: 'chro',
+    subordinates: ['hiring_lead', 'compliance_lead'],
+    knowledge_bot: 'people-kb',
+    description: 'Human resources, hiring, and compliance teams',
+  },
+  // Legacy alias for backward compatibility
   hr: {
     team_id: 'hr',
     team_name: 'Human Resources Team',
     team_lead_role: 'chro',
-    subordinates: [],
+    subordinates: ['hiring_lead', 'compliance_lead'],
     knowledge_bot: 'hr-kb',
-    description: 'Human resources and talent teams',
+    description: 'Human resources and talent teams (alias for people)',
   },
 };
 
@@ -699,6 +716,7 @@ router.post('/:teamId/review', async (req, res) => {
  */
 function getFullRoleName(roleId) {
   const roleNames = {
+    // C-Suite
     ceo: 'Chief Executive Officer',
     cfo: 'Chief Financial Officer',
     coo: 'Chief Operating Officer',
@@ -711,9 +729,26 @@ function getFullRoleName(roleId) {
     cco: 'Chief Compliance Officer',
     cpo: 'Chief Product Officer',
     cro: 'Chief Revenue Officer',
+    // Tech Team
     devops: 'DevOps & Infrastructure Lead',
     data: 'Data Engineer',
     qa: 'QA Lead',
+    // Operations Team
+    vendor_management_lead: 'Vendor Management Lead',
+    process_automation_lead: 'Process Automation Lead',
+    // Finance Team
+    expense_tracking_lead: 'Expense Tracking Lead',
+    revenue_analytics_lead: 'Revenue Analytics Lead',
+    // Marketing Team
+    content_strategy_lead: 'Content Strategy Lead',
+    growth_analytics_lead: 'Growth Analytics Lead',
+    // Product Team
+    ux_research_lead: 'UX Research Lead',
+    product_analytics_lead: 'Product Analytics Lead',
+    feature_spec_lead: 'Feature Specification Lead',
+    // People Team
+    hiring_lead: 'Hiring Lead',
+    compliance_lead: 'Compliance Lead',
   };
   return roleNames[roleId] || roleId.toUpperCase();
 }

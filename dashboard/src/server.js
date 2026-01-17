@@ -189,7 +189,12 @@ app.get('/api/recent-activity', authMiddleware, async (req, res) => {
     const { data, error } = await query;
 
     if (error) {
-      throw new Error(error.message);
+      // Gracefully handle database errors (table doesn't exist, RLS issues, etc.)
+      console.warn('[RECENT-ACTIVITY] Supabase query error:', error.message);
+      return res.json({
+        activities: [],
+        message: `Database query failed: ${error.message}`
+      });
     }
 
     res.json({
@@ -197,7 +202,11 @@ app.get('/api/recent-activity', authMiddleware, async (req, res) => {
     });
   } catch (error) {
     console.error('Error in /api/recent-activity:', error.message);
-    res.status(500).json({ error: error.message });
+    // Return empty array instead of 500 to keep dashboard functional
+    res.json({
+      activities: [],
+      message: `Error fetching activities: ${error.message}`
+    });
   }
 });
 

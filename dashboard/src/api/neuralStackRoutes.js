@@ -1064,25 +1064,38 @@ const KNOWLEDGE_BOTS = {
   'ops-kb': {
     role: 'ops-kb',
     team_id: 'operations',
-    subordinates: ['cos', 'cpo', 'cco'],
+    subordinates: ['vendor_management_lead', 'process_automation_lead'],
     name: 'Operations Knowledge Bot',
   },
   'finance-kb': {
     role: 'finance-kb',
     team_id: 'finance',
-    subordinates: ['cro'],
+    subordinates: ['expense_tracking_lead', 'revenue_analytics_lead'],
     name: 'Finance Knowledge Bot',
   },
   'marketing-kb': {
     role: 'marketing-kb',
     team_id: 'marketing',
-    subordinates: [],
+    subordinates: ['content_strategy_lead', 'growth_analytics_lead'],
     name: 'Marketing Knowledge Bot',
   },
+  'product-kb': {
+    role: 'product-kb',
+    team_id: 'product',
+    subordinates: ['ux_research_lead', 'product_analytics_lead', 'feature_spec_lead'],
+    name: 'Product Knowledge Bot',
+  },
+  'people-kb': {
+    role: 'people-kb',
+    team_id: 'people',
+    subordinates: ['hiring_lead', 'compliance_lead'],
+    name: 'People Knowledge Bot',
+  },
+  // Legacy alias
   'hr-kb': {
     role: 'hr-kb',
     team_id: 'hr',
-    subordinates: [],
+    subordinates: ['hiring_lead', 'compliance_lead'],
     name: 'HR Knowledge Bot',
   },
 };
@@ -1284,6 +1297,402 @@ router.post('/recommendations/:id/select', async (req, res) => {
     });
   } catch (error) {
     console.error('[NEURAL-STACK] select recommendation error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// PHASE 6B: RECOMMENDATION QUEUE (Global)
+// ============================================================================
+
+/**
+ * GET /api/neural-stack/recommendation-queue
+ * Returns all pending recommendations across all Knowledge Bots
+ */
+router.get('/recommendation-queue', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+
+    const { data: recommendations, error } = await supabase
+      .from('monolith_kb_recommendations')
+      .select('*')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      if (error.code === '42P01') {
+        return res.json({
+          recommendations: [],
+          total: 0,
+          message: 'Recommendations table not yet created. Run Phase 6B migration.',
+        });
+      }
+      throw error;
+    }
+
+    // Group by team
+    const byTeam = {};
+    (recommendations || []).forEach(rec => {
+      const kb = findKnowledgeBotForSubordinate(rec.subordinate_role);
+      const teamId = kb?.team_id || 'unknown';
+      if (!byTeam[teamId]) byTeam[teamId] = [];
+      byTeam[teamId].push({
+        id: rec.id,
+        subordinate_role: rec.subordinate_role,
+        subordinate_name: getFullRoleName(rec.subordinate_role),
+        knowledge_bot: rec.knowledge_bot_role,
+        type: rec.type,
+        content: rec.content,
+        expected_impact: rec.expected_impact,
+        confidence: rec.confidence,
+        research_source: rec.research_source,
+        created_at: rec.created_at,
+      });
+    });
+
+    res.json({
+      recommendations: recommendations || [],
+      by_team: byTeam,
+      total: (recommendations || []).length,
+    });
+  } catch (error) {
+    console.error('[NEURAL-STACK] recommendation-queue error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// PHASE 6B: LEARNING INSIGHTS
+// ============================================================================
+
+/**
+ * GET /api/neural-stack/learning-insights
+ * Returns learning insights and patterns across all agents
+ */
+router.get('/learning-insights', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 30;
+
+    // Get recent amendments with evaluation data
+    const { data: amendments, error: amendError } = await supabase
+      .from('monolith_amendments')
+      .select('agent_role, amendment_type, evaluation_status, success_count, failure_count, created_at')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    if (amendError) throw amendError;
+
+    // Get pattern log entries
+    const { data: patterns, error: patternError } = await supabase
+      .from('monolith_pattern_log')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (patternError) console.warn('[NEURAL-STACK] pattern log error:', patternError);
+
+    // Calculate insights by agent
+    const agentInsights = {};
+    (amendments || []).forEach(a => {
+      if (!agentInsights[a.agent_role]) {
+        agentInsights[a.agent_role] = {
+          role: a.agent_role,
+          name: getFullRoleName(a.agent_role),
+          amendment_count: 0,
+          success_count: 0,
+          failure_count: 0,
+          learning_rate: 0,
+        };
+      }
+      const insight = agentInsights[a.agent_role];
+      insight.amendment_count++;
+      insight.success_count += a.success_count || 0;
+      insight.failure_count += a.failure_count || 0;
+    });
+
+    // Calculate learning rate (success / total evaluations)
+    Object.values(agentInsights).forEach(insight => {
+      const total = insight.success_count + insight.failure_count;
+      insight.learning_rate = total > 0 ? Math.round((insight.success_count / total) * 100) : 0;
+    });
+
+    // Calculate overall metrics
+    const totalAmendments = (amendments || []).length;
+    const totalSuccess = Object.values(agentInsights).reduce((sum, i) => sum + i.success_count, 0);
+    const totalFailure = Object.values(agentInsights).reduce((sum, i) => sum + i.failure_count, 0);
+
+    res.json({
+      overall: {
+        total_amendments: totalAmendments,
+        total_evaluations: totalSuccess + totalFailure,
+        overall_success_rate: totalSuccess + totalFailure > 0
+          ? Math.round((totalSuccess / (totalSuccess + totalFailure)) * 100)
+          : 0,
+      },
+      by_agent: Object.values(agentInsights).sort((a, b) => b.learning_rate - a.learning_rate),
+      patterns: (patterns || []).slice(0, 20),
+      top_learners: Object.values(agentInsights)
+        .filter(i => i.learning_rate >= 80)
+        .sort((a, b) => b.learning_rate - a.learning_rate)
+        .slice(0, 5),
+      needs_attention: Object.values(agentInsights)
+        .filter(i => i.learning_rate < 50 && i.amendment_count > 0)
+        .sort((a, b) => a.learning_rate - b.learning_rate)
+        .slice(0, 5),
+    });
+  } catch (error) {
+    console.error('[NEURAL-STACK] learning-insights error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// PHASE 6B: RESEARCH LOG
+// ============================================================================
+
+/**
+ * GET /api/neural-stack/research-log
+ * Returns research cycle history from Knowledge Bots
+ */
+router.get('/research-log', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+    const botFilter = req.query.bot;
+
+    let query = supabase
+      .from('monolith_kb_research_log')
+      .select('*')
+      .order('completed_at', { ascending: false })
+      .limit(limit);
+
+    if (botFilter) {
+      query = query.eq('knowledge_bot_role', botFilter);
+    }
+
+    const { data: logs, error } = await query;
+
+    if (error) {
+      if (error.code === '42P01') {
+        return res.json({
+          logs: [],
+          total: 0,
+          message: 'Research log table not yet created. Run Phase 6B migration.',
+        });
+      }
+      throw error;
+    }
+
+    // Get summary stats
+    const stats = {
+      total_cycles: (logs || []).length,
+      by_bot: {},
+      recommendations_generated: 0,
+    };
+
+    (logs || []).forEach(log => {
+      const bot = log.knowledge_bot_role;
+      if (!stats.by_bot[bot]) {
+        stats.by_bot[bot] = { cycles: 0, recommendations: 0 };
+      }
+      stats.by_bot[bot].cycles++;
+      stats.by_bot[bot].recommendations += log.recommendations_generated || 0;
+      stats.recommendations_generated += log.recommendations_generated || 0;
+    });
+
+    res.json({
+      logs: (logs || []).map(log => ({
+        id: log.id,
+        knowledge_bot: log.knowledge_bot_role,
+        bot_name: KNOWLEDGE_BOTS[log.knowledge_bot_role]?.name || log.knowledge_bot_role,
+        research_focus: log.research_focus,
+        sources_consulted: log.sources_consulted,
+        insights_found: log.insights_found,
+        recommendations_generated: log.recommendations_generated,
+        duration_seconds: log.duration_seconds,
+        completed_at: log.completed_at,
+      })),
+      stats,
+      total: (logs || []).length,
+    });
+  } catch (error) {
+    console.error('[NEURAL-STACK] research-log error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// PHASE 6A: TEAM HEATMAP
+// ============================================================================
+
+/**
+ * GET /api/neural-stack/teams/heatmap
+ * Returns team performance matrix for heatmap visualization
+ */
+router.get('/teams/heatmap', async (req, res) => {
+  try {
+    // Get agent memory for all agents
+    const { data: agents, error: agentError } = await supabase
+      .from('monolith_agent_memory')
+      .select('agent_role, avg_variance_percent, current_trend, tasks_since_last_review');
+
+    if (agentError) throw agentError;
+
+    // Get recent task stats
+    const { data: tasks, error: taskError } = await supabase
+      .from('monolith_task_history')
+      .select('agent_role, variance_percent, cos_score, success')
+      .order('completed_at', { ascending: false })
+      .limit(500);
+
+    if (taskError) throw taskError;
+
+    // Define team structure (matching TEAM_HIERARCHY)
+    const TEAMS = {
+      technology: ['cto', 'devops', 'data', 'qa', 'ciso'],
+      operations: ['coo', 'vendor_management_lead', 'process_automation_lead'],
+      finance: ['cfo', 'expense_tracking_lead', 'revenue_analytics_lead'],
+      marketing: ['cmo', 'content_strategy_lead', 'growth_analytics_lead'],
+      product: ['cpo', 'ux_research_lead', 'product_analytics_lead', 'feature_spec_lead'],
+      people: ['chro', 'hiring_lead', 'compliance_lead'],
+    };
+
+    // Build agent stats
+    const agentStats = {};
+    (tasks || []).forEach(t => {
+      if (!agentStats[t.agent_role]) {
+        agentStats[t.agent_role] = { variances: [], scores: [], successes: 0, total: 0 };
+      }
+      const stats = agentStats[t.agent_role];
+      if (stats.total < 20) {
+        if (t.variance_percent !== null) stats.variances.push(parseFloat(t.variance_percent));
+        if (t.cos_score !== null) stats.scores.push(parseFloat(t.cos_score));
+        if (t.success) stats.successes++;
+        stats.total++;
+      }
+    });
+
+    // Build heatmap data by team
+    const heatmapData = Object.entries(TEAMS).map(([teamId, members]) => {
+      const teamMetrics = members.map(role => {
+        const stats = agentStats[role] || { variances: [], scores: [], successes: 0, total: 0 };
+        const avgVariance = stats.variances.length > 0
+          ? stats.variances.reduce((a, b) => a + b, 0) / stats.variances.length
+          : 0;
+        const avgScore = stats.scores.length > 0
+          ? stats.scores.reduce((a, b) => a + b, 0) / stats.scores.length
+          : 0;
+        const successRate = stats.total > 0 ? (stats.successes / stats.total) * 100 : 100;
+
+        return {
+          role,
+          name: getFullRoleName(role),
+          variance: Math.round(avgVariance * 10) / 10,
+          cos_score: Math.round(avgScore * 100) / 100,
+          success_rate: Math.round(successRate),
+          tasks: stats.total,
+        };
+      });
+
+      // Calculate team averages
+      const teamAvgVariance = teamMetrics.length > 0
+        ? teamMetrics.reduce((sum, m) => sum + m.variance, 0) / teamMetrics.length
+        : 0;
+      const teamSuccessRate = teamMetrics.length > 0
+        ? teamMetrics.reduce((sum, m) => sum + m.success_rate, 0) / teamMetrics.length
+        : 100;
+
+      return {
+        team_id: teamId,
+        team_name: teamId.charAt(0).toUpperCase() + teamId.slice(1) + ' Team',
+        avg_variance: Math.round(teamAvgVariance * 10) / 10,
+        avg_success_rate: Math.round(teamSuccessRate),
+        members: teamMetrics,
+      };
+    });
+
+    res.json({
+      teams: heatmapData,
+      metrics: ['variance', 'cos_score', 'success_rate'],
+    });
+  } catch (error) {
+    console.error('[NEURAL-STACK] teams/heatmap error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// PHASE 6A: TEAM ACTIVITY LOG
+// ============================================================================
+
+/**
+ * GET /api/neural-stack/teams/activity-log
+ * Returns recent activity across all teams
+ */
+router.get('/teams/activity-log', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+
+    // Get recent team reviews
+    const { data: reviews, error: reviewError } = await supabase
+      .from('monolith_team_reviews')
+      .select('*')
+      .order('review_date', { ascending: false })
+      .limit(limit);
+
+    if (reviewError && reviewError.code !== '42P01') {
+      console.warn('[NEURAL-STACK] team reviews error:', reviewError);
+    }
+
+    // Get recent amendments
+    const { data: amendments, error: amendError } = await supabase
+      .from('monolith_amendments')
+      .select('id, agent_role, amendment_type, trigger_pattern, approval_status, created_at')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (amendError) console.warn('[NEURAL-STACK] amendments error:', amendError);
+
+    // Combine into activity feed
+    const activities = [];
+
+    // Add reviews
+    (reviews || []).forEach(r => {
+      activities.push({
+        id: `review-${r.id}`,
+        type: 'review',
+        team_id: r.team_id,
+        agent_role: r.subordinate_role,
+        agent_name: getFullRoleName(r.subordinate_role),
+        description: `Team Lead reviewed ${getFullRoleName(r.subordinate_role)} - ${r.trend_direction}`,
+        outcome: r.amendment_generated ? 'AMENDMENT_GENERATED' : 'COMPLETED',
+        timestamp: r.review_date,
+      });
+    });
+
+    // Add amendments
+    (amendments || []).forEach(a => {
+      activities.push({
+        id: `amend-${a.id}`,
+        type: 'amendment',
+        agent_role: a.agent_role,
+        agent_name: getFullRoleName(a.agent_role),
+        description: `${a.amendment_type} amendment: ${a.trigger_pattern}`,
+        outcome: a.approval_status?.toUpperCase() || 'PENDING',
+        timestamp: a.created_at,
+      });
+    });
+
+    // Sort by timestamp
+    activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    res.json({
+      activities: activities.slice(0, limit),
+      total: activities.length,
+    });
+  } catch (error) {
+    console.error('[NEURAL-STACK] teams/activity-log error:', error);
     res.status(500).json({ error: error.message });
   }
 });

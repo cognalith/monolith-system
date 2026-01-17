@@ -27,8 +27,22 @@ const supabase = createClient(
 // Valid task statuses
 const VALID_STATUSES = ['pending', 'queued', 'active', 'blocked', 'completed', 'failed', 'cancelled'];
 
-// Valid priorities
-const VALID_PRIORITIES = ['low', 'medium', 'high', 'critical'];
+// Valid priorities (string to integer mapping)
+const PRIORITY_MAP = {
+  low: 25,
+  medium: 50,
+  high: 75,
+  critical: 100,
+};
+const VALID_PRIORITIES = Object.keys(PRIORITY_MAP);
+
+// Generate human-readable task ID
+function generateTaskId() {
+  const date = new Date();
+  const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
+  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  return `TASK-${dateStr}-${random}`;
+}
 
 // Valid decision choices
 const VALID_DECISION_CHOICES = ['approve', 'reject', 'modify', 'escalate'];
@@ -84,13 +98,18 @@ router.post('/tasks', async (req, res) => {
       });
     }
 
-    // Build task object
+    // Build task object - convert string priority to integer
+    const priorityInt = priority
+      ? PRIORITY_MAP[priority.toLowerCase()] || 50
+      : 50;
+
     const taskData = {
+      task_id: generateTaskId(),
       title,
       description: description || null,
       assigned_agent: assigned_agent?.toLowerCase() || null,
       assigned_team: assigned_team?.toLowerCase() || null,
-      priority: priority?.toLowerCase() || 'medium',
+      priority: priorityInt,
       tags: tags || [],
       deliverables: deliverables || [],
       status: 'queued',
@@ -251,7 +270,7 @@ router.patch('/tasks/:id', async (req, res) => {
     };
 
     if (updates.status) updateData.status = updates.status.toLowerCase();
-    if (updates.priority) updateData.priority = updates.priority.toLowerCase();
+    if (updates.priority) updateData.priority = PRIORITY_MAP[updates.priority.toLowerCase()] || 50;
     if (updates.assigned_agent) updateData.assigned_agent = updates.assigned_agent.toLowerCase();
     if (updates.assigned_team) updateData.assigned_team = updates.assigned_team.toLowerCase();
 
@@ -985,12 +1004,12 @@ router.get('/throughput', async (req, res) => {
         : 0,
     })).sort((a, b) => b.completed - a.completed);
 
-    // By priority breakdown
+    // By priority breakdown (priority stored as integer: 25=low, 50=medium, 75=high, 100=critical)
     const byPriority = {
-      critical: tasks.filter(t => t.priority === 'critical').length,
-      high: tasks.filter(t => t.priority === 'high').length,
-      medium: tasks.filter(t => t.priority === 'medium').length,
-      low: tasks.filter(t => t.priority === 'low').length,
+      critical: tasks.filter(t => t.priority === 100).length,
+      high: tasks.filter(t => t.priority === 75).length,
+      medium: tasks.filter(t => t.priority === 50).length,
+      low: tasks.filter(t => t.priority === 25).length,
     };
 
     // Daily breakdown

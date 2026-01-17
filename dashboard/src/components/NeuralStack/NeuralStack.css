@@ -7154,3 +7154,1141 @@
     margin: 0 0.75rem 0.75rem 0.75rem;
   }
 }
+
+/* ============================================================================
+   PHASE 6G: FINANCE TEAM PANEL
+   ============================================================================ */
+
+/* Finance Team Color Scheme: Green */
+:root {
+  --neon-green: #22c55e;
+  --neon-green-light: #4ade80;
+  --neon-green-dark: #16a34a;
+}
+
+.finance-team-panel {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Finance Team Header */
+.finance-team-header {
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.05) 100%);
+  border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.finance-team-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.finance-team-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.finance-team-icon {
+  font-size: 1.5rem;
+}
+
+.finance-team-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.finance-team-health-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.finance-team-health-indicator .health-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+/* CFO Card - Finance variant */
+.finance-team-cfo-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid rgba(34, 197, 94, 0.15);
+}
+
+.cfo-avatar.finance {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #0a0a0f;
+  flex-shrink: 0;
+}
+
+.finance-team-cfo-card .cfo-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.finance-team-cfo-card .cfo-role {
+  font-size: 0.7rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.finance-team-cfo-card .cfo-name {
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.finance-team-cfo-card .cfo-stats {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.finance-team-cfo-card .cfo-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.finance-team-cfo-card .cfo-stat .stat-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.finance-team-cfo-card .cfo-stat .stat-value.finance {
+  color: var(--neon-green);
+}
+
+.finance-team-cfo-card .cfo-stat .stat-label {
+  font-size: 0.65rem;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.finance-team-cfo-card .cfo-review-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.finance-team-cfo-card .last-review {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.trigger-review-btn.finance {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #22c55e;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.trigger-review-btn.finance:hover {
+  background: rgba(34, 197, 94, 0.25);
+  border-color: rgba(34, 197, 94, 0.6);
+}
+
+/* Finance Subordinate Grid */
+.finance-subordinate-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.finance-subordinate-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 1rem;
+  border: 1px solid rgba(34, 197, 94, 0.1);
+  transition: all 0.2s ease;
+}
+
+.finance-subordinate-card:hover {
+  border-color: rgba(34, 197, 94, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.finance-subordinate-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.finance-subordinate-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(22, 163, 74, 0.2) 100%);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+.finance-subordinate-info h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.finance-subordinate-info .role-label {
+  font-size: 0.65rem;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.finance-subordinate-specialties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.finance-specialty-tag {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: var(--neon-green);
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.finance-subordinate-metrics {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.finance-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.finance-metric .metric-value {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.finance-metric .metric-value.finance {
+  color: var(--neon-green);
+}
+
+.finance-metric .metric-label {
+  font-size: 0.55rem;
+  color: #888;
+  text-transform: uppercase;
+}
+
+/* Finance Knowledge Bot Section */
+.finance-knowledge-bot-section {
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.15);
+  border-top: 1px solid rgba(34, 197, 94, 0.1);
+  border-bottom: 1px solid rgba(34, 197, 94, 0.1);
+}
+
+.finance-knowledge-bot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.finance-knowledge-bot-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.finance-knowledge-bot-title .bot-icon {
+  font-size: 1rem;
+}
+
+.finance-bot-status {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+}
+
+.finance-bot-status .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.finance-bot-status .status-dot.active {
+  background: var(--neon-green);
+  box-shadow: 0 0 6px var(--neon-green);
+}
+
+.finance-bot-status .status-dot.idle {
+  background: #888;
+}
+
+.finance-research-focus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.finance-focus-tag {
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.15);
+  color: rgba(34, 197, 94, 0.8);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.6rem;
+}
+
+/* Finance Recommendation Queue */
+.finance-recommendation-queue {
+  padding: 1rem;
+}
+
+.finance-recommendation-queue h4 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.finance-recommendation-queue h4 .queue-count {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--neon-green);
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+  font-size: 0.65rem;
+}
+
+.finance-recommendation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.finance-recommendation-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.6rem;
+  border-radius: 4px;
+  border: 1px solid rgba(34, 197, 94, 0.1);
+}
+
+.finance-recommendation-item .priority-indicator {
+  width: 4px;
+  height: 100%;
+  min-height: 30px;
+  border-radius: 2px;
+}
+
+.finance-recommendation-item .priority-indicator.high {
+  background: #ef4444;
+}
+
+.finance-recommendation-item .priority-indicator.medium {
+  background: var(--neon-green);
+}
+
+.finance-recommendation-item .priority-indicator.low {
+  background: #888;
+}
+
+.finance-recommendation-item .rec-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.finance-recommendation-item .rec-target {
+  font-size: 0.65rem;
+  color: var(--neon-green);
+  text-transform: uppercase;
+}
+
+.finance-recommendation-item .rec-text {
+  font-size: 0.75rem;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.finance-recommendation-item .rec-action {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: var(--neon-green);
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.finance-recommendation-item .rec-action:hover {
+  background: rgba(34, 197, 94, 0.2);
+}
+
+/* Finance Activity Feed */
+.finance-activity-feed {
+  padding: 0 1rem 1rem 1rem;
+}
+
+.finance-activity-feed h4 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 0.75rem 0;
+}
+
+.finance-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.finance-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+}
+
+.finance-activity-item .activity-icon {
+  color: var(--neon-green);
+  font-size: 0.8rem;
+}
+
+.finance-activity-item .activity-text {
+  color: #ccc;
+  flex: 1;
+}
+
+.finance-activity-item .activity-time {
+  color: #666;
+  font-size: 0.6rem;
+}
+
+/* Finance Bottom Row */
+.finance-bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 0 1rem 1rem 1rem;
+}
+
+/* Finance Metrics Footer */
+.finance-metrics {
+  display: flex;
+  justify-content: space-around;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(34, 197, 94, 0.1);
+}
+
+.finance-metric-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.finance-metric-item .metric-value {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--neon-green);
+}
+
+.finance-metric-item .metric-label {
+  font-size: 0.6rem;
+  color: #888;
+  text-transform: uppercase;
+}
+
+/* Finance Responsive Styles */
+@media (max-width: 1200px) {
+  .finance-subordinate-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 992px) {
+  .finance-bottom-row {
+    grid-template-columns: 1fr;
+  }
+
+  .finance-metrics {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .finance-metric-item {
+    flex: 1 1 30%;
+    min-width: 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .finance-team-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .finance-team-cfo-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .finance-team-cfo-card .cfo-info {
+    text-align: center;
+  }
+
+  .finance-team-cfo-card .cfo-stats {
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+
+  .finance-team-cfo-card .cfo-review-section {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .finance-team-header {
+    padding: 0.75rem;
+  }
+
+  .finance-subordinate-grid {
+    padding: 0.75rem;
+  }
+
+  .finance-bottom-row {
+    padding: 0 0.75rem 0.75rem 0.75rem;
+  }
+
+  .finance-activity-feed {
+    margin: 0 0.75rem 0.75rem 0.75rem;
+  }
+
+  .finance-metrics {
+    margin: 0 0.75rem 0.75rem 0.75rem;
+  }
+}
+
+/* ============================================================================
+   PHASE 6H: PEOPLE TEAM PANEL
+   ============================================================================ */
+
+/* People Team Color Scheme: Purple */
+:root {
+  --neon-purple: #a855f7;
+  --neon-purple-light: #c084fc;
+  --neon-purple-dark: #9333ea;
+}
+
+.people-team-panel {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* People Team Header */
+.people-team-header {
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(147, 51, 234, 0.05) 100%);
+  border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.people-team-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.people-team-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.people-team-icon {
+  font-size: 1.5rem;
+}
+
+.people-team-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.people-team-health-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.people-team-health-indicator .health-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+/* CHRO Card - People variant */
+.people-team-chro-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid rgba(168, 85, 247, 0.15);
+}
+
+.chro-avatar.people {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #0a0a0f;
+  flex-shrink: 0;
+}
+
+.people-team-chro-card .chro-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.people-team-chro-card .chro-role {
+  font-size: 0.7rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.people-team-chro-card .chro-name {
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.people-team-chro-card .chro-stats {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.people-team-chro-card .chro-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.people-team-chro-card .chro-stat .stat-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.people-team-chro-card .chro-stat .stat-value.people {
+  color: var(--neon-purple);
+}
+
+.people-team-chro-card .chro-stat .stat-label {
+  font-size: 0.65rem;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.people-team-chro-card .chro-review-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.people-team-chro-card .last-review {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.trigger-review-btn.people {
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #a855f7;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.trigger-review-btn.people:hover {
+  background: rgba(168, 85, 247, 0.25);
+  border-color: rgba(168, 85, 247, 0.6);
+}
+
+/* People Subordinate Grid */
+.people-subordinate-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.people-subordinate-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 1rem;
+  border: 1px solid rgba(168, 85, 247, 0.1);
+  transition: all 0.2s ease;
+}
+
+.people-subordinate-card:hover {
+  border-color: rgba(168, 85, 247, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.people-subordinate-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.people-subordinate-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(147, 51, 234, 0.2) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+.people-subordinate-info h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.people-subordinate-info .role-label {
+  font-size: 0.65rem;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.people-subordinate-specialties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.people-specialty-tag {
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  color: var(--neon-purple);
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.people-subordinate-metrics {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.people-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.people-metric .metric-value {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.people-metric .metric-value.people {
+  color: var(--neon-purple);
+}
+
+.people-metric .metric-label {
+  font-size: 0.55rem;
+  color: #888;
+  text-transform: uppercase;
+}
+
+/* People Knowledge Bot Section */
+.people-knowledge-bot-section {
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.15);
+  border-top: 1px solid rgba(168, 85, 247, 0.1);
+  border-bottom: 1px solid rgba(168, 85, 247, 0.1);
+}
+
+.people-knowledge-bot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.people-knowledge-bot-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.people-knowledge-bot-title .bot-icon {
+  font-size: 1rem;
+}
+
+.people-bot-status {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+}
+
+.people-bot-status .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.people-bot-status .status-dot.active {
+  background: var(--neon-purple);
+  box-shadow: 0 0 6px var(--neon-purple);
+}
+
+.people-bot-status .status-dot.idle {
+  background: #888;
+}
+
+.people-research-focus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.people-focus-tag {
+  background: rgba(168, 85, 247, 0.08);
+  border: 1px solid rgba(168, 85, 247, 0.15);
+  color: rgba(168, 85, 247, 0.8);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.6rem;
+}
+
+/* People Recommendation Queue */
+.people-recommendation-queue {
+  padding: 1rem;
+}
+
+.people-recommendation-queue h4 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.people-recommendation-queue h4 .queue-count {
+  background: rgba(168, 85, 247, 0.2);
+  color: var(--neon-purple);
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+  font-size: 0.65rem;
+}
+
+.people-recommendation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.people-recommendation-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.6rem;
+  border-radius: 4px;
+  border: 1px solid rgba(168, 85, 247, 0.1);
+}
+
+.people-recommendation-item .priority-indicator {
+  width: 4px;
+  height: 100%;
+  min-height: 30px;
+  border-radius: 2px;
+}
+
+.people-recommendation-item .priority-indicator.high {
+  background: #ef4444;
+}
+
+.people-recommendation-item .priority-indicator.medium {
+  background: var(--neon-purple);
+}
+
+.people-recommendation-item .priority-indicator.low {
+  background: #888;
+}
+
+.people-recommendation-item .rec-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.people-recommendation-item .rec-target {
+  font-size: 0.65rem;
+  color: var(--neon-purple);
+  text-transform: uppercase;
+}
+
+.people-recommendation-item .rec-text {
+  font-size: 0.75rem;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.people-recommendation-item .rec-action {
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  color: var(--neon-purple);
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.people-recommendation-item .rec-action:hover {
+  background: rgba(168, 85, 247, 0.2);
+}
+
+/* People Activity Feed */
+.people-activity-feed {
+  padding: 0 1rem 1rem 1rem;
+}
+
+.people-activity-feed h4 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 0.75rem 0;
+}
+
+.people-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.people-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+}
+
+.people-activity-item .activity-icon {
+  color: var(--neon-purple);
+  font-size: 0.8rem;
+}
+
+.people-activity-item .activity-text {
+  color: #ccc;
+  flex: 1;
+}
+
+.people-activity-item .activity-time {
+  color: #666;
+  font-size: 0.6rem;
+}
+
+/* People Bottom Row */
+.people-bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 0 1rem 1rem 1rem;
+}
+
+/* People Metrics Footer */
+.people-metrics {
+  display: flex;
+  justify-content: space-around;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(168, 85, 247, 0.1);
+}
+
+.people-metric-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.people-metric-item .metric-value {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--neon-purple);
+}
+
+.people-metric-item .metric-label {
+  font-size: 0.6rem;
+  color: #888;
+  text-transform: uppercase;
+}
+
+/* People Responsive Styles */
+@media (max-width: 1200px) {
+  .people-subordinate-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 992px) {
+  .people-bottom-row {
+    grid-template-columns: 1fr;
+  }
+
+  .people-metrics {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .people-metric-item {
+    flex: 1 1 30%;
+    min-width: 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .people-team-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .people-team-chro-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .people-team-chro-card .chro-info {
+    text-align: center;
+  }
+
+  .people-team-chro-card .chro-stats {
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+
+  .people-team-chro-card .chro-review-section {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .people-team-header {
+    padding: 0.75rem;
+  }
+
+  .people-subordinate-grid {
+    padding: 0.75rem;
+  }
+
+  .people-bottom-row {
+    padding: 0 0.75rem 0.75rem 0.75rem;
+  }
+
+  .people-activity-feed {
+    margin: 0 0.75rem 0.75rem 0.75rem;
+  }
+
+  .people-metrics {
+    margin: 0 0.75rem 0.75rem 0.75rem;
+  }
+}

@@ -1,15 +1,46 @@
 # Claude Code Session Context
 **Last Updated**: 2026-01-17
 **Branch**: main
-**Phase**: 6F (Operations Team Panel)
+**Phase**: 6H (All Teams Deployed)
 **Last Commit**: pending
 
 ---
 
-## Phase 6F: Operations Team Panel (Current)
+## Phase 6G-6H: Finance & People Teams (Current)
 
 ### Overview
-Phase 6F completes the Team Deployment series by adding the Operations Team specialized panel to the Neural Stack Dashboard. This is the fourth and final team panel, following Tech (6C), Marketing (6D), and Product (6E) teams.
+Phases 6G and 6H complete the Team Deployment series by adding the final two teams: Finance Team (6G) and People Team (6H). Executed in parallel for efficiency.
+
+### Finance Team Structure (Phase 6G)
+| Role | Reports To | Specialties |
+|------|-----------|-------------|
+| **CFO** (Team Lead) | CoS | Financial strategy, expense management, revenue analytics |
+| **Expense Tracking Lead** | CFO | Expense management, budget tracking, cost analysis, spend optimization |
+| **Revenue Analytics Lead** | CFO | Revenue forecasting, financial modeling, KPI tracking, profitability analysis |
+| **finance_knowledge_bot** (Advisory) | CFO | Research best practices for subordinates |
+
+### People Team Structure (Phase 6H)
+| Role | Reports To | Specialties |
+|------|-----------|-------------|
+| **CHRO** (Team Lead) | CoS | HR strategy, talent management, compliance |
+| **Hiring Lead** | CHRO | Talent acquisition, recruiting, candidate screening, onboarding |
+| **Compliance Lead** | CHRO | HR compliance, policy enforcement, labor law, workplace safety |
+| **people_knowledge_bot** (Advisory) | CHRO | Research best practices for subordinates |
+
+### New Dashboard Components
+| Component | File | Color |
+|-----------|------|-------|
+| `FinanceTeamPanel` | `FinanceTeamPanel.jsx` | Green (#22c55e) |
+| `PeopleTeamPanel` | `PeopleTeamPanel.jsx` | Purple (#a855f7) |
+
+### Test Results
+- Finance Team: 103 tests passing
+- People Team: 111 tests passing
+- Combined Suite: 281 tests passing
+
+---
+
+## Phase 6F: Operations Team Panel
 
 ### Operations Team Structure
 | Role | Reports To | Specialties |
@@ -44,11 +75,13 @@ Phase 6F completes the Team Deployment series by adding the Operations Team spec
 | Phase | Team | Lead | Color | Status |
 |-------|------|------|-------|--------|
 | 6A | Team Hierarchy | - | - | Complete (schema + overview panels) |
-| 6B | Knowledge Bots | - | - | Complete (6 knowledge bots) |
+| 6B | Knowledge Bots | - | - | Complete (8 knowledge bots) |
 | 6C | Tech Team | CTO | Cyan (#00b4d8) | Complete |
 | 6D | Marketing Team | CMO | Magenta (#c832c8) | Complete |
 | 6E | Product Team | CPO | Teal (#00c9a7) | Complete |
 | 6F | Operations Team | COO | Orange (#ff8c00) | Complete |
+| 6G | Finance Team | CFO | Green (#22c55e) | Complete |
+| 6H | People Team | CHRO | Purple (#a855f7) | Complete |
 
 ---
 

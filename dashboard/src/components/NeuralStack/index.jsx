@@ -1,5 +1,5 @@
 /**
- * NEURAL STACK DASHBOARD - Phase 6F
+ * NEURAL STACK DASHBOARD - Phase 6H
  * Cognalith Inc. | Monolith System
  *
  * Master component integrating all Neural Stack dashboard widgets.
@@ -34,6 +34,12 @@
  *
  * PHASE 6F: Added Operations Team specialized panel
  * - OperationsTeamPanel
+ *
+ * PHASE 6G: Added Finance Team specialized panel
+ * - FinanceTeamPanel
+ *
+ * PHASE 6H: Added People Team specialized panel
+ * - PeopleTeamPanel
  */
 
 import React, { useState, useEffect } from 'react';
@@ -65,6 +71,10 @@ import { MarketingTeamPanel } from './MarketingTeamPanel.jsx';
 import { ProductTeamPanel } from './ProductTeamPanel.jsx';
 // Phase 6F widgets
 import { OperationsTeamPanel } from './OperationsTeamPanel.jsx';
+// Phase 6G widgets
+import { FinanceTeamPanel } from './FinanceTeamPanel.jsx';
+// Phase 6H widgets
+import { PeopleTeamPanel } from './PeopleTeamPanel.jsx';
 import './NeuralStack.css';
 
 /**
@@ -198,6 +208,16 @@ export function NeuralStackDashboard({ layout = LAYOUTS.default }) {
           <OperationsTeamPanel />
         </section>
 
+        {/* Phase 6G: Finance Team Panel */}
+        <section className="neural-stack-section finance-team-section">
+          <FinanceTeamPanel />
+        </section>
+
+        {/* Phase 6H: People Team Panel */}
+        <section className="neural-stack-section people-team-section">
+          <PeopleTeamPanel />
+        </section>
+
         {/* Phase 6A: Team Hierarchy Section */}
         <section className="neural-stack-section team-section">
           {selectedTeam ? (
@@ -276,9 +296,9 @@ export function NeuralStackDashboard({ layout = LAYOUTS.default }) {
       {/* Footer */}
       <footer className="neural-stack-footer">
         <div className="footer-left">
-          <span>Monolith System v6.4</span>
+          <span>Monolith System v6.5</span>
           <span className="separator">|</span>
-          <span>Phase 6F Operations Team Deployed</span>
+          <span>Phase 6H All Teams Deployed</span>
         </div>
         <div className="footer-right">
           <span>Cognalith Inc.</span>
@@ -318,6 +338,10 @@ export {
   ProductTeamPanel,
   // Phase 6F widgets
   OperationsTeamPanel,
+  // Phase 6G widgets
+  FinanceTeamPanel,
+  // Phase 6H widgets
+  PeopleTeamPanel,
 };
 
 export default NeuralStackDashboard;

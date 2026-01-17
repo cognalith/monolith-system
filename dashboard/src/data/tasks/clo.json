@@ -9,21 +9,23 @@
       "id": "clo-001",
       "content": "Draft Terms of Service for TeeMates and VR Golf Leagues",
       "priority": "CRITICAL",
-      "status": "pending",
+      "status": "in_progress",
       "due_date": "2026-01-30",
       "workflow": "Product Launch Legal",
-      "notes": "Must comply with GDPR and PIPEDA",
-      "created_at": "2026-01-05"
+      "notes": "DRAFT COMPLETE: /04_LEGAL/TeeMates_Terms_of_Service.md - Needs effective date and business address",
+      "created_at": "2026-01-05",
+      "updated_at": "2026-01-14T06:45:00.000Z"
     },
     {
       "id": "clo-002",
       "content": "Draft Privacy Policy compliant with international regulations",
       "priority": "CRITICAL",
-      "status": "pending",
+      "status": "in_progress",
       "due_date": "2026-01-30",
       "workflow": "Product Launch Legal",
-      "notes": "GDPR (EU) and PIPEDA (Canada) compliance required",
-      "created_at": "2026-01-05"
+      "notes": "DRAFT COMPLETE: /04_LEGAL/TeeMates_Privacy_Policy.md - Needs effective date and business address",
+      "created_at": "2026-01-05",
+      "updated_at": "2026-01-14T06:45:00.000Z"
     },
     {
       "id": "clo-003",
@@ -49,11 +51,12 @@
       "id": "clo-005",
       "content": "Review VR Golf Leagues partnership agreement with James",
       "priority": "HIGH",
-      "status": "pending",
+      "status": "in_progress",
       "due_date": "2026-01-15",
       "workflow": "Contract Management",
-      "notes": "Formalize 50/50 equity split with James Casuga",
-      "created_at": "2026-01-05"
+      "notes": "TERM SHEET DRAFT: /04_LEGAL/VR_Golf_Leagues_JV_Term_Sheet.md - Needs James's details and legal review",
+      "created_at": "2026-01-05",
+      "updated_at": "2026-01-14T06:45:00.000Z"
     },
     {
       "id": "clo-006",
@@ -74,12 +77,63 @@
       "workflow": "Systems Integration",
       "notes": null,
       "created_at": "2026-01-05"
+    },
+    {
+      "id": "clo-008",
+      "content": "Obtain James's full legal name and OpCo corporation details for JV agreement",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-20",
+      "workflow": "Contract Management",
+      "notes": "Required to complete VR Golf Leagues JV Term Sheet",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "clo-009",
+      "content": "Engage business lawyer to draft formal VR Golf Leagues JV Agreement",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-02-15",
+      "workflow": "Contract Management",
+      "notes": "Based on term sheet in /04_LEGAL/VR_Golf_Leagues_JV_Term_Sheet.md",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "clo-010",
+      "content": "Add effective date to Privacy Policy before App Store submission",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-25",
+      "workflow": "Product Launch Legal",
+      "notes": "Update /04_LEGAL/TeeMates_Privacy_Policy.md",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "clo-011",
+      "content": "Add effective date to Terms of Service before App Store submission",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": "2026-01-25",
+      "workflow": "Product Launch Legal",
+      "notes": "Update /04_LEGAL/TeeMates_Terms_of_Service.md",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "clo-012",
+      "content": "Create NDA template for partner/investor discussions",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": null,
+      "workflow": "Legal Templates",
+      "notes": "COMPLETE: /04_LEGAL/NDA_Mutual_Template.md",
+      "created_at": "2026-01-14",
+      "completedAt": "2026-01-14T06:45:00.000Z"
     }
   ],
-  "total_tasks": 7,
+  "total_tasks": 12,
   "by_priority": {
-    "CRITICAL": 2,
-    "HIGH": 4,
+    "CRITICAL": 4,
+    "HIGH": 6,
     "MEDIUM": 1,
     "LOW": 0
   },

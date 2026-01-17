@@ -696,3 +696,70 @@
     padding: 6px 10px;
   }
 }
+
+/* Agent Service Status Indicator */
+.agent-service-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: help;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.status-dot.live {
+  background: #00ff88;
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+}
+
+.status-dot.connecting {
+  background: #ffaa00;
+  box-shadow: 0 0 8px rgba(255, 170, 0, 0.6);
+  animation: blink 1s ease-in-out infinite;
+}
+
+.status-dot.offline {
+  background: #666;
+  animation: none;
+}
+
+.status-text {
+  color: #888;
+}
+
+.agent-service-status:has(.status-dot.live) .status-text {
+  color: #00ff88;
+}
+
+.agent-service-status:has(.status-dot.connecting) .status-text {
+  color: #ffaa00;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}

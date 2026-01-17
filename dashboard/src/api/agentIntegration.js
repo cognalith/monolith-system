@@ -1,31 +1,17 @@
 /**
  * MONOLITH OS - Agent Integration
- * Provides integration layer between dashboard API and agent system
- * Falls back to mock/stub if agents system is not available
+ * Connects dashboard to the Agent Service via REST API
+ * Falls back to mock mode if Agent Service is unavailable
  */
 
-let TaskOrchestrator = null;
-let orchestratorInstance = null;
-let agentsAvailable = false;
+const AGENT_SERVICE_URL = process.env.AGENT_SERVICE_URL || 'http://localhost:3001';
+const AGENT_SERVICE_TIMEOUT = 5000; // 5 second timeout
 
-// Try to import TaskOrchestrator from agents system
-async function initializeAgentSystem() {
-  try {
-    const module = await import('../../../agents/core/TaskOrchestrator.js');
-    TaskOrchestrator = module.default;
-    agentsAvailable = true;
-    console.log('[AGENT-INTEGRATION] TaskOrchestrator loaded successfully');
-  } catch (error) {
-    console.warn('[AGENT-INTEGRATION] Agents system not available:', error.message);
-    console.log('[AGENT-INTEGRATION] Using mock/stub implementation');
-    agentsAvailable = false;
-  }
-}
+let serviceAvailable = false;
+let lastHealthCheck = null;
+const HEALTH_CHECK_INTERVAL = 30000; // Check every 30 seconds
 
-// Initialize on module load
-initializeAgentSystem();
-
-// Mock task queue for when agents system is not available
+// Mock queue for when Agent Service is unavailable
 const mockQueue = {
   tasks: [],
   inProgress: new Map(),
@@ -33,23 +19,76 @@ const mockQueue = {
 };
 
 /**
- * Get or create the orchestrator instance
- * @returns {object|null} The orchestrator instance or null if not available
+ * Check if Agent Service is available
  */
-function getOrchestrator() {
-  if (!agentsAvailable || !TaskOrchestrator) {
-    return null;
-  }
+async function checkServiceHealth() {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), AGENT_SERVICE_TIMEOUT);
 
-  if (!orchestratorInstance) {
-    orchestratorInstance = new TaskOrchestrator({
-      taskDataPath: './dashboard/src/data/tasks',
-      processingInterval: 5000,
-      maxConcurrent: 5
+    const response = await fetch(`${AGENT_SERVICE_URL}/health`, {
+      signal: controller.signal
     });
+
+    clearTimeout(timeout);
+
+    if (response.ok) {
+      const data = await response.json();
+      serviceAvailable = data.agentSystem === 'running';
+      lastHealthCheck = new Date();
+      console.log(`[AGENT-INTEGRATION] Service health: ${serviceAvailable ? 'available' : 'degraded'}`);
+      return serviceAvailable;
+    }
+  } catch (error) {
+    if (error.name !== 'AbortError') {
+      console.warn('[AGENT-INTEGRATION] Service unavailable:', error.message);
+    }
   }
 
-  return orchestratorInstance;
+  serviceAvailable = false;
+  lastHealthCheck = new Date();
+  return false;
+}
+
+// Initial health check
+checkServiceHealth();
+
+// Periodic health checks
+setInterval(checkServiceHealth, HEALTH_CHECK_INTERVAL);
+
+/**
+ * Make a request to the Agent Service
+ */
+async function serviceRequest(path, options = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), AGENT_SERVICE_TIMEOUT);
+
+  try {
+    const response = await fetch(`${AGENT_SERVICE_URL}${path}`, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(error.error || `HTTP ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    clearTimeout(timeout);
+
+    if (error.name === 'AbortError') {
+      throw new Error('Request timeout');
+    }
+    throw error;
+  }
 }
 
 /**
@@ -58,60 +97,56 @@ function getOrchestrator() {
  * @returns {Promise<object>} Queue result with position and status
  */
 export async function queueTaskForAgent(task) {
-  const orchestrator = getOrchestrator();
-
-  if (orchestrator) {
-    // Use real orchestrator
+  // Try Agent Service first
+  if (serviceAvailable) {
     try {
-      orchestrator.queueTask({
-        ...task,
-        queuedAt: new Date().toISOString(),
-        source: 'dashboard-api'
+      const result = await serviceRequest('/api/tasks/queue', {
+        method: 'POST',
+        body: JSON.stringify({ task })
       });
-
-      const status = orchestrator.getStatus();
 
       return {
         success: true,
         mode: 'live',
-        position: status.queuedTasks,
+        position: result.position || 1,
         taskId: task.id,
+        message: result.message || 'Task queued for agent processing',
         orchestratorStatus: {
-          isRunning: status.isRunning,
-          queuedTasks: status.queuedTasks,
-          inProgress: status.inProgress
+          isRunning: true,
+          serviceUrl: AGENT_SERVICE_URL
         }
       };
     } catch (error) {
-      console.error('[AGENT-INTEGRATION] Error queueing task:', error.message);
-      throw error;
+      console.warn('[AGENT-INTEGRATION] Service request failed, falling back to mock:', error.message);
+      // Mark service as unavailable and fallthrough to mock
+      serviceAvailable = false;
     }
-  } else {
-    // Use mock implementation
-    const queuedTask = {
-      ...task,
-      queuedAt: new Date().toISOString(),
-      source: 'dashboard-api',
-      mockId: `mock-${Date.now()}`
-    };
-
-    mockQueue.tasks.push(queuedTask);
-
-    console.log(`[AGENT-INTEGRATION] Mock: Queued task ${task.id} (position: ${mockQueue.tasks.length})`);
-
-    return {
-      success: true,
-      mode: 'mock',
-      position: mockQueue.tasks.length,
-      taskId: task.id,
-      message: 'Task queued in mock queue (agents system not available)',
-      orchestratorStatus: {
-        isRunning: false,
-        queuedTasks: mockQueue.tasks.length,
-        inProgress: mockQueue.inProgress.size
-      }
-    };
   }
+
+  // Fallback to mock implementation
+  const queuedTask = {
+    ...task,
+    queuedAt: new Date().toISOString(),
+    source: 'dashboard-api',
+    mockId: `mock-${Date.now()}`
+  };
+
+  mockQueue.tasks.push(queuedTask);
+
+  console.log(`[AGENT-INTEGRATION] Mock: Queued task ${task.id} (position: ${mockQueue.tasks.length})`);
+
+  return {
+    success: true,
+    mode: 'mock',
+    position: mockQueue.tasks.length,
+    taskId: task.id,
+    message: 'Task queued in mock queue (Agent Service not available). Start the Agent Service with: cd agents && npm run server',
+    orchestratorStatus: {
+      isRunning: false,
+      queuedTasks: mockQueue.tasks.length,
+      inProgress: mockQueue.inProgress.size
+    }
+  };
 }
 
 /**
@@ -119,79 +154,80 @@ export async function queueTaskForAgent(task) {
  * @returns {Promise<object>} Queue status information
  */
 export async function getQueueStatus() {
-  const orchestrator = getOrchestrator();
+  // Try Agent Service first
+  if (serviceAvailable) {
+    try {
+      const result = await serviceRequest('/api/status');
 
-  if (orchestrator) {
-    const status = orchestrator.getStatus();
-
-    return {
-      mode: 'live',
-      isRunning: status.isRunning,
-      registeredAgents: status.registeredAgents,
-      queuedTasks: status.queuedTasks,
-      inProgress: status.inProgress,
-      completed: status.completed,
-      ceoQueue: status.ceoQueue,
-      agents: status.agents || []
-    };
-  } else {
-    return {
-      mode: 'mock',
-      isRunning: false,
-      registeredAgents: 0,
-      queuedTasks: mockQueue.tasks.length,
-      inProgress: mockQueue.inProgress.size,
-      completed: mockQueue.completed.length,
-      ceoQueue: 0,
-      agents: [],
-      message: 'Agents system not available - using mock queue'
-    };
-  }
-}
-
-/**
- * Start the orchestrator (if available)
- * @returns {Promise<object>} Start result
- */
-export async function startOrchestrator() {
-  const orchestrator = getOrchestrator();
-
-  if (orchestrator) {
-    orchestrator.start();
-    return {
-      success: true,
-      mode: 'live',
-      message: 'Orchestrator started'
-    };
+      return {
+        mode: 'live',
+        isRunning: result.isRunning,
+        registeredAgents: result.registeredAgents,
+        queuedTasks: result.queuedTasks,
+        inProgress: result.inProgress,
+        completed: result.completed,
+        ceoQueue: result.ceoQueue,
+        agents: result.agents || [],
+        serviceUrl: AGENT_SERVICE_URL
+      };
+    } catch (error) {
+      console.warn('[AGENT-INTEGRATION] Status request failed:', error.message);
+      serviceAvailable = false;
+    }
   }
 
+  // Fallback to mock
   return {
-    success: false,
     mode: 'mock',
-    message: 'Agents system not available'
+    isRunning: false,
+    registeredAgents: 0,
+    queuedTasks: mockQueue.tasks.length,
+    inProgress: mockQueue.inProgress.size,
+    completed: mockQueue.completed.length,
+    ceoQueue: 0,
+    agents: [],
+    message: 'Agent Service not available - using mock queue'
   };
 }
 
 /**
- * Stop the orchestrator (if available)
- * @returns {Promise<object>} Stop result
+ * Start the orchestrator (requires Agent Service)
+ * @returns {Promise<object>} Start result
  */
-export async function stopOrchestrator() {
-  const orchestrator = getOrchestrator();
-
-  if (orchestrator) {
-    orchestrator.stop();
+export async function startOrchestrator() {
+  if (serviceAvailable) {
+    // Agent Service manages its own orchestrator lifecycle
     return {
       success: true,
       mode: 'live',
-      message: 'Orchestrator stopped'
+      message: 'Orchestrator is managed by Agent Service'
     };
   }
 
   return {
     success: false,
     mode: 'mock',
-    message: 'Agents system not available'
+    message: 'Agent Service not available. Start it with: cd agents && npm run server'
+  };
+}
+
+/**
+ * Stop the orchestrator (requires Agent Service)
+ * @returns {Promise<object>} Stop result
+ */
+export async function stopOrchestrator() {
+  if (serviceAvailable) {
+    return {
+      success: true,
+      mode: 'live',
+      message: 'Orchestrator is managed by Agent Service'
+    };
+  }
+
+  return {
+    success: false,
+    mode: 'mock',
+    message: 'Agent Service not available'
   };
 }
 
@@ -200,10 +236,13 @@ export async function stopOrchestrator() {
  * @returns {Promise<Array>} Array of pending CEO decisions
  */
 export async function getCEOQueue() {
-  const orchestrator = getOrchestrator();
-
-  if (orchestrator) {
-    return orchestrator.getCEOQueue();
+  if (serviceAvailable) {
+    try {
+      const result = await serviceRequest('/api/ceo-queue');
+      return result.queue || [];
+    } catch (error) {
+      console.warn('[AGENT-INTEGRATION] CEO queue request failed:', error.message);
+    }
   }
 
   return [];
@@ -216,21 +255,27 @@ export async function getCEOQueue() {
  * @returns {Promise<object>} Resolution result
  */
 export async function resolveEscalation(escalationId, decision) {
-  const orchestrator = getOrchestrator();
+  if (serviceAvailable) {
+    try {
+      await serviceRequest('/api/escalations/resolve', {
+        method: 'POST',
+        body: JSON.stringify({ escalationId, decision })
+      });
 
-  if (orchestrator) {
-    orchestrator.resolveEscalation(escalationId, decision);
-    return {
-      success: true,
-      mode: 'live',
-      message: `Escalation ${escalationId} resolved`
-    };
+      return {
+        success: true,
+        mode: 'live',
+        message: `Escalation ${escalationId} resolved`
+      };
+    } catch (error) {
+      console.warn('[AGENT-INTEGRATION] Escalation resolve failed:', error.message);
+    }
   }
 
   return {
     success: false,
     mode: 'mock',
-    message: 'Agents system not available'
+    message: 'Agent Service not available'
   };
 }
 
@@ -239,10 +284,16 @@ export async function resolveEscalation(escalationId, decision) {
  * @returns {Promise<object>} Daily summary
  */
 export async function getDailySummary() {
-  const orchestrator = getOrchestrator();
-
-  if (orchestrator) {
-    return await orchestrator.getDailySummary();
+  if (serviceAvailable) {
+    try {
+      const result = await serviceRequest('/api/daily-summary');
+      return {
+        mode: 'live',
+        ...result
+      };
+    } catch (error) {
+      console.warn('[AGENT-INTEGRATION] Daily summary request failed:', error.message);
+    }
   }
 
   // Return mock summary
@@ -255,16 +306,40 @@ export async function getDailySummary() {
     tasksEscalated: 0,
     pendingCEODecisions: 0,
     byRole: {},
-    message: 'Agents system not available - mock summary'
+    message: 'Agent Service not available - mock summary'
   };
 }
 
 /**
- * Check if agents system is available
- * @returns {boolean} True if agents system is available
+ * Check if Agent Service is available
+ * @returns {boolean} True if Agent Service is available
  */
 export function isAgentsAvailable() {
-  return agentsAvailable;
+  return serviceAvailable;
+}
+
+/**
+ * Get Agent Service URL
+ * @returns {string} The Agent Service URL
+ */
+export function getAgentServiceUrl() {
+  return AGENT_SERVICE_URL;
+}
+
+/**
+ * Get WebSocket URL for Agent Service
+ * @returns {string} The WebSocket URL
+ */
+export function getWebSocketUrl() {
+  return AGENT_SERVICE_URL.replace(/^http/, 'ws');
+}
+
+/**
+ * Force health check
+ * @returns {Promise<boolean>} Service availability
+ */
+export async function forceHealthCheck() {
+  return checkServiceHealth();
 }
 
 /**
@@ -285,5 +360,8 @@ export default {
   resolveEscalation,
   getDailySummary,
   isAgentsAvailable,
+  getAgentServiceUrl,
+  getWebSocketUrl,
+  forceHealthCheck,
   clearMockQueue
 };

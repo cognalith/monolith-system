@@ -165,13 +165,52 @@
       "id": "ceo-008",
       "content": "Set up CHRO NotebookLM notebook",
       "priority": "HIGH",
-      "status": "pending",
+      "status": "completed",
       "due_date": "2026-01-09",
       "workflow": "Monolith System Initialization",
       "notes": null,
       "created_at": "2026-01-05",
       "blockedBy": [],
-      "updated_at": "2026-01-13T14:12:06.636Z"
+      "updated_at": "2026-01-15T04:18:51.910Z",
+      "steps": [
+        {
+          "id": "step-1768370402650-mvjaibc7r",
+          "description": "Review requirements and prerequisites",
+          "order": 1,
+          "completed": false,
+          "createdAt": "2026-01-14T06:00:02.650Z"
+        },
+        {
+          "id": "step-1768370402650-j486xnwqq",
+          "description": "Prepare necessary resources and access",
+          "order": 2,
+          "completed": false,
+          "createdAt": "2026-01-14T06:00:02.650Z"
+        },
+        {
+          "id": "step-1768370402650-jzo93nfx0",
+          "description": "Execute setup procedure",
+          "order": 3,
+          "completed": false,
+          "createdAt": "2026-01-14T06:00:02.650Z"
+        },
+        {
+          "id": "step-1768370402650-uhaxiu50w",
+          "description": "Verify configuration and test functionality",
+          "order": 4,
+          "completed": false,
+          "createdAt": "2026-01-14T06:00:02.650Z"
+        },
+        {
+          "id": "step-1768370402650-9zq2u01l0",
+          "description": "Document setup for future reference",
+          "order": 5,
+          "completed": false,
+          "createdAt": "2026-01-14T06:00:02.650Z"
+        }
+      ],
+      "completedBy": "system",
+      "completedAt": "2026-01-15T04:18:51.908Z"
     },
     {
       "id": "ceo-009",
@@ -181,7 +220,45 @@
       "due_date": "2026-03-31",
       "workflow": "Monolith System Initialization",
       "notes": "Q1 2026 target",
-      "created_at": "2026-01-05"
+      "created_at": "2026-01-05",
+      "steps": [
+        {
+          "id": "step-1768370418801-321zkueub",
+          "description": "Gather information from relevant sources",
+          "order": 1,
+          "completed": false,
+          "createdAt": "2026-01-14T06:00:18.801Z"
+        },
+        {
+          "id": "step-1768370418801-cu2b7xbyz",
+          "description": "Create document outline/structure",
+          "order": 2,
+          "completed": false,
+          "createdAt": "2026-01-14T06:00:18.801Z"
+        },
+        {
+          "id": "step-1768370418801-midiqhdj5",
+          "description": "Draft initial content",
+          "order": 3,
+          "completed": false,
+          "createdAt": "2026-01-14T06:00:18.801Z"
+        },
+        {
+          "id": "step-1768370418801-bjzke6e6f",
+          "description": "Review and revise for clarity",
+          "order": 4,
+          "completed": false,
+          "createdAt": "2026-01-14T06:00:18.801Z"
+        },
+        {
+          "id": "step-1768370418801-pje5k4kha",
+          "description": "Finalize and publish document",
+          "order": 5,
+          "completed": false,
+          "createdAt": "2026-01-14T06:00:18.801Z"
+        }
+      ],
+      "updated_at": "2026-01-14T06:00:18.802Z"
     },
     {
       "id": "ceo-010",
@@ -197,7 +274,7 @@
       "id": "ceo-011",
       "content": "Document shareholder loan amounts/dates for CFO",
       "priority": "HIGH",
-      "status": "pending",
+      "status": "completed",
       "due_date": "2026-01-10",
       "workflow": "Financial & Legal Foundation",
       "notes": null,
@@ -239,17 +316,59 @@
           "createdAt": "2026-01-13T05:41:37.229Z"
         }
       ],
-      "updated_at": "2026-01-13T05:41:37.230Z"
+      "updated_at": "2026-01-15T04:19:07.770Z",
+      "completedBy": "system",
+      "completedAt": "2026-01-15T04:19:07.769Z"
     },
     {
       "id": "ceo-012",
       "content": "Document pre-incorporation expenses ($287.70) for CFO",
       "priority": "HIGH",
-      "status": "pending",
+      "status": "completed",
       "due_date": "2026-01-10",
       "workflow": "Financial & Legal Foundation",
       "notes": null,
-      "created_at": "2026-01-07"
+      "created_at": "2026-01-07",
+      "steps": [
+        {
+          "id": "step-1768450802988-aig0artn5",
+          "description": "Gather information from relevant sources",
+          "order": 1,
+          "completed": false,
+          "createdAt": "2026-01-15T04:20:02.988Z"
+        },
+        {
+          "id": "step-1768450802988-c6pd7p7pi",
+          "description": "Create document outline/structure",
+          "order": 2,
+          "completed": false,
+          "createdAt": "2026-01-15T04:20:02.988Z"
+        },
+        {
+          "id": "step-1768450802988-fj7p3vsz2",
+          "description": "Draft initial content",
+          "order": 3,
+          "completed": false,
+          "createdAt": "2026-01-15T04:20:02.988Z"
+        },
+        {
+          "id": "step-1768450802988-xs2bigpet",
+          "description": "Review and revise for clarity",
+          "order": 4,
+          "completed": false,
+          "createdAt": "2026-01-15T04:20:02.988Z"
+        },
+        {
+          "id": "step-1768450802988-w2e2i1rip",
+          "description": "Finalize and publish document",
+          "order": 5,
+          "completed": false,
+          "createdAt": "2026-01-15T04:20:02.988Z"
+        }
+      ],
+      "updated_at": "2026-01-15T04:20:04.333Z",
+      "completedBy": "system",
+      "completedAt": "2026-01-15T04:20:04.330Z"
     },
     {
       "id": "ceo-013",
@@ -399,13 +518,14 @@
     },
     {
       "id": "ceo-020",
-      "content": "Hire Liam part-time for social media/support",
+      "content": "Hire Aiden casual/part-time for social media/support",
       "priority": "MEDIUM",
-      "status": "planned",
+      "status": "in_progress",
       "due_date": "2026-12-31",
       "workflow": "Team & Personnel",
-      "notes": "2026 planned hire",
+      "notes": "Starting casual, moving to part-time Q3. Agreement template ready at /04_LEGAL/Casual_Worker_Agreement_Template.md",
       "created_at": "2026-01-07",
+      "updated_at": "2026-01-13T05:41:34.914Z",
       "steps": [
         {
           "id": "step-1768282894912-0gmgm35p0",
@@ -442,8 +562,7 @@
           "completed": false,
           "createdAt": "2026-01-13T05:41:34.912Z"
         }
-      ],
-      "updated_at": "2026-01-13T05:41:34.914Z"
+      ]
     },
     {
       "id": "ceo-021",
@@ -454,12 +573,22 @@
       "workflow": "Team & Personnel",
       "notes": "Pre-hiring requirement",
       "created_at": "2026-01-07"
+    },
+    {
+      "id": "ceo-022",
+      "content": "Add business address to legal documents (Privacy Policy, ToS)",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-25",
+      "workflow": "Financial & Legal Foundation",
+      "notes": "Required for App Store submission. Update /04_LEGAL/TeeMates_Privacy_Policy.md and /04_LEGAL/TeeMates_Terms_of_Service.md",
+      "created_at": "2026-01-14"
     }
   ],
-  "total_tasks": 21,
+  "total_tasks": 22,
   "by_priority": {
     "CRITICAL": 1,
-    "HIGH": 13,
+    "HIGH": 14,
     "MEDIUM": 5,
     "LOW": 2
   },

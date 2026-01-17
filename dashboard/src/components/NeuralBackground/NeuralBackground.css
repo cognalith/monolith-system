@@ -1,0 +1,15 @@
+/**
+ * NeuralBackground Styles
+ * Full-screen canvas with radial gradient background
+ */
+
+.neural-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background: radial-gradient(circle at center, #050a10 0%, #000000 100%);
+  pointer-events: none;
+}

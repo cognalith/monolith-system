@@ -65,15 +65,66 @@
       "status": "ongoing",
       "due_date": null,
       "workflow": "Financial Operations",
-      "notes": "Initial capital: $1,000 CAD injection",
-      "created_at": "2026-01-05"
+      "notes": "Current projected: ~$365 CAD/mo - OVER BUDGET. See /02_FINANCE/Monthly_Budget_FY2026.md",
+      "created_at": "2026-01-05",
+      "updated_at": "2026-01-14T06:45:00.000Z"
+    },
+    {
+      "id": "cfo-007",
+      "content": "Set up Wave accounting software",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-25",
+      "workflow": "Financial Operations",
+      "notes": "Free accounting software - see /02_FINANCE/Accounting_Software_Recommendation.md. Set up after RBC account opened.",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "cfo-008",
+      "content": "Import and categorize existing expenses in Wave",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": "2026-01-30",
+      "workflow": "Financial Operations",
+      "notes": "Receipts already in /02_FINANCE/Expenses/",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "cfo-009",
+      "content": "Review ChatGPT Plus subscription necessity (potential $40/mo savings)",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": "2026-01-20",
+      "workflow": "Cost Optimization",
+      "notes": "Claude Max may cover all needs - cutting ChatGPT brings burn to ~$324 CAD (within target)",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "cfo-010",
+      "content": "Complete Shareholder Loan Register with exact amounts",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-20",
+      "workflow": "Financial Documentation",
+      "notes": "Template at /02_FINANCE/Shareholder_Loan_Register.md - populate from receipts",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "cfo-011",
+      "content": "Complete Pre-Incorporation Expense Log",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-20",
+      "workflow": "Financial Documentation",
+      "notes": "Template at /02_FINANCE/Pre_Incorporation_Expense_Log.md - $287.70 total",
+      "created_at": "2026-01-14"
     }
   ],
-  "total_tasks": 6,
+  "total_tasks": 11,
   "by_priority": {
     "CRITICAL": 0,
-    "HIGH": 3,
-    "MEDIUM": 2,
+    "HIGH": 6,
+    "MEDIUM": 4,
     "LOW": 1
   },
   "financial_constraints": {

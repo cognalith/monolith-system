@@ -2,12 +2,14 @@
  * PendingTasksPanel Component
  * Displays a modal panel showing pending tasks with priority, role ownership, and workflow info.
  * Enhanced with prominent role badges per Phase 8 requirements.
+ * Now with real-time updates via Agent Service WebSocket.
  */
 import { useState, useEffect, useCallback } from 'react';
 import { getAbbrFromId, getRoleById } from '../../config/roleHierarchy';
 import { API_BASE_URL } from '../../config/api';
 import { SkeletonTaskRow } from '../Skeleton';
 import TaskExpandedDetails from './TaskExpandedDetails';
+import { useAgentService } from '../../hooks/useAgentService';
 import './PendingTasksPanel.css';
 
 // Priority color mapping per spec
@@ -121,6 +123,49 @@ const PendingTasksPanel = ({ isOpen, onClose, selectedRole = null }) => {
   const [actionLoading, setActionLoading] = useState(null); // taskId
   const [actionType, setActionType] = useState(null); // 'complete' | 'agent'
   const [actionFeedback, setActionFeedback] = useState(null);
+
+  // Agent Service WebSocket connection for real-time updates
+  const {
+    isConnected: agentServiceConnected,
+    agentSystemReady,
+    connectionError: agentConnectionError
+  } = useAgentService({
+    autoConnect: isOpen, // Only connect when panel is open
+    onTaskQueued: (task) => {
+      console.log('[REAL-TIME] Task queued:', task.id);
+      // Add new task to list if not already present
+      setTasks(prev => {
+        if (prev.find(t => t.id === task.id)) return prev;
+        const updated = [...prev, task];
+        setByPriority(calculateByPriority(updated));
+        return updated;
+      });
+    },
+    onTaskCompleted: ({ task }) => {
+      console.log('[REAL-TIME] Task completed:', task.id);
+      // Remove completed task from list
+      setTasks(prev => {
+        const updated = prev.filter(t => t.id !== task.id);
+        setByPriority(calculateByPriority(updated));
+        return updated;
+      });
+      // Clear expansion if this task was expanded
+      if (expandedTaskId === task.id) {
+        setExpandedTaskId(null);
+      }
+    },
+    onTaskFailed: ({ task, error: taskError }) => {
+      console.log('[REAL-TIME] Task failed:', task.id, taskError);
+      // Update task status in list
+      setTasks(prev => prev.map(t =>
+        t.id === task.id ? { ...t, status: 'failed', error: taskError } : t
+      ));
+    },
+    onEscalation: (escalation) => {
+      console.log('[REAL-TIME] Escalation received:', escalation.reason);
+      // Could show a notification here
+    }
+  });
 
   // Update filter when selectedRole prop changes
   useEffect(() => {
@@ -320,6 +365,25 @@ const PendingTasksPanel = ({ isOpen, onClose, selectedRole = null }) => {
             </div>
           </div>
           <div className="header-right">
+            {/* Agent Service Connection Status */}
+            <div className="agent-service-status" title={
+              agentServiceConnected
+                ? agentSystemReady
+                  ? 'Agent Service connected and processing'
+                  : 'Agent Service connected (initializing)'
+                : agentConnectionError || 'Agent Service disconnected'
+            }>
+              <span className={`status-dot ${
+                agentServiceConnected
+                  ? agentSystemReady ? 'live' : 'connecting'
+                  : 'offline'
+              }`}></span>
+              <span className="status-text">
+                {agentServiceConnected
+                  ? agentSystemReady ? 'LIVE' : 'INIT'
+                  : 'OFFLINE'}
+              </span>
+            </div>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}

@@ -30,10 +30,11 @@
       "content": "Identify/Register for CRA Payroll account",
       "priority": "CRITICAL",
       "status": "pending",
-      "due_date": "2026-01-19",
+      "due_date": null,
       "workflow": "Compliance Foundation",
-      "notes": "Dependent on Business Number receipt",
-      "created_at": "2026-01-05"
+      "notes": "Dependent on Business Number receipt. GUIDE: /07_PEOPLE/CRA_Payroll_Registration_Guide.md",
+      "created_at": "2026-01-05",
+      "updated_at": "2026-01-14T07:00:00.000Z"
     },
     {
       "id": "chro-004",
@@ -52,18 +53,21 @@
       "status": "not_started",
       "due_date": null,
       "workflow": "Compliance Foundation",
-      "notes": "Required before Liam's start",
-      "created_at": "2026-01-05"
+      "notes": "Required before Aiden's start. GUIDE: /07_PEOPLE/WCB_Alberta_Registration_Guide.md",
+      "created_at": "2026-01-05",
+      "updated_at": "2026-01-14T07:00:00.000Z"
     },
     {
       "id": "chro-006",
       "content": "Create Contractor Agreement and NDA Templates",
       "priority": "HIGH",
-      "status": "not_started",
+      "status": "completed",
       "due_date": "2026-01-30",
       "workflow": "Legal Templates",
-      "notes": null,
-      "created_at": "2026-01-05"
+      "notes": "COMPLETE: /04_LEGAL/Casual_Worker_Agreement_Template.md and /04_LEGAL/NDA_Mutual_Template.md",
+      "created_at": "2026-01-05",
+      "completedAt": "2026-01-14T06:45:00.000Z",
+      "updated_at": "2026-01-14T06:45:00.000Z"
     },
     {
       "id": "chro-007",
@@ -87,23 +91,26 @@
     },
     {
       "id": "chro-009",
-      "content": "Draft Liam Tinana's Employment Agreement (Part-time, minimum wage)",
+      "content": "Draft Aiden's Employment Agreement (Casual, then Part-time Q3)",
       "priority": "MEDIUM",
-      "status": "not_started",
+      "status": "in_progress",
       "due_date": null,
       "workflow": "Family First Implementation",
-      "notes": "Prior to hire",
-      "created_at": "2026-01-05"
+      "notes": "TEMPLATE READY: /04_LEGAL/Casual_Worker_Agreement_Template.md - Needs hourly rate and payment schedule",
+      "created_at": "2026-01-05",
+      "updated_at": "2026-01-14T06:45:00.000Z"
     },
     {
       "id": "chro-010",
-      "content": "Define Liam's Job Description (Social media, support, monitoring)",
+      "content": "Define Aiden's Job Description (Social media, customer support)",
       "priority": "MEDIUM",
-      "status": "not_started",
+      "status": "completed",
       "due_date": null,
       "workflow": "Family First Implementation",
-      "notes": "Prior to hire",
-      "created_at": "2026-01-05"
+      "notes": "Defined: Customer support + social media management",
+      "created_at": "2026-01-05",
+      "completedAt": "2026-01-14T06:45:00.000Z",
+      "updated_at": "2026-01-14T06:45:00.000Z"
     },
     {
       "id": "chro-011",
@@ -144,22 +151,85 @@
       "workflow": "Payroll Administration",
       "notes": "Ongoing requirement (6-year retention)",
       "created_at": "2026-01-05"
+    },
+    {
+      "id": "chro-015",
+      "content": "Set hourly rate for Aiden's casual worker agreement",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Family First Implementation",
+      "notes": "Update /04_LEGAL/Casual_Worker_Agreement_Template.md with rate",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "chro-016",
+      "content": "Choose payment schedule for Aiden (bi-weekly or monthly)",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Family First Implementation",
+      "notes": "Update agreement template with schedule",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "chro-017",
+      "content": "Complete Aiden onboarding checklist when ready to start",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Family First Implementation",
+      "notes": "Checklist in Schedule A of Casual Worker Agreement: SIN, banking, TD1 forms, system access, training",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "chro-018",
+      "content": "Create Employee Handbook",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": null,
+      "workflow": "HR Documentation",
+      "notes": "COMPLETE: /07_PEOPLE/Employee_Handbook.md - Startup-focused, remote-first, flexible hours, unlimited PTO, BYOD",
+      "created_at": "2026-01-14",
+      "completedAt": "2026-01-14T07:00:00.000Z"
+    },
+    {
+      "id": "chro-019",
+      "content": "Create CRA Payroll Registration Guide",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": null,
+      "workflow": "HR Documentation",
+      "notes": "COMPLETE: /07_PEOPLE/CRA_Payroll_Registration_Guide.md - Step-by-step registration, deductions, remitting schedule",
+      "created_at": "2026-01-14",
+      "completedAt": "2026-01-14T07:00:00.000Z"
+    },
+    {
+      "id": "chro-020",
+      "content": "Create WCB Alberta Registration Guide",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": null,
+      "workflow": "HR Documentation",
+      "notes": "COMPLETE: /07_PEOPLE/WCB_Alberta_Registration_Guide.md - Registration steps, industry code, premium estimate (~$100-150/yr min)",
+      "created_at": "2026-01-14",
+      "completedAt": "2026-01-14T07:00:00.000Z"
     }
   ],
-  "total_tasks": 14,
+  "total_tasks": 20,
   "by_priority": {
     "CRITICAL": 3,
-    "HIGH": 3,
-    "MEDIUM": 5,
+    "HIGH": 5,
+    "MEDIUM": 8,
     "LOW": 3
   },
   "hr_initiatives": [
     "Compliance Foundation: CRA/WCB registrations, Alberta Employment Standards awareness",
     "Partnership Formalization: VR Golf Leagues agreement with James Casuga (50/50 → legally binding)",
-    "Family First Implementation: Hiring Liam Tinana with professional compliance standards"
+    "Family First Implementation: Hiring Aiden with professional compliance standards"
   ],
   "key_personnel": [
-    {"name": "Liam Tinana", "role": "Part-time (Social media, support)", "relationship": "Family member"},
-    {"name": "James Casuga", "role": "VR Golf Leagues Partner", "agreement": "50/50 split pending formalization"}
+    {"name": "Aiden", "role": "Casual→Part-time Q3 (Social media, customer support)", "relationship": "Family member (adult)"},
+    {"name": "James Casuga", "role": "VR Golf Leagues Partner", "agreement": "50/50 JV - term sheet ready, formal agreement pending"}
   ]
 }

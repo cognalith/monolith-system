@@ -19,21 +19,23 @@
       "id": "cto-002",
       "content": "Evaluate hosting alternatives (Railway, Render, Vercel, Fly.io, DigitalOcean)",
       "priority": "CRITICAL",
-      "status": "pending",
+      "status": "completed",
       "due_date": "2026-01-12",
       "workflow": "Infrastructure Selection",
-      "notes": null,
-      "created_at": "2026-01-05"
+      "notes": "COMPLETE: /03_TECHNOLOGY/Hosting_Cost_Comparison.md - Recommend Netlify free tier",
+      "created_at": "2026-01-05",
+      "completedAt": "2026-01-14T07:30:00.000Z"
     },
     {
       "id": "cto-003",
       "content": "Produce hosting cost comparison for CFO review",
       "priority": "CRITICAL",
-      "status": "pending",
+      "status": "completed",
       "due_date": "2026-01-12",
       "workflow": "Infrastructure Selection",
-      "notes": null,
-      "created_at": "2026-01-05"
+      "notes": "COMPLETE: /03_TECHNOLOGY/Hosting_Cost_Comparison.md - $0-26 CAD/mo within budget",
+      "created_at": "2026-01-05",
+      "completedAt": "2026-01-14T07:30:00.000Z"
     },
     {
       "id": "cto-004",
@@ -59,11 +61,12 @@
       "id": "cto-006",
       "content": "Establish repository structure (monorepo vs. multi-repo decision)",
       "priority": "HIGH",
-      "status": "pending",
+      "status": "completed",
       "due_date": "2026-01-12",
       "workflow": "Repository Setup",
-      "notes": null,
-      "created_at": "2026-01-05"
+      "notes": "COMPLETE: Multi-repo decision. Guide at /03_TECHNOLOGY/Repository_Structure_Guide.md",
+      "created_at": "2026-01-05",
+      "completedAt": "2026-01-14T07:30:00.000Z"
     },
     {
       "id": "cto-007",
@@ -89,11 +92,12 @@
       "id": "cto-009",
       "content": "Set up deployment pipelines and environment variable management",
       "priority": "HIGH",
-      "status": "not_yet_established",
+      "status": "in_progress",
       "due_date": "2026-01-19",
       "workflow": "CI/CD Pipeline",
-      "notes": null,
-      "created_at": "2026-01-05"
+      "notes": "GUIDE: /03_TECHNOLOGY/CICD_Pipeline_Guide.md - Implementation pending per-repo setup",
+      "created_at": "2026-01-05",
+      "updated_at": "2026-01-14T07:30:00.000Z"
     },
     {
       "id": "cto-010",
@@ -109,11 +113,12 @@
       "id": "cto-011",
       "content": "Document production rollback plan and test deployments",
       "priority": "CRITICAL",
-      "status": "pending",
+      "status": "completed",
       "due_date": "2026-01-26",
       "workflow": "CI/CD Pipeline",
-      "notes": null,
-      "created_at": "2026-01-05"
+      "notes": "COMPLETE: /03_TECHNOLOGY/Production_Rollback_Plan.md - Covers web, mobile, and database rollbacks",
+      "created_at": "2026-01-05",
+      "completedAt": "2026-01-14T07:30:00.000Z"
     },
     {
       "id": "cto-012",
@@ -154,14 +159,193 @@
       "workflow": "Go-Live",
       "notes": null,
       "created_at": "2026-01-05"
+    },
+    {
+      "id": "cto-016",
+      "content": "Create privacy@cognalith.ca and legal@cognalith.ca email aliases",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": "2026-01-25",
+      "workflow": "Infrastructure Setup",
+      "notes": "Required for Privacy Policy and Terms of Service contact info - Google Workspace",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "cto-017",
+      "content": "Create Hosting Cost Comparison for CFO",
+      "priority": "CRITICAL",
+      "status": "completed",
+      "due_date": null,
+      "workflow": "Documentation",
+      "notes": "COMPLETE: /03_TECHNOLOGY/Hosting_Cost_Comparison.md",
+      "created_at": "2026-01-14",
+      "completedAt": "2026-01-14T07:30:00.000Z"
+    },
+    {
+      "id": "cto-018",
+      "content": "Create Repository Structure Guide",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": null,
+      "workflow": "Documentation",
+      "notes": "COMPLETE: /03_TECHNOLOGY/Repository_Structure_Guide.md - Multi-repo with CLAUDE.md template",
+      "created_at": "2026-01-14",
+      "completedAt": "2026-01-14T07:30:00.000Z"
+    },
+    {
+      "id": "cto-019",
+      "content": "Create CI/CD Pipeline Guide",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": null,
+      "workflow": "Documentation",
+      "notes": "COMPLETE: /03_TECHNOLOGY/CICD_Pipeline_Guide.md - GitHub Actions + Netlify + Expo EAS",
+      "created_at": "2026-01-14",
+      "completedAt": "2026-01-14T07:30:00.000Z"
+    },
+    {
+      "id": "cto-020",
+      "content": "Create Production Rollback Plan",
+      "priority": "CRITICAL",
+      "status": "completed",
+      "due_date": null,
+      "workflow": "Documentation",
+      "notes": "COMPLETE: /03_TECHNOLOGY/Production_Rollback_Plan.md - Web, mobile, database procedures",
+      "created_at": "2026-01-14",
+      "completedAt": "2026-01-14T07:30:00.000Z"
+    },
+    {
+      "id": "cto-021",
+      "content": "Create TeeMates CLAUDE.md for AI development context",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": null,
+      "workflow": "TeeMates Migration",
+      "notes": "COMPLETE: /03_TECHNOLOGY/TeeMates_CLAUDE.md - Full tech stack, patterns, migration notes",
+      "created_at": "2026-01-14",
+      "completedAt": "2026-01-14T08:00:00.000Z"
+    },
+    {
+      "id": "cto-022",
+      "content": "Create TeeMates Migration Checklist",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": null,
+      "workflow": "TeeMates Migration",
+      "notes": "COMPLETE: /03_TECHNOLOGY/TeeMates_Migration_Checklist.md - 8-phase migration plan",
+      "created_at": "2026-01-14",
+      "completedAt": "2026-01-14T08:00:00.000Z"
+    },
+    {
+      "id": "cto-023",
+      "content": "Execute TeeMates Replit code cleanup",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "TeeMates Migration",
+      "notes": "Remove @replit/* plugins from vite.config.ts, update server/resend.ts domain, delete .replit file",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "cto-024",
+      "content": "Deploy TeeMates to Railway",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "TeeMates Migration",
+      "notes": "Express backend requires Node.js runtime - Railway recommended ($5/mo)",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "cto-025",
+      "content": "Migrate TeeMates from Capacitor to Expo",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "TeeMates Migration",
+      "notes": "Convert iOS wrapper to Expo for EAS builds and App Store submission",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "cto-026",
+      "content": "Submit TeeMates to App Store",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "TeeMates Migration",
+      "notes": "Requires: EAS production build, App Store Connect listing, screenshots, description",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "cto-027",
+      "content": "Create VR Golf Leagues CLAUDE.md and Migration Checklist",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": null,
+      "workflow": "VR Golf Migration",
+      "notes": "COMPLETE: /03_TECHNOLOGY/VRGolfLeagues_CLAUDE.md + VRGolfLeagues_Migration_Checklist.md",
+      "created_at": "2026-01-14",
+      "completedAt": "2026-01-14T08:30:00.000Z"
+    },
+    {
+      "id": "cto-028",
+      "content": "Migrate VR Golf Leagues to GitHub + Netlify",
+      "priority": "HIGH",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "VR Golf Migration",
+      "notes": "Next.js 16 - deploy to Netlify w/ @netlify/plugin-nextjs (free)",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "cto-029",
+      "content": "Create Unplug Social CLAUDE.md and Migration Checklist",
+      "priority": "HIGH",
+      "status": "completed",
+      "due_date": null,
+      "workflow": "Unplug Social Migration",
+      "notes": "COMPLETE: /03_TECHNOLOGY/UnplugSocial_CLAUDE.md + UnplugSocial_Migration_Checklist.md",
+      "created_at": "2026-01-14",
+      "completedAt": "2026-01-14T08:30:00.000Z"
+    },
+    {
+      "id": "cto-030",
+      "content": "Migrate Unplug Social to GitHub + Railway",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Unplug Social Migration",
+      "notes": "Expo + Express - Railway for backend ($5/mo), Neon PostgreSQL",
+      "created_at": "2026-01-14"
+    },
+    {
+      "id": "cto-031",
+      "content": "Create Riichi Scorer CLAUDE.md and Migration Checklist",
+      "priority": "MEDIUM",
+      "status": "completed",
+      "due_date": null,
+      "workflow": "Riichi Migration",
+      "notes": "COMPLETE: /03_TECHNOLOGY/RiichiScoring_CLAUDE.md + RiichiScoring_Migration_Checklist.md",
+      "created_at": "2026-01-14",
+      "completedAt": "2026-01-14T08:30:00.000Z"
+    },
+    {
+      "id": "cto-032",
+      "content": "Migrate Riichi Scorer to GitHub + Expo EAS",
+      "priority": "LOW",
+      "status": "pending",
+      "due_date": null,
+      "workflow": "Riichi Migration",
+      "notes": "Pure frontend - Expo EAS only, no backend hosting needed (free)",
+      "created_at": "2026-01-14"
     }
   ],
-  "total_tasks": 15,
+  "total_tasks": 32,
   "by_priority": {
-    "CRITICAL": 5,
-    "HIGH": 5,
-    "MEDIUM": 5,
-    "LOW": 0
+    "CRITICAL": 7,
+    "HIGH": 17,
+    "MEDIUM": 7,
+    "LOW": 1
   },
   "technical_constraints": [
     "No SaaS Builders - custom code per CFO to avoid subscription leakage",
@@ -172,5 +356,73 @@
   "responsibilities": [
     "Architecture & Design: Designing scalable system architectures for Monolith system and AI integrations",
     "Technology Selection: Full authority over library/framework selection, development tooling"
-  ]
+  ],
+  "projects_to_migrate": [
+    {
+      "name": "TeeMates",
+      "type": "Full-Stack Monorepo",
+      "stack": "React 18 + Express.js + TypeScript",
+      "backend": "Express API + Supabase (Realtime only)",
+      "database": "PostgreSQL via Drizzle ORM",
+      "mobile": "Capacitor → Expo EAS",
+      "hosting": "Railway ($5/mo)",
+      "status": "Migration checklist ready",
+      "docs": ["/03_TECHNOLOGY/TeeMates_CLAUDE.md", "/03_TECHNOLOGY/TeeMates_Migration_Checklist.md"]
+    },
+    {
+      "name": "VR Golf Leagues",
+      "type": "Next.js 16 App Router",
+      "stack": "Next.js + TypeScript",
+      "backend": "Supabase + Prisma + Drizzle (dual ORM)",
+      "database": "Supabase PostgreSQL",
+      "hosting": "Netlify w/ Next.js plugin (free)",
+      "status": "Migration checklist ready",
+      "docs": ["/03_TECHNOLOGY/VRGolfLeagues_CLAUDE.md", "/03_TECHNOLOGY/VRGolfLeagues_Migration_Checklist.md"]
+    },
+    {
+      "name": "Unplug Social",
+      "type": "Expo Mobile + Express",
+      "stack": "Expo SDK 54 + Express.js + TypeScript",
+      "backend": "Express API",
+      "database": "Neon PostgreSQL (NOT Supabase)",
+      "mobile": "Expo EAS",
+      "hosting": "Railway ($5/mo)",
+      "status": "Migration checklist ready",
+      "docs": ["/03_TECHNOLOGY/UnplugSocial_CLAUDE.md", "/03_TECHNOLOGY/UnplugSocial_Migration_Checklist.md"]
+    },
+    {
+      "name": "Riichi Scorer",
+      "type": "Pure Frontend Mobile",
+      "stack": "Expo SDK 54 + TypeScript",
+      "backend": "None (pure frontend)",
+      "database": "None (local storage only)",
+      "mobile": "Expo EAS",
+      "hosting": "Expo EAS only (free)",
+      "status": "Migration checklist ready",
+      "docs": ["/03_TECHNOLOGY/RiichiScoring_CLAUDE.md", "/03_TECHNOLOGY/RiichiScoring_Migration_Checklist.md"]
+    }
+  ],
+  "infrastructure_decisions": {
+    "repository_structure": "Multi-repo",
+    "hosting": {
+      "TeeMates": "Railway ($5/mo) - Express.js backend",
+      "VR_Golf_Leagues": "Netlify (free) - Next.js with plugin",
+      "Unplug_Social": "Railway ($5/mo) - Express.js backend",
+      "Riichi_Scorer": "Expo EAS only (free) - pure frontend"
+    },
+    "databases": {
+      "TeeMates": "Supabase PostgreSQL (free tier)",
+      "VR_Golf_Leagues": "Supabase PostgreSQL (free tier)",
+      "Unplug_Social": "Neon PostgreSQL (free tier)",
+      "Riichi_Scorer": "None (local storage)"
+    },
+    "mobile_builds": "Expo EAS (free tier - 30 builds/mo)",
+    "ci_cd": "GitHub Actions",
+    "estimated_monthly_cost": {
+      "phase_1_teemates": "~$7 CAD",
+      "phase_2_plus_vr_golf": "~$7 CAD",
+      "phase_3_plus_unplug": "~$14 CAD",
+      "all_apps": "~$14 CAD"
+    }
+  }
 }

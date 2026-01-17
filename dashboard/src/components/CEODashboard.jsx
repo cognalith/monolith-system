@@ -1,19 +1,19 @@
 /**
- * CEO Dashboard - Phase 8: Dashboard UX Enhancement
- * Unified Command & Control Center with role-based filtering,
- * clickable stat cards, and enhanced notification badges.
+ * CEO Dashboard - Cognalith Cyber-Noir Edition
+ * Unified Command & Control Center with neural network background,
+ * glass-tile panels, and real-time agent monitoring.
  */
 import { useState, useEffect } from 'react';
 import { ROLES, getRolesSorted, getAbbrFromId } from '../config/roleHierarchy';
 import useRoleTaskCounts from '../hooks/useRoleTaskCounts';
-import { apiFetch, isApiAvailable } from '../config/api';
-import RoleButton from './RoleButton';
-import StatCard from './StatCard';
+import { apiFetch } from '../config/api';
+import NeuralBackground from './NeuralBackground';
 import PendingTasksPanel from './PendingTasksPanel';
 import WorkflowListPanel from './WorkflowListPanel';
 import CompletedTasksPanel from './CompletedTasksPanel';
 import DecisionLogPanel from './DecisionLogPanel';
 import ErrorBoundary from './ErrorBoundary';
+import './CEODashboard.css';
 
 const CEODashboard = () => {
   // Dashboard data state
@@ -31,13 +31,16 @@ const CEODashboard = () => {
   const [showCompletedPanel, setShowCompletedPanel] = useState(false);
   const [showDecisionPanel, setShowDecisionPanel] = useState(false);
 
-  // Role task counts for notification badges
+  // Role task counts for badges
   const { taskCounts, getTaskCount } = useRoleTaskCounts({ refreshInterval: 30000 });
 
-  // Get sorted roles by hierarchy
+  // Get sorted roles by tier
   const sortedRoles = getRolesSorted();
+  const tier1Roles = sortedRoles.filter((r) => r.tier === 1);
+  const tier2Roles = sortedRoles.filter((r) => r.tier === 2);
+  const tier3Roles = sortedRoles.filter((r) => r.tier === 3);
 
-  // API Integration with auto-refresh
+  // API Integration
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -50,13 +53,9 @@ const CEODashboard = () => {
         ]);
 
         setStats(statsData);
-        // API returns { activities: [...] }, extract the array
         setActivity(activityData.activities || activityData || []);
       } catch (err) {
         setError(err.message);
-        console.warn('API failed:', err.message);
-
-        // Show error state with zeros
         setStats({
           activeWorkflows: 0,
           pendingTasks: 0,
@@ -70,309 +69,368 @@ const CEODashboard = () => {
     };
 
     fetchData();
-
-    // Auto-refresh every 30 seconds
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  // Handle role selection
   const handleRoleClick = (role) => {
-    if (selectedRole?.id === role.id) {
-      // Deselect if clicking the same role
-      setSelectedRole(null);
-    } else {
-      setSelectedRole(role);
-    }
+    setSelectedRole(selectedRole?.id === role.id ? null : role);
   };
 
-  // Filter activity by selected role
-  const filteredActivity = selectedRole
-    ? activity.filter((item) => item.role === selectedRole.id)
-    : activity;
+  const getStatusColor = (status) => {
+    if (status === 'OPTIMAL') return 'var(--neon-green)';
+    if (status === 'STABLE') return 'var(--neon-cyan)';
+    if (status === 'ATTENTION') return 'var(--neon-amber)';
+    return 'var(--neon-crimson)';
+  };
+
+  const getAgentStatus = (taskCount) => {
+    if (taskCount === 0) return 'OPTIMAL';
+    if (taskCount < 5) return 'STABLE';
+    if (taskCount < 10) return 'ATTENTION';
+    return 'CRITICAL';
+  };
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-monolith-dark text-gray-100 p-6">
-        {/* Header */}
-        <div className="mb-8 animate-fadeIn">
-          <h1 className="text-4xl font-bold text-monolith-green mb-2">CEO Dashboard</h1>
-          <p className="text-gray-400">Unified Command & Control Center</p>
-          {loading && (
-            <p className="text-sm text-monolith-amber mt-2 animate-pulse">Loading...</p>
-          )}
-          {error && <p className="text-sm text-red-500 mt-2">Using cached data</p>}
-        </div>
+      <NeuralBackground />
 
-        {/* Role Selector with Hierarchy */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
-              Filter by Role
-            </h2>
-            {selectedRole && (
-              <button
-                onClick={() => setSelectedRole(null)}
-                className="text-xs text-monolith-amber hover:text-monolith-green transition-colors"
-              >
-                (Clear Filter)
-              </button>
-            )}
+      <div className="hud-container">
+        {/* HEADER */}
+        <header className="top-bar glass-tile">
+          <div className="logo-area">
+            MONOLITH
+            <span className="logo-subtitle">// CEO DASHBOARD</span>
           </div>
-
-          {/* Role Buttons Grid - Organized by Tier */}
-          <div className="space-y-3">
-            {/* Tier 1: C-Suite */}
-            <div className="flex flex-wrap gap-2">
-              <span className="text-xs text-monolith-green font-medium w-16">C-Suite</span>
-              {sortedRoles
-                .filter((r) => r.tier === 1)
-                .map((role) => (
-                  <RoleButton
-                    key={role.id}
-                    role={role}
-                    isSelected={selectedRole?.id === role.id}
-                    taskCount={getTaskCount(role.id)}
-                    onClick={handleRoleClick}
-                  />
-                ))}
-            </div>
-
-            {/* Tier 2: Chiefs */}
-            <div className="flex flex-wrap gap-2">
-              <span className="text-xs text-monolith-amber font-medium w-16">Chiefs</span>
-              {sortedRoles
-                .filter((r) => r.tier === 2)
-                .map((role) => (
-                  <RoleButton
-                    key={role.id}
-                    role={role}
-                    isSelected={selectedRole?.id === role.id}
-                    taskCount={getTaskCount(role.id)}
-                    onClick={handleRoleClick}
-                  />
-                ))}
-            </div>
-
-            {/* Tier 3: VPs */}
-            <div className="flex flex-wrap gap-2">
-              <span className="text-xs text-blue-400 font-medium w-16">VPs</span>
-              {sortedRoles
-                .filter((r) => r.tier === 3)
-                .map((role) => (
-                  <RoleButton
-                    key={role.id}
-                    role={role}
-                    isSelected={selectedRole?.id === role.id}
-                    taskCount={getTaskCount(role.id)}
-                    onClick={handleRoleClick}
-                  />
-                ))}
-            </div>
-
-            {/* Tier 4: Directors */}
-            <div className="flex flex-wrap gap-2">
-              <span className="text-xs text-purple-400 font-medium w-16">Directors</span>
-              {sortedRoles
-                .filter((r) => r.tier === 4)
-                .map((role) => (
-                  <RoleButton
-                    key={role.id}
-                    role={role}
-                    isSelected={selectedRole?.id === role.id}
-                    taskCount={getTaskCount(role.id)}
-                    onClick={handleRoleClick}
-                  />
-                ))}
-            </div>
-
-            {/* Tier 5: Managers & Specialists */}
-            <div className="flex flex-wrap gap-2">
-              <span className="text-xs text-gray-400 font-medium w-16">Other</span>
-              {sortedRoles
-                .filter((r) => r.tier === 5)
-                .map((role) => (
-                  <RoleButton
-                    key={role.id}
-                    role={role}
-                    isSelected={selectedRole?.id === role.id}
-                    taskCount={getTaskCount(role.id)}
-                    onClick={handleRoleClick}
-                  />
-                ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Stats Grid - All Clickable */}
-        {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <StatCard
-              label="Active Workflows"
-              value={stats.activeWorkflows}
-              color="green"
-              onClick={() => setShowWorkflowPanel(true)}
-            />
-            <StatCard
-              label="Pending Tasks"
-              value={stats.pendingTasks}
-              color="amber"
-              onClick={() => setShowTasksPanel(true)}
-            />
-            <StatCard
-              label="Completed Today"
-              value={stats.completedToday}
-              color="green"
-              onClick={() => setShowCompletedPanel(true)}
-            />
-            <StatCard
-              label="Total Decisions"
-              value={stats.totalDecisions}
-              color="gray"
-              onClick={() => setShowDecisionPanel(true)}
-            />
-          </div>
-        )}
-
-        {/* Activity Feed */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4 text-monolith-amber">
-            Recent Activity
-            {selectedRole && (
-              <span className="text-sm font-normal text-gray-400 ml-2">
-                (Filtered by {selectedRole.abbr})
+          <div className="system-stats">
+            <span>
+              ACTIVE_AGENTS: <span className="stat-val">{tier1Roles.length + tier2Roles.length}</span>
+            </span>
+            <span>
+              SYSTEM_STATUS:{' '}
+              <span className="stat-val" style={{ color: 'var(--neon-green)' }}>
+                {loading ? 'SYNC' : 'PHASE_5'}
               </span>
-            )}
-          </h2>
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {filteredActivity.length > 0 ? (
-              filteredActivity.map((item, idx) => (
-                <div
-                  key={item.id}
-                  className="animate-fadeIn p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-monolith-green transition-colors cursor-pointer group"
-                  style={{ animationDelay: `${idx * 100}ms` }}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-gray-100 group-hover:text-monolith-green transition-colors">
-                        {item.action}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Role:{' '}
-                        <span className="text-monolith-amber font-medium">
-                          {getAbbrFromId(item.role)}
-                        </span>
-                      </p>
-                    </div>
-                    <span className="text-xs text-gray-400">
-                      {item.timestamp.toLocaleTimeString()}
-                    </span>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-400 text-center py-8">
-                {selectedRole
-                  ? `No recent activity for ${selectedRole.abbr}`
-                  : 'No recent activity'}
-              </p>
-            )}
+            </span>
+            <span>
+              TASKS: <span className="stat-val" style={{ color: 'var(--neon-amber)' }}>{stats?.pendingTasks || 0}</span>
+            </span>
           </div>
-        </div>
+        </header>
 
-        {/* Role Context Panel */}
-        {selectedRole && (
-          <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 mb-8 animate-fadeIn">
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-bold text-monolith-green">
-                {selectedRole.fullName} Context
-              </h3>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowTasksPanel(true)}
-                  className="px-3 py-1.5 bg-monolith-amber/20 border border-monolith-amber text-monolith-amber text-sm font-medium rounded hover:bg-monolith-amber/30 transition-colors"
+        {/* SIDEBAR - Organization Hierarchy */}
+        <aside className="glass-tile sidebar">
+          <h3 className="glass-tile-header">Organization Hierarchy</h3>
+          <div className="tree-container">
+            {/* Tier 1: C-Suite */}
+            <div className="tree-group-title">Tier 1: Core C-Suite</div>
+            {tier1Roles.map((role) => (
+              <div key={role.id} className="tree-node">
+                <div
+                  className={`tree-label ${selectedRole?.id === role.id ? 'active' : ''}`}
+                  onClick={() => handleRoleClick(role)}
                 >
-                  View Pending Tasks ({getTaskCount(selectedRole.id)})
-                </button>
-                <button
-                  onClick={() => setShowWorkflowPanel(true)}
-                  className="px-3 py-1.5 bg-monolith-green/20 border border-monolith-green text-monolith-green text-sm font-medium rounded hover:bg-monolith-green/30 transition-colors"
+                  <span style={{ color: getStatusColor(getAgentStatus(getTaskCount(role.id))) }}>●</span>
+                  {role.fullName}
+                  {getTaskCount(role.id) > 0 && (
+                    <span className="tree-badge">{getTaskCount(role.id)}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {/* Tier 2: Extended Leadership */}
+            <div className="tree-group-title">Tier 2: Extended Leadership</div>
+            {tier2Roles.map((role) => (
+              <div key={role.id} className="tree-node">
+                <div
+                  className={`tree-label ${selectedRole?.id === role.id ? 'active' : ''}`}
+                  onClick={() => handleRoleClick(role)}
                 >
-                  View Workflows
+                  <span style={{ color: getStatusColor(getAgentStatus(getTaskCount(role.id))) }}>●</span>
+                  {role.fullName}
+                  {getTaskCount(role.id) > 0 && (
+                    <span className="tree-badge">{getTaskCount(role.id)}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {/* Tier 3: Specialists */}
+            <div className="tree-group-title">Tier 3: Specialists</div>
+            {tier3Roles.slice(0, 8).map((role) => (
+              <div key={role.id} className="tree-node">
+                <div
+                  className={`tree-label ${selectedRole?.id === role.id ? 'active' : ''}`}
+                  onClick={() => handleRoleClick(role)}
+                >
+                  <span style={{ color: getStatusColor(getAgentStatus(getTaskCount(role.id))) }}>●</span>
+                  {role.fullName}
+                  {getTaskCount(role.id) > 0 && (
+                    <span className="tree-badge">{getTaskCount(role.id)}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        {/* MAIN STAGE */}
+        <main className="main-stage">
+          {/* TOP DECK */}
+          <div className="top-deck">
+            {/* Workflow Monitor */}
+            <div className="glass-tile workflow-panel">
+              <h3 className="glass-tile-header">Active Workflow Monitor</h3>
+              <div className="workflow-scroll">
+                <table className="workflow-table">
+                  <thead>
+                    <tr>
+                      <th>TASK ID</th>
+                      <th>CONTEXT</th>
+                      <th>ASSIGNED</th>
+                      <th>STATUS</th>
+                      <th>PROGRESS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stats?.activeWorkflows > 0 ? (
+                      <>
+                        <tr>
+                          <td style={{ color: 'var(--neon-cyan)' }}>TSK-901</td>
+                          <td>SYSTEM_INTEGRATION</td>
+                          <td style={{ color: '#aaa' }}>CTO</td>
+                          <td><span className="status-badge status-progress pulse">IN PROGRESS</span></td>
+                          <td>
+                            <div className="progress-bar-container">
+                              <div className="progress-bar-fill" style={{ width: '65%' }} />
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ color: 'var(--neon-cyan)' }}>TSK-902</td>
+                          <td>FINANCIAL_REVIEW</td>
+                          <td style={{ color: '#aaa' }}>CFO</td>
+                          <td><span className="status-badge status-progress pulse">IN PROGRESS</span></td>
+                          <td>
+                            <div className="progress-bar-container">
+                              <div className="progress-bar-fill" style={{ width: '40%' }} />
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ color: 'var(--neon-cyan)' }}>TSK-899</td>
+                          <td>COMPLIANCE_AUDIT</td>
+                          <td style={{ color: '#aaa' }}>CLO</td>
+                          <td><span className="status-badge status-pending">PENDING</span></td>
+                          <td>
+                            <div className="progress-bar-container">
+                              <div className="progress-bar-fill" style={{ width: '10%' }} />
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ color: 'var(--neon-cyan)' }}>TSK-898</td>
+                          <td>MARKETING_STRATEGY</td>
+                          <td style={{ color: '#aaa' }}>CMO</td>
+                          <td><span className="status-badge status-complete">COMPLETE</span></td>
+                          <td>
+                            <div className="progress-bar-container">
+                              <div className="progress-bar-fill" style={{ width: '100%' }} />
+                            </div>
+                          </td>
+                        </tr>
+                      </>
+                    ) : (
+                      <tr>
+                        <td colSpan="5" style={{ textAlign: 'center', color: '#666', padding: '20px' }}>
+                          No active workflows
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <div className="panel-footer">
+                <button className="cyber-button" onClick={() => setShowWorkflowPanel(true)}>
+                  View All Workflows ({stats?.activeWorkflows || 0})
                 </button>
               </div>
             </div>
-            <div className="text-gray-300 text-sm space-y-2">
-              <p>
-                Role: <span className="text-monolith-amber">{selectedRole.abbr}</span>
-              </p>
-              <p>
-                Tier:{' '}
-                <span className="text-monolith-green">
-                  {selectedRole.tier === 1
-                    ? 'C-Suite'
-                    : selectedRole.tier === 2
-                    ? 'Chiefs'
-                    : selectedRole.tier === 3
-                    ? 'Vice Presidents'
-                    : selectedRole.tier === 4
-                    ? 'Directors'
-                    : 'Managers & Specialists'}
-                </span>
-              </p>
-              <p>
-                Pending Tasks:{' '}
-                <button
-                  onClick={() => setShowTasksPanel(true)}
-                  className="text-monolith-amber font-bold hover:underline cursor-pointer"
-                >
-                  {getTaskCount(selectedRole.id)}
-                </button>
-              </p>
-              <p>
-                Status: <span className="text-monolith-green animate-pulse">Active</span>
-              </p>
-              <p className="mt-4 text-gray-400">
-                This role has access to critical business functions and decision-making
-                authority within the {selectedRole.tier === 1 ? 'executive' : 'organizational'}{' '}
-                hierarchy.
-              </p>
+
+            {/* Stats Grid */}
+            <div className="glass-tile stats-panel">
+              <h3 className="glass-tile-header">System Metrics</h3>
+              <div className="stats-grid">
+                <div className="stat-card" onClick={() => setShowWorkflowPanel(true)}>
+                  <div className="metric-sub">Active Workflows</div>
+                  <div className="metric-big text-neon-cyan">{stats?.activeWorkflows || 0}</div>
+                </div>
+                <div className="stat-card" onClick={() => setShowTasksPanel(true)}>
+                  <div className="metric-sub">Pending Tasks</div>
+                  <div className="metric-big text-neon-amber">{stats?.pendingTasks || 0}</div>
+                </div>
+                <div className="stat-card" onClick={() => setShowCompletedPanel(true)}>
+                  <div className="metric-sub">Completed Today</div>
+                  <div className="metric-big text-neon-green">{stats?.completedToday || 0}</div>
+                </div>
+                <div className="stat-card" onClick={() => setShowDecisionPanel(true)}>
+                  <div className="metric-sub">Decisions Made</div>
+                  <div className="metric-big">{stats?.totalDecisions || 0}</div>
+                </div>
+              </div>
             </div>
           </div>
-        )}
 
-        {/* Footer */}
-        <div className="mt-8 text-center text-gray-500 text-xs">
-          <p>
-            Last updated: {new Date().toLocaleTimeString()} | Auto-refresh every 30 seconds
-          </p>
-        </div>
+          {/* BOTTOM DECK */}
+          <div className="bottom-deck">
+            {/* Department Status */}
+            <div className="glass-tile dept-panel">
+              <h3 className="glass-tile-header">Department Status</h3>
+              <div className="dept-grid">
+                {tier1Roles.concat(tier2Roles.slice(0, 4)).map((role) => {
+                  const taskCount = getTaskCount(role.id);
+                  const status = getAgentStatus(taskCount);
+                  return (
+                    <div
+                      key={role.id}
+                      className="dept-card"
+                      onClick={() => handleRoleClick(role)}
+                    >
+                      <div className="dept-header">
+                        <span className="dept-abbr">{role.abbr}</span>
+                        <div
+                          className="dept-dot"
+                          style={{ background: getStatusColor(status), color: getStatusColor(status) }}
+                        />
+                      </div>
+                      <div className="dept-domain">{role.fullName.split(' ').slice(-1)[0].toUpperCase()}</div>
+                      {taskCount > 0 && <div className="dept-tasks">{taskCount} tasks</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
-        {/* Panels - Rendered conditionally */}
-        <WorkflowListPanel
-          isOpen={showWorkflowPanel}
-          onClose={() => setShowWorkflowPanel(false)}
-          selectedRole={selectedRole?.id}
-        />
+            {/* Agent Detail Panel */}
+            <div className="glass-tile agent-panel">
+              <div className="agent-header-row">
+                <div>
+                  <div className="agent-title">
+                    {selectedRole ? `AGENT: ${selectedRole.fullName.toUpperCase()}` : 'SELECT AGENT'}
+                  </div>
+                  <div className="agent-meta">
+                    ID: {selectedRole?.id?.toUpperCase() || 'NULL'} | TIER: {selectedRole?.tier || 'N/A'}
+                  </div>
+                </div>
+                {selectedRole && (
+                  <span
+                    className={`status-badge ${
+                      getAgentStatus(getTaskCount(selectedRole.id)) === 'OPTIMAL'
+                        ? 'status-complete'
+                        : getAgentStatus(getTaskCount(selectedRole.id)) === 'STABLE'
+                        ? 'status-progress'
+                        : 'status-pending'
+                    }`}
+                  >
+                    {getAgentStatus(getTaskCount(selectedRole.id))}
+                  </span>
+                )}
+              </div>
 
-        <PendingTasksPanel
-          isOpen={showTasksPanel}
-          onClose={() => setShowTasksPanel(false)}
-          selectedRole={selectedRole?.id}
-        />
+              <div className="agent-ctx">
+                {'>'} CURRENT_CTX: <span className="ctx-value">{selectedRole ? 'ACTIVE_MONITORING' : 'IDLE'}</span>
+              </div>
 
-        <CompletedTasksPanel
-          isOpen={showCompletedPanel}
-          onClose={() => setShowCompletedPanel(false)}
-          selectedRole={selectedRole?.id}
-        />
+              <div className="stack-viz">
+                <div className={`stack-layer ${selectedRole ? 'active' : ''}`}>
+                  <span>L4: CHIEF OF STAFF</span>
+                  <span style={{ color: 'var(--neon-cyan)' }}>EVALUATOR</span>
+                </div>
+                <div className="stack-layer know">
+                  <span>L3: KNOWLEDGE</span>
+                  <span>{selectedRole ? 'RAG_ENABLED' : 'STANDBY'}</span>
+                </div>
+                <div className="stack-layer skill">
+                  <span>L2: SKILLS</span>
+                  <span>{selectedRole ? 'API_ACCESS' : 'STANDBY'}</span>
+                </div>
+                <div className="stack-layer base">
+                  <span>L1: PERSONA (BASE)</span>
+                  <span>{selectedRole ? `${selectedRole.abbr}_CORE` : 'IMMUTABLE'}</span>
+                </div>
+              </div>
 
-        <DecisionLogPanel
-          isOpen={showDecisionPanel}
-          onClose={() => setShowDecisionPanel(false)}
-          selectedRole={selectedRole?.id}
-        />
+              <div className="agent-actions">
+                {selectedRole && (
+                  <>
+                    <button className="cyber-button" onClick={() => setShowTasksPanel(true)}>
+                      View Tasks ({getTaskCount(selectedRole.id)})
+                    </button>
+                    <button className="cyber-button" onClick={() => setShowWorkflowPanel(true)}>
+                      Workflows
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Risk Heatmap */}
+            <div className="glass-tile risk-panel">
+              <h3 className="glass-tile-header">Operational Risk Map</h3>
+              <div className="risk-grid">
+                {Array.from({ length: 20 }).map((_, i) => {
+                  const levels = ['low', 'low', 'low', 'med', 'high'];
+                  const level = levels[Math.floor(Math.random() * 5)];
+                  return (
+                    <div
+                      key={i}
+                      className="risk-cell"
+                      data-level={level}
+                      title={`Sector ${i + 1}: ${level.toUpperCase()} RISK`}
+                    />
+                  );
+                })}
+              </div>
+              <div className="risk-legend">
+                <span><span className="legend-dot" style={{ background: 'var(--neon-green)' }} /> Low</span>
+                <span><span className="legend-dot" style={{ background: 'var(--neon-amber)' }} /> Medium</span>
+                <span><span className="legend-dot" style={{ background: 'var(--neon-crimson)' }} /> High</span>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        {/* FOOTER */}
+        <footer className="footer">
+          COGNALITH INC. | ONE FOUNDER. INFINITE LEVERAGE. | Last Updated: {new Date().toLocaleTimeString()}
+        </footer>
       </div>
+
+      {/* Modal Panels */}
+      <WorkflowListPanel
+        isOpen={showWorkflowPanel}
+        onClose={() => setShowWorkflowPanel(false)}
+        selectedRole={selectedRole?.id}
+      />
+
+      <PendingTasksPanel
+        isOpen={showTasksPanel}
+        onClose={() => setShowTasksPanel(false)}
+        selectedRole={selectedRole?.id}
+      />
+
+      <CompletedTasksPanel
+        isOpen={showCompletedPanel}
+        onClose={() => setShowCompletedPanel(false)}
+        selectedRole={selectedRole?.id}
+      />
+
+      <DecisionLogPanel
+        isOpen={showDecisionPanel}
+        onClose={() => setShowDecisionPanel(false)}
+        selectedRole={selectedRole?.id}
+      />
     </ErrorBoundary>
   );
 };

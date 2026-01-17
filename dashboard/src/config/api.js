@@ -7,6 +7,10 @@
 // In Vite, env vars must be prefixed with VITE_
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+// Agent Service URL (separate service for AI agents)
+export const AGENT_SERVICE_URL = import.meta.env.VITE_AGENT_SERVICE_URL || 'http://localhost:3001';
+export const AGENT_SERVICE_WS_URL = import.meta.env.VITE_AGENT_SERVICE_WS_URL || 'ws://localhost:3001';
+
 // Check if API is configured (has a real URL, not just localhost)
 export const isApiAvailable = true;
 

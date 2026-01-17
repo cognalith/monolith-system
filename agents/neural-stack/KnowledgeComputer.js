@@ -1,5 +1,5 @@
 /**
- * KNOWLEDGE COMPUTER - Phase 5C
+ * KNOWLEDGE COMPUTER - Phase 5E
  * Cognalith Inc. | Monolith System
  *
  * Computes effective knowledge for agents from three layers:
@@ -8,9 +8,15 @@
  * - Amendment Knowledge: CoS-generated behavioral modifications
  *
  * Formula: effective_knowledge = base + standard + amendments
+ *
+ * PHASE 5E ADDITIONS:
+ * - Baking support (merging proven amendments into standard_knowledge)
+ * - Version hash computation for tracking knowledge changes
+ * - Knowledge layer queries for baking process
  */
 
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 
 /**
  * Knowledge Computer
@@ -501,6 +507,192 @@ class KnowledgeComputer {
    */
   clearCache() {
     this.cache.clear();
+  }
+
+  // ============================================================================
+  // PHASE 5E: BAKING SUPPORT
+  // ============================================================================
+
+  /**
+   * Get standard knowledge only (for baking)
+   */
+  async getStandardKnowledge(agentRole) {
+    if (!this.isAvailable()) {
+      return { data: null, error: { message: 'Database unavailable' } };
+    }
+
+    const { data: layer, error } = await this.supabase
+      .from('monolith_knowledge_layer')
+      .select('standard_knowledge')
+      .eq('agent_role', agentRole)
+      .single();
+
+    return { data: layer?.standard_knowledge || {}, error };
+  }
+
+  /**
+   * Bake amendment into standard knowledge
+   * Used by AmendmentBaking to merge proven amendments
+   */
+  async bakeIntoStandardKnowledge(agentRole, amendmentChanges, instructionDelta = null) {
+    if (!this.isAvailable()) {
+      return { data: null, error: { message: 'Database unavailable' } };
+    }
+
+    // Get current standard knowledge
+    const { data: current } = await this.getStandardKnowledge(agentRole);
+
+    // Compute previous version hash
+    const previousHash = this.computeVersionHash(current);
+
+    // Merge changes into standard knowledge
+    const merged = this.mergeKnowledgeForBaking(current, amendmentChanges, instructionDelta);
+
+    // Compute new version hash
+    const newHash = this.computeVersionHash(merged);
+
+    // Update in database
+    const { data: layer, error } = await this.supabase
+      .from('monolith_knowledge_layer')
+      .update({
+        standard_knowledge: merged,
+        last_computed_at: new Date().toISOString(),
+      })
+      .eq('agent_role', agentRole)
+      .select()
+      .single();
+
+    if (!error) {
+      // Invalidate cache to force recomputation
+      this.invalidateCache(agentRole);
+
+      console.log(`[KNOWLEDGE] Baked changes into standard for ${agentRole}`);
+      console.log(`[KNOWLEDGE] Version: ${previousHash.substring(0, 8)}... -> ${newHash.substring(0, 8)}...`);
+    }
+
+    return {
+      data: {
+        merged,
+        previousHash,
+        newHash,
+      },
+      error,
+    };
+  }
+
+  /**
+   * Merge amendment knowledge into standard for baking
+   */
+  mergeKnowledgeForBaking(standard, amendmentChanges, instructionDelta) {
+    const merged = { ...standard };
+
+    // Merge category guidance
+    if (amendmentChanges.category_guidance) {
+      merged.category_guidance = {
+        ...(merged.category_guidance || {}),
+        ...amendmentChanges.category_guidance,
+      };
+    }
+
+    // Merge efficiency targets
+    if (amendmentChanges.efficiency_targets) {
+      merged.efficiency_targets = {
+        ...(merged.efficiency_targets || {}),
+        ...amendmentChanges.efficiency_targets,
+      };
+    }
+
+    // Merge quality standards
+    if (amendmentChanges.quality_standards) {
+      merged.quality_standards = {
+        ...(merged.quality_standards || {}),
+        ...amendmentChanges.quality_standards,
+      };
+    }
+
+    // Merge skill gaps
+    if (amendmentChanges.skill_gaps) {
+      merged.skill_gaps = {
+        ...(merged.skill_gaps || {}),
+        ...amendmentChanges.skill_gaps,
+      };
+    }
+
+    // Merge tool guidance
+    if (amendmentChanges.tool_guidance) {
+      merged.tool_guidance = {
+        ...(merged.tool_guidance || {}),
+        ...amendmentChanges.tool_guidance,
+      };
+    }
+
+    // Add instruction to permanent instructions
+    if (instructionDelta) {
+      if (!merged.permanent_instructions) {
+        merged.permanent_instructions = [];
+      }
+      merged.permanent_instructions.push({
+        instruction: instructionDelta,
+        baked_at: new Date().toISOString(),
+      });
+    }
+
+    // Update metadata
+    merged._last_baked_at = new Date().toISOString();
+
+    return merged;
+  }
+
+  /**
+   * Compute SHA256 hash of knowledge for version tracking
+   */
+  computeVersionHash(knowledge) {
+    const content = JSON.stringify(knowledge, Object.keys(knowledge || {}).sort());
+    return crypto.createHash('sha256').update(content).digest('hex');
+  }
+
+  /**
+   * Get current version hash for an agent
+   */
+  async getVersionHash(agentRole) {
+    const { data } = await this.getStandardKnowledge(agentRole);
+    return this.computeVersionHash(data);
+  }
+
+  /**
+   * Get knowledge layer summary (for dashboard)
+   */
+  async getKnowledgeSummary(agentRole) {
+    if (!this.isAvailable()) {
+      return { data: null, error: { message: 'Database unavailable' } };
+    }
+
+    const { data: layer, error } = await this.supabase
+      .from('monolith_knowledge_layer')
+      .select('*')
+      .eq('agent_role', agentRole)
+      .single();
+
+    if (error || !layer) {
+      return { data: null, error };
+    }
+
+    const standard = layer.standard_knowledge || {};
+    const amendments = layer.amendments_applied || [];
+
+    return {
+      data: {
+        agentRole,
+        versionHash: this.computeVersionHash(standard),
+        lastComputed: layer.last_computed_at,
+        computationVersion: layer.computation_version,
+        activeAmendments: amendments.length,
+        hasPermanentInstructions: !!(standard.permanent_instructions?.length),
+        permanentInstructionCount: standard.permanent_instructions?.length || 0,
+        lastBaked: standard._last_baked_at || null,
+      },
+      error: null,
+    };
   }
 }
 

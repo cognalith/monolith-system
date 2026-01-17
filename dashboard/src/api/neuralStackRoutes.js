@@ -1,9 +1,15 @@
 /**
- * NEURAL STACK API ROUTES - Phase 5D
+ * NEURAL STACK API ROUTES - Phase 5E
  * Cognalith Inc. | Monolith System
  *
  * API endpoints for Neural Stack dashboard components.
  * Connects to Phase 5A-5C Supabase tables.
+ *
+ * PHASE 5E: Added autonomy endpoints
+ * - Exception escalations (CEO-only involvement)
+ * - CoS health monitoring
+ * - Baked amendments
+ * - Autonomy statistics
  */
 
 import express from 'express';
@@ -514,6 +520,525 @@ router.get('/heatmap', async (req, res) => {
     });
   } catch (error) {
     console.error('[NEURAL-STACK] heatmap error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// PHASE 5E: EXCEPTION ESCALATIONS
+// ============================================================================
+
+/**
+ * GET /api/neural-stack/exception-escalations
+ * Returns pending exception escalations for CEO review
+ * (Skills/Persona mods, consecutive failures, cross-agent patterns)
+ */
+router.get('/exception-escalations', async (req, res) => {
+  try {
+    const { data: escalations, error } = await supabase
+      .from('exception_escalations')
+      .select('*')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+
+    // Get amendment details for each escalation
+    const escalationIds = (escalations || []).map(e => e.amendment_id).filter(Boolean);
+    let amendments = [];
+
+    if (escalationIds.length > 0) {
+      const { data: amendmentData, error: amendError } = await supabase
+        .from('monolith_amendments')
+        .select('id, agent_role, amendment_type, trigger_pattern, instruction_delta, created_at')
+        .in('id', escalationIds);
+
+      if (amendError) console.warn('[NEURAL-STACK] escalation amendments error:', amendError);
+      amendments = amendmentData || [];
+    }
+
+    // Join amendment details
+    const enrichedEscalations = (escalations || []).map(e => ({
+      ...e,
+      amendment: amendments.find(a => a.id === e.amendment_id) || null,
+    }));
+
+    res.json({
+      escalations: enrichedEscalations,
+      count: enrichedEscalations.length,
+    });
+  } catch (error) {
+    console.error('[NEURAL-STACK] exception-escalations error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/neural-stack/exception-escalations/:id/resolve
+ * CEO resolves an exception escalation
+ */
+router.post('/exception-escalations/:id/resolve', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { resolution, notes } = req.body;
+
+    if (!['approved', 'rejected'].includes(resolution)) {
+      return res.status(400).json({ error: 'Invalid resolution. Use "approved" or "rejected".' });
+    }
+
+    // Get escalation details first
+    const { data: escalation, error: getError } = await supabase
+      .from('exception_escalations')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (getError) throw getError;
+    if (!escalation) {
+      return res.status(404).json({ error: 'Escalation not found' });
+    }
+
+    // Update escalation
+    const { data, error } = await supabase
+      .from('exception_escalations')
+      .update({
+        status: resolution,
+        resolved_by: 'frank',
+        resolution_notes: notes,
+        resolved_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // If approved, activate the amendment
+    if (resolution === 'approved' && escalation.amendment_id) {
+      const { error: amendError } = await supabase
+        .from('monolith_amendments')
+        .update({
+          approval_status: 'approved',
+          approved_by: 'frank',
+          approved_at: new Date().toISOString(),
+          approval_notes: `Exception approved: ${notes}`,
+          is_active: true,
+          evaluation_status: 'evaluating',
+        })
+        .eq('id', escalation.amendment_id);
+
+      if (amendError) console.warn('[NEURAL-STACK] amendment activation error:', amendError);
+    }
+
+    // If rejected, reject the amendment
+    if (resolution === 'rejected' && escalation.amendment_id) {
+      const { error: amendError } = await supabase
+        .from('monolith_amendments')
+        .update({
+          approval_status: 'rejected',
+          approved_by: 'frank',
+          approved_at: new Date().toISOString(),
+          approval_notes: `Exception rejected: ${notes}`,
+          is_active: false,
+        })
+        .eq('id', escalation.amendment_id);
+
+      if (amendError) console.warn('[NEURAL-STACK] amendment rejection error:', amendError);
+    }
+
+    console.log(`[NEURAL-STACK] Exception escalation ${id} resolved: ${resolution}`);
+    res.json({ success: true, escalation: data });
+  } catch (error) {
+    console.error('[NEURAL-STACK] exception-escalations/resolve error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// PHASE 5E: COS HEALTH MONITORING
+// ============================================================================
+
+/**
+ * GET /api/neural-stack/cos-health
+ * Returns CoS success rate and alert status
+ */
+router.get('/cos-health', async (req, res) => {
+  try {
+    // Get recent CoS monitoring entries (last 20)
+    const { data: monitoring, error: monitorError } = await supabase
+      .from('cos_monitoring')
+      .select('*')
+      .order('recorded_at', { ascending: false })
+      .limit(20);
+
+    if (monitorError) throw monitorError;
+
+    // Calculate success rate
+    const entries = monitoring || [];
+    const successCount = entries.filter(e => e.success).length;
+    const successRate = entries.length > 0 ? successCount / entries.length : 1;
+
+    // Determine alert status
+    const ALERT_THRESHOLD = 0.50;
+    const MIN_FOR_ALERT = 10;
+    const alertTriggered = entries.length >= MIN_FOR_ALERT && successRate < ALERT_THRESHOLD;
+
+    // Get active CEO alerts
+    const { data: alerts, error: alertError } = await supabase
+      .from('ceo_alerts')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+
+    if (alertError) console.warn('[NEURAL-STACK] CEO alerts error:', alertError);
+
+    // Get historical success rate trend (last 5 windows of 20)
+    const { data: allMonitoring, error: histError } = await supabase
+      .from('cos_monitoring')
+      .select('success, recorded_at')
+      .order('recorded_at', { ascending: false })
+      .limit(100);
+
+    if (histError) console.warn('[NEURAL-STACK] monitoring history error:', histError);
+
+    // Calculate trend
+    const trend = [];
+    const allEntries = allMonitoring || [];
+    for (let i = 0; i < 5; i++) {
+      const window = allEntries.slice(i * 20, (i + 1) * 20);
+      if (window.length > 0) {
+        const rate = window.filter(e => e.success).length / window.length;
+        trend.push({
+          window: i + 1,
+          success_rate: Math.round(rate * 100),
+          sample_size: window.length,
+        });
+      }
+    }
+
+    res.json({
+      current: {
+        success_rate: Math.round(successRate * 100),
+        sample_size: entries.length,
+        successes: successCount,
+        failures: entries.length - successCount,
+      },
+      alert: {
+        triggered: alertTriggered,
+        threshold: ALERT_THRESHOLD * 100,
+        min_sample_size: MIN_FOR_ALERT,
+      },
+      active_alerts: alerts || [],
+      trend: trend.reverse(), // Oldest first for chart
+      hardcoded_constraints: {
+        alert_threshold: '50%',
+        window_size: 20,
+        min_for_alert: 10,
+        note: 'These values are hardcoded and cannot be modified by CoS',
+      },
+    });
+  } catch (error) {
+    console.error('[NEURAL-STACK] cos-health error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/neural-stack/cos-health/acknowledge-alert
+ * CEO acknowledges a CoS health alert
+ */
+router.post('/cos-health/acknowledge-alert/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { notes } = req.body;
+
+    const { data, error } = await supabase
+      .from('ceo_alerts')
+      .update({
+        status: 'acknowledged',
+        acknowledged_at: new Date().toISOString(),
+        acknowledged_by: 'frank',
+        notes,
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    console.log(`[NEURAL-STACK] CEO alert ${id} acknowledged`);
+    res.json({ success: true, alert: data });
+  } catch (error) {
+    console.error('[NEURAL-STACK] acknowledge-alert error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// PHASE 5E: BAKED AMENDMENTS
+// ============================================================================
+
+/**
+ * GET /api/neural-stack/baked-amendments
+ * Returns history of baked amendments
+ */
+router.get('/baked-amendments', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+    const agentRole = req.query.agent;
+
+    let query = supabase
+      .from('baked_amendments')
+      .select('*')
+      .order('baked_at', { ascending: false })
+      .limit(limit);
+
+    if (agentRole) {
+      query = query.eq('agent_role', agentRole);
+    }
+
+    const { data: baked, error } = await query;
+
+    if (error) throw error;
+
+    // Get baking statistics
+    const { data: allBaked, error: statsError } = await supabase
+      .from('baked_amendments')
+      .select('agent_role, baked_at');
+
+    if (statsError) console.warn('[NEURAL-STACK] baking stats error:', statsError);
+
+    // Calculate stats
+    const stats = {
+      total_baked: (allBaked || []).length,
+      by_agent: {},
+      recent_week: 0,
+    };
+
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+
+    (allBaked || []).forEach(b => {
+      stats.by_agent[b.agent_role] = (stats.by_agent[b.agent_role] || 0) + 1;
+      if (new Date(b.baked_at) > weekAgo) {
+        stats.recent_week++;
+      }
+    });
+
+    res.json({
+      baked: baked || [],
+      stats,
+      baking_config: {
+        amendment_threshold: 10,
+        min_successful_evals: 5,
+        min_success_rate: '60%',
+        note: 'Amendments bake when agent reaches 10 active amendments',
+      },
+    });
+  } catch (error) {
+    console.error('[NEURAL-STACK] baked-amendments error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/neural-stack/baked-amendments/:agent/version-history
+ * Returns version hash history for an agent
+ */
+router.get('/baked-amendments/:agent/version-history', async (req, res) => {
+  try {
+    const { agent } = req.params;
+
+    const { data: versions, error } = await supabase
+      .from('baked_amendments')
+      .select('previous_version_hash, new_version_hash, baked_at, trigger_pattern, amendment_type')
+      .eq('agent_role', agent)
+      .order('baked_at', { ascending: true });
+
+    if (error) throw error;
+
+    res.json({
+      agent_role: agent,
+      versions: versions || [],
+      total_bakes: (versions || []).length,
+    });
+  } catch (error) {
+    console.error('[NEURAL-STACK] version-history error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// PHASE 5E: AUTONOMY STATISTICS
+// ============================================================================
+
+/**
+ * GET /api/neural-stack/autonomy-stats
+ * Returns autonomous vs escalated amendment breakdown
+ */
+router.get('/autonomy-stats', async (req, res) => {
+  try {
+    // Get all amendments with auto_approved flag
+    const { data: amendments, error: amendError } = await supabase
+      .from('monolith_amendments')
+      .select('id, agent_role, auto_approved, approval_status, created_at, escalation_id');
+
+    if (amendError) throw amendError;
+
+    // Get all exception escalations
+    const { data: escalations, error: escError } = await supabase
+      .from('exception_escalations')
+      .select('id, reason, status, created_at');
+
+    if (escError) console.warn('[NEURAL-STACK] escalation stats error:', escError);
+
+    // Calculate stats
+    const allAmends = amendments || [];
+    const allEscalations = escalations || [];
+
+    const stats = {
+      total_amendments: allAmends.length,
+      autonomous: allAmends.filter(a => a.auto_approved).length,
+      escalated: allAmends.filter(a => a.escalation_id).length,
+      pending_approval: allAmends.filter(a => a.approval_status === 'pending').length,
+      approved: allAmends.filter(a => a.approval_status === 'approved' || a.approval_status === 'auto_approved').length,
+      rejected: allAmends.filter(a => a.approval_status === 'rejected').length,
+    };
+
+    // Autonomy rate
+    stats.autonomy_rate = stats.total_amendments > 0
+      ? Math.round((stats.autonomous / stats.total_amendments) * 100)
+      : 100;
+
+    // Breakdown by escalation reason
+    const escalationReasons = {};
+    allEscalations.forEach(e => {
+      escalationReasons[e.reason] = (escalationReasons[e.reason] || 0) + 1;
+    });
+
+    // Recent activity (last 24 hours)
+    const dayAgo = new Date();
+    dayAgo.setDate(dayAgo.getDate() - 1);
+
+    const recentAmends = allAmends.filter(a => new Date(a.created_at) > dayAgo);
+    const recentStats = {
+      total: recentAmends.length,
+      autonomous: recentAmends.filter(a => a.auto_approved).length,
+      escalated: recentAmends.filter(a => a.escalation_id).length,
+    };
+
+    // By agent breakdown
+    const byAgent = {};
+    allAmends.forEach(a => {
+      if (!byAgent[a.agent_role]) {
+        byAgent[a.agent_role] = { total: 0, autonomous: 0, escalated: 0 };
+      }
+      byAgent[a.agent_role].total++;
+      if (a.auto_approved) byAgent[a.agent_role].autonomous++;
+      if (a.escalation_id) byAgent[a.agent_role].escalated++;
+    });
+
+    // Get reversion stats
+    const { data: reversions, error: revError } = await supabase
+      .from('revert_log')
+      .select('id, reverted_at');
+
+    if (revError) console.warn('[NEURAL-STACK] reversion stats error:', revError);
+
+    res.json({
+      overall: stats,
+      recent_24h: recentStats,
+      by_agent: byAgent,
+      escalation_reasons: escalationReasons,
+      total_escalations: allEscalations.length,
+      pending_escalations: allEscalations.filter(e => e.status === 'pending').length,
+      total_reversions: (reversions || []).length,
+      autonomy_mode: {
+        status: 'active',
+        description: 'CoS operates autonomously for standard Knowledge layer amendments',
+        exceptions: [
+          'Skills layer modifications',
+          'Persona layer modifications',
+          '3+ consecutive failures',
+          'Cross-agent decline patterns',
+        ],
+      },
+    });
+  } catch (error) {
+    console.error('[NEURAL-STACK] autonomy-stats error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/neural-stack/revert-log
+ * Returns history of auto-reverted amendments
+ */
+router.get('/revert-log', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+
+    const { data: reversions, error } = await supabase
+      .from('revert_log')
+      .select('*')
+      .order('reverted_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+
+    // Get amendment details for context
+    const amendmentIds = (reversions || []).map(r => r.amendment_id).filter(Boolean);
+    let amendments = [];
+
+    if (amendmentIds.length > 0) {
+      const { data: amendmentData, error: amendError } = await supabase
+        .from('monolith_amendments')
+        .select('id, agent_role, trigger_pattern, instruction_delta')
+        .in('id', amendmentIds);
+
+      if (amendError) console.warn('[NEURAL-STACK] revert amendments error:', amendError);
+      amendments = amendmentData || [];
+    }
+
+    // Enrich reversions with amendment details
+    const enrichedReversions = (reversions || []).map(r => ({
+      ...r,
+      amendment: amendments.find(a => a.id === r.amendment_id) || null,
+    }));
+
+    res.json({
+      reversions: enrichedReversions,
+      total: (reversions || []).length,
+    });
+  } catch (error) {
+    console.error('[NEURAL-STACK] revert-log error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/neural-stack/consecutive-failures
+ * Returns agents with consecutive failure tracking
+ */
+router.get('/consecutive-failures', async (req, res) => {
+  try {
+    const { data: failures, error } = await supabase
+      .from('consecutive_failures')
+      .select('*')
+      .order('failure_count', { ascending: false });
+
+    if (error) throw error;
+
+    // Filter to show only agents with failures
+    const withFailures = (failures || []).filter(f => f.failure_count > 0);
+
+    res.json({
+      agents: withFailures,
+      escalation_threshold: 3,
+      note: 'Agents with 3+ consecutive failures trigger CEO escalation',
+    });
+  } catch (error) {
+    console.error('[NEURAL-STACK] consecutive-failures error:', error);
     res.status(500).json({ error: error.message });
   }
 });

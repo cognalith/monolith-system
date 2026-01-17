@@ -1,8 +1,10 @@
 /**
- * NEURAL STACK DASHBOARD STYLES - Phase 5D
+ * NEURAL STACK DASHBOARD STYLES - Phase 5E
  * Cognalith Inc. | Monolith System
  *
  * Bloomberg terminal aesthetic with Monolith dark theme
+ *
+ * PHASE 5E: Added autonomy widget styles
  */
 
 /* ============================================================================
@@ -1207,4 +1209,908 @@
     align-items: flex-start;
     gap: 0.25rem;
   }
+}
+
+/* ============================================================================
+   PHASE 5E: SECTION LAYOUTS
+   ============================================================================ */
+
+.section-grid.three-columns {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.section-grid.full-width {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 1200px) {
+  .section-grid.three-columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-grid.three-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   PHASE 5E: AUTONOMY STATUS PANEL
+   ============================================================================ */
+
+.autonomy-status-panel {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.autonomy-status-panel .panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba(0, 255, 136, 0.05);
+  border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+}
+
+.autonomy-status-panel .panel-header .header-left,
+.autonomy-status-panel .panel-header .header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panel-icon {
+  color: #00ff88;
+  font-size: 1.25rem;
+}
+
+.autonomy-status-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.autonomy-status-badge.status-active {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+}
+
+.autonomy-status-badge.status-suspended {
+  background: rgba(255, 170, 0, 0.2);
+  color: #ffaa00;
+}
+
+.autonomy-status-badge.status-strict {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+}
+
+.autonomy-content {
+  padding: 1rem;
+}
+
+.autonomy-main {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.autonomy-gauge {
+  text-align: center;
+}
+
+.autonomy-gauge .gauge-svg {
+  width: 120px;
+  height: 120px;
+}
+
+.autonomy-gauge .gauge-label {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 0.5rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.autonomy-stat-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.autonomy-stat-card .stat-icon {
+  font-size: 1.25rem;
+  color: #00ff88;
+  width: 32px;
+  text-align: center;
+}
+
+.autonomy-stat-card .stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.autonomy-stat-card .stat-label {
+  font-size: 0.7rem;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.autonomy-stat-card .stat-subtext {
+  font-size: 0.65rem;
+  color: #666;
+}
+
+.autonomy-recent {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.autonomy-recent .recent-header {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.autonomy-recent .recent-stats {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.autonomy-recent .recent-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.autonomy-recent .recent-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.autonomy-recent .recent-label {
+  font-size: 0.65rem;
+  color: #666;
+}
+
+.exceptions-list {
+  background: rgba(255, 170, 0, 0.05);
+  border-left: 2px solid #ffaa00;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border-radius: 0 4px 4px 0;
+}
+
+.exceptions-list .exceptions-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffaa00;
+  margin-bottom: 0.5rem;
+}
+
+.exceptions-list ul {
+  margin: 0;
+  padding-left: 1rem;
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.exceptions-list li {
+  margin-bottom: 0.25rem;
+}
+
+.autonomy-mode-description {
+  font-size: 0.75rem;
+  color: #666;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ============================================================================
+   PHASE 5E: EXCEPTION QUEUE WIDGET
+   ============================================================================ */
+
+.exception-queue-widget {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.exception-queue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba(139, 92, 246, 0.1);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.exception-queue-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #8b5cf6;
+}
+
+.exception-queue-header .header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exception-queue-header .header-icon {
+  font-size: 1.25rem;
+}
+
+.exception-count {
+  background: #8b5cf6;
+  color: #0a0a0f;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  min-width: 24px;
+  text-align: center;
+}
+
+.exception-list {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.exception-item {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s ease;
+}
+
+.exception-item:hover {
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.exception-item:last-child {
+  border-bottom: none;
+}
+
+.exception-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.exception-reason-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.exception-time {
+  font-size: 0.7rem;
+  color: #666;
+}
+
+.exception-amendment {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.exception-amendment .amendment-agent {
+  font-weight: 700;
+  color: #fff;
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+}
+
+.exception-amendment .amendment-type {
+  font-size: 0.75rem;
+  color: #888;
+  margin-bottom: 0.25rem;
+}
+
+.exception-amendment .amendment-trigger {
+  font-size: 0.7rem;
+  color: #666;
+  font-family: monospace;
+  margin-bottom: 0.25rem;
+}
+
+.exception-amendment .amendment-instruction {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-top: 0.5rem;
+}
+
+.exception-analysis {
+  font-size: 0.75rem;
+  color: #888;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 4px;
+}
+
+.exception-notes-input {
+  margin-bottom: 0.75rem;
+}
+
+.exception-notes-input textarea {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: #e0e0e0;
+  padding: 0.5rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  resize: vertical;
+}
+
+.exception-notes-input textarea:focus {
+  outline: none;
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.exception-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.exception-btn {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.exception-btn.approve {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.exception-btn.approve:hover {
+  background: rgba(0, 255, 136, 0.3);
+}
+
+.exception-btn.reject {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.3);
+}
+
+.exception-btn.reject:hover {
+  background: rgba(255, 68, 68, 0.3);
+}
+
+.exception-btn.notes-toggle {
+  flex: 0;
+  width: 32px;
+  background: rgba(100, 100, 255, 0.1);
+  color: #6464ff;
+  border: 1px solid rgba(100, 100, 255, 0.3);
+}
+
+.exception-btn.notes-toggle:hover {
+  background: rgba(100, 100, 255, 0.2);
+}
+
+.exception-queue-footer {
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.exception-queue-footer .footer-note {
+  font-size: 0.7rem;
+  color: #666;
+}
+
+/* ============================================================================
+   PHASE 5E: COS HEALTH INDICATOR
+   ============================================================================ */
+
+.cos-health-indicator {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+
+.cos-health-indicator.alert-active {
+  border-color: rgba(255, 68, 68, 0.5);
+}
+
+.cos-health-indicator .panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cos-health-indicator .panel-header .header-left,
+.cos-health-indicator .panel-header .header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.health-status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.health-status.healthy {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+}
+
+.health-status.warning {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+}
+
+.cos-alert-banner {
+  background: rgba(255, 68, 68, 0.1);
+  border-bottom: 1px solid rgba(255, 68, 68, 0.3);
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.cos-alert-banner .alert-icon {
+  font-size: 1.5rem;
+  color: #ff4444;
+}
+
+.cos-alert-banner .alert-content {
+  flex: 1;
+}
+
+.cos-alert-banner .alert-title {
+  font-weight: 700;
+  color: #ff4444;
+  margin-bottom: 0.25rem;
+}
+
+.cos-alert-banner .alert-message {
+  font-size: 0.85rem;
+  color: #e0e0e0;
+  margin-bottom: 0.25rem;
+}
+
+.cos-alert-banner .alert-metrics {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.cos-alert-banner .alert-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cos-alert-banner .alert-notes-input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: #e0e0e0;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  width: 150px;
+}
+
+.cos-alert-banner .alert-acknowledge-btn {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cos-alert-banner .alert-acknowledge-btn:hover {
+  background: rgba(255, 68, 68, 0.3);
+}
+
+.cos-health-content {
+  padding: 1rem;
+}
+
+.health-main {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.cos-health-gauge {
+  text-align: center;
+}
+
+.cos-health-gauge .gauge-svg {
+  width: 100px;
+  height: 100px;
+}
+
+.health-stats {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.health-stats .stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+
+.health-stats .stat-label {
+  color: #888;
+}
+
+.health-stats .stat-value {
+  font-weight: 600;
+  color: #fff;
+}
+
+.health-stats .stat-value.success {
+  color: #00ff88;
+}
+
+.health-stats .stat-value.failure {
+  color: #ff4444;
+}
+
+.cos-trend-chart {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.cos-trend-chart .trend-label {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.cos-trend-chart .trend-svg {
+  width: 100%;
+  height: 60px;
+}
+
+.cos-trend-chart .trend-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.cos-trend-empty {
+  text-align: center;
+  padding: 1rem;
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.cos-constraints {
+  background: rgba(255, 170, 0, 0.05);
+  border: 1px solid rgba(255, 170, 0, 0.2);
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+.cos-constraints .constraints-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffaa00;
+  margin-bottom: 0.5rem;
+}
+
+.cos-constraints .constraints-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cos-constraints .constraint-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+}
+
+.cos-constraints .constraint-label {
+  color: #888;
+}
+
+.cos-constraints .constraint-value {
+  color: #fff;
+  font-weight: 500;
+}
+
+.cos-constraints .constraints-note {
+  font-size: 0.65rem;
+  color: #666;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* ============================================================================
+   PHASE 5E: BAKING ACTIVITY WIDGET
+   ============================================================================ */
+
+.baking-activity-widget {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(255, 170, 0, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.baking-activity-widget .panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba(255, 170, 0, 0.05);
+  border-bottom: 1px solid rgba(255, 170, 0, 0.1);
+}
+
+.baking-activity-widget .panel-header .header-left,
+.baking-activity-widget .panel-header .header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.baking-activity-widget .panel-icon {
+  color: #ffaa00;
+}
+
+.baking-stats {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.baking-stats .stat-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  flex: 1;
+}
+
+.baking-stats .stat-card .stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffaa00;
+}
+
+.baking-stats .stat-card .stat-label {
+  font-size: 0.7rem;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.baked-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.baked-item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s ease;
+}
+
+.baked-item:last-child {
+  border-bottom: none;
+}
+
+.baked-item:hover {
+  background: rgba(255, 170, 0, 0.05);
+}
+
+.baked-item-header {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  gap: 1rem;
+}
+
+.baked-item-header .baked-agent {
+  font-weight: 700;
+  color: #fff;
+  font-size: 0.85rem;
+  min-width: 60px;
+}
+
+.baked-item-header .baked-type {
+  font-size: 0.75rem;
+  color: #888;
+  flex: 1;
+}
+
+.baked-item-header .baked-time {
+  font-size: 0.7rem;
+  color: #666;
+}
+
+.baked-item-header .baked-expand-icon {
+  color: #666;
+  font-size: 0.75rem;
+}
+
+.baked-trigger {
+  padding: 0 1rem 0.75rem;
+  font-size: 0.75rem;
+  color: #666;
+  font-family: monospace;
+}
+
+.baked-details {
+  padding: 0 1rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  margin: 0 0.5rem 0.5rem;
+  border-radius: 6px;
+}
+
+.baked-versions {
+  padding-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.baked-versions .version-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+}
+
+.baked-versions .version-arrow {
+  color: #666;
+}
+
+.version-hash {
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  color: #888;
+}
+
+.version-hash .hash-label {
+  color: #666;
+  margin-right: 0.25rem;
+}
+
+.version-hash code {
+  color: #00ff88;
+}
+
+.version-hash.empty {
+  color: #666;
+}
+
+.baked-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.baked-stats .stat-item {
+  font-size: 0.75rem;
+}
+
+.baked-stats .stat-item .stat-label {
+  color: #888;
+}
+
+.baked-stats .stat-item .stat-value {
+  font-weight: 600;
+  color: #fff;
+  margin-left: 0.25rem;
+}
+
+.baked-stats .stat-item .stat-value.success {
+  color: #00ff88;
+}
+
+.baked-stats .stat-item .stat-value.warning {
+  color: #ffaa00;
+}
+
+.baked-eval-history .eval-history-label {
+  font-size: 0.7rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+}
+
+.baked-eval-history .eval-dots {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.eval-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.eval-dot.success {
+  background: #00ff88;
+}
+
+.eval-dot.failure {
+  background: #ff4444;
+}
+
+.baking-config-info {
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.baking-config-info .config-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffaa00;
+  margin-bottom: 0.5rem;
+}
+
+.baking-config-info .config-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.baking-config-info .config-item {
+  font-size: 0.75rem;
+  color: #888;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.baking-config-info .config-bullet {
+  color: #ffaa00;
 }

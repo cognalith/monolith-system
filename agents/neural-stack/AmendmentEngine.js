@@ -1,5 +1,5 @@
 /**
- * AMENDMENT ENGINE - Phase 5C
+ * AMENDMENT ENGINE - Phase 5E
  * Cognalith Inc. | Monolith System
  *
  * Generates amendments from detected patterns. Amendments are instruction
@@ -7,10 +7,19 @@
  *
  * KEY PRINCIPLE: Amendments only modify the Knowledge layer (Layer 3).
  * Persona (Layer 1) and Skills (Layer 2) are immutable.
+ *
+ * PHASE 5E UPDATES:
+ * - Auto-approval for autonomous mode
+ * - Consecutive failure tracking
+ * - CoS self-monitoring integration
+ * - Amendment baking trigger
  */
 
 import { createClient } from '@supabase/supabase-js';
 import { PATTERN_TYPES } from './PatternDetector.js';
+import { ExceptionEscalation } from './ExceptionEscalation.js';
+import { CoSSelfMonitor } from './CoSSelfMonitor.js';
+import { AmendmentBaking } from './AmendmentBaking.js';
 
 // Amendment templates by pattern type
 const AMENDMENT_TEMPLATES = {
@@ -106,6 +115,15 @@ class AmendmentEngine {
   constructor(config = {}) {
     this.supabase = null;
     this.isConnected = false;
+
+    // PHASE 5E: New components for autonomous operation
+    this.exceptionEscalation = null;
+    this.cosMonitor = null;
+    this.amendmentBaking = null;
+
+    // PHASE 5E: Operating mode (autonomous by default)
+    this.autonomousMode = config.autonomousMode !== false;
+
     this.initialize(config);
   }
 
@@ -118,6 +136,11 @@ class AmendmentEngine {
         auth: { autoRefreshToken: true, persistSession: false },
       });
       this.isConnected = true;
+
+      // PHASE 5E: Initialize autonomous components
+      this.exceptionEscalation = new ExceptionEscalation(config);
+      this.cosMonitor = new CoSSelfMonitor(config);
+      this.amendmentBaking = new AmendmentBaking(config);
     }
   }
 
@@ -157,23 +180,40 @@ class AmendmentEngine {
   }
 
   /**
-   * Create amendment in database (pending approval)
+   * Create amendment in database
+   * PHASE 5E: Auto-approves in autonomous mode unless escalation needed
    */
-  async createAmendment(agentRole, amendment, autoApprove = false) {
+  async createAmendment(agentRole, amendment, autoApprove = null) {
     if (!this.isAvailable()) {
       return { data: null, error: { message: 'Database unavailable' } };
     }
 
-    // Check amendment limit
-    const { data: limitOk } = await this.supabase.rpc('check_amendment_limit', {
-      p_agent_role: agentRole,
-    });
+    // Check amendment limit (triggers baking if at threshold)
+    const { data: amendments } = await this.supabase
+      .from('monolith_amendments')
+      .select('id')
+      .eq('agent_role', agentRole)
+      .eq('is_active', true);
 
-    if (limitOk === false) {
-      return {
-        data: null,
-        error: { message: 'Amendment limit reached (max 10 active amendments)' },
-      };
+    const activeCount = amendments?.length || 0;
+
+    if (activeCount >= 10) {
+      // PHASE 5E: Trigger baking instead of rejecting
+      if (this.amendmentBaking) {
+        const bakingResult = await this.amendmentBaking.runAutoBaking(agentRole);
+        if (!bakingResult.baked) {
+          return {
+            data: null,
+            error: { message: 'Amendment limit reached and no eligible amendments for baking' },
+          };
+        }
+        console.log(`[AMENDMENT] Baked amendment for ${agentRole} to make room`);
+      } else {
+        return {
+          data: null,
+          error: { message: 'Amendment limit reached (max 10 active amendments)' },
+        };
+      }
     }
 
     // Check for existing similar amendment
@@ -193,6 +233,34 @@ class AmendmentEngine {
       };
     }
 
+    // PHASE 5E: Determine auto-approval based on mode and escalation check
+    let shouldAutoApprove = autoApprove;
+    let escalationId = null;
+
+    if (shouldAutoApprove === null && this.autonomousMode) {
+      // Check if escalation is required
+      if (this.exceptionEscalation) {
+        const escalationCheck = await this.exceptionEscalation.shouldEscalate(amendment, agentRole);
+
+        if (escalationCheck.shouldEscalate) {
+          shouldAutoApprove = false;
+
+          // Create escalation record
+          const { data: escalation } = await this.exceptionEscalation.createEscalation(
+            amendment,
+            agentRole,
+            escalationCheck.reason,
+            escalationCheck.analysis
+          );
+          escalationId = escalation?.id;
+        } else {
+          shouldAutoApprove = true; // Autonomous approval
+        }
+      } else {
+        shouldAutoApprove = true; // Default to autonomous if no escalation check available
+      }
+    }
+
     // Create amendment
     const { data, error } = await this.supabase
       .from('monolith_amendments')
@@ -204,18 +272,21 @@ class AmendmentEngine {
         knowledge_mutation: amendment.knowledge_mutation,
         source_pattern: amendment.source_pattern,
         pattern_confidence: amendment.pattern_confidence,
-        approval_status: autoApprove ? 'auto_approved' : 'pending',
-        is_active: autoApprove,
-        evaluation_status: autoApprove ? 'evaluating' : 'pending',
+        approval_status: shouldAutoApprove ? 'auto_approved' : 'pending',
+        is_active: shouldAutoApprove,
+        auto_approved: shouldAutoApprove,
+        evaluation_status: shouldAutoApprove ? 'evaluating' : 'pending',
+        escalation_id: escalationId,
       }])
       .select()
       .single();
 
-    if (!error) {
-      console.log(`[AMENDMENT] Created ${amendment.amendment_type} amendment for ${agentRole}: ${amendment.trigger_pattern}`);
+    if (!error && data) {
+      const approvalType = shouldAutoApprove ? 'auto-approved' : (escalationId ? 'escalated' : 'pending');
+      console.log(`[AMENDMENT] Created ${amendment.amendment_type} amendment for ${agentRole} (${approvalType}): ${amendment.trigger_pattern}`);
     }
 
-    return { data, error };
+    return { data, error, escalated: !!escalationId };
   }
 
   /**
@@ -403,11 +474,19 @@ class AmendmentEngine {
 
   /**
    * Finalize evaluation after 5-task window
+   * PHASE 5E: Added consecutive failure tracking and CoS monitoring
    */
   async finalizeEvaluation(amendmentId) {
     if (!this.isAvailable()) {
       return { data: null, error: { message: 'Database unavailable' } };
     }
+
+    // Get amendment details first
+    const { data: amendment } = await this.supabase
+      .from('monolith_amendments')
+      .select('agent_role, trigger_pattern')
+      .eq('id', amendmentId)
+      .single();
 
     // Get all evaluations
     const { data: evaluations } = await this.supabase
@@ -442,7 +521,69 @@ class AmendmentEngine {
 
     console.log(`[AMENDMENT] Evaluation complete: ${status} (${successCount}/${evaluations.length} success)`);
 
+    // PHASE 5E: Track CoS monitoring and consecutive failures
+    if (amendment) {
+      const agentRole = amendment.agent_role;
+
+      // Record CoS monitoring outcome
+      if (this.cosMonitor) {
+        await this.cosMonitor.recordAmendmentOutcome(
+          amendmentId,
+          agentRole,
+          status === 'proven',
+          { successRate, successCount, failureCount }
+        );
+      }
+
+      // Track consecutive failures
+      if (this.exceptionEscalation) {
+        if (status === 'reverted') {
+          // Record failure
+          await this.exceptionEscalation.recordFailure(agentRole, amendment.trigger_pattern);
+
+          // Log reversion
+          await this.logReversion(amendmentId, agentRole, 'no_improvement', amendment.trigger_pattern, {
+            successRate,
+            successCount,
+            failureCount,
+          });
+        } else {
+          // Success - reset consecutive failures
+          await this.exceptionEscalation.resetConsecutiveFailures(agentRole);
+        }
+      }
+
+      // PHASE 5E: Check if baking is needed after successful amendment
+      if (status === 'proven' && this.amendmentBaking) {
+        const { needsBaking } = await this.amendmentBaking.checkBakingThreshold(agentRole);
+        if (needsBaking) {
+          console.log(`[AMENDMENT] Agent ${agentRole} at baking threshold, triggering auto-bake`);
+          await this.amendmentBaking.runAutoBaking(agentRole);
+        }
+      }
+    }
+
     return { data, error };
+  }
+
+  /**
+   * Log amendment reversion
+   * PHASE 5E: New method for detailed reversion logging
+   */
+  async logReversion(amendmentId, agentRole, reason, triggerPattern, metrics) {
+    if (!this.isAvailable()) return;
+
+    await this.supabase
+      .from('revert_log')
+      .insert([{
+        amendment_id: amendmentId,
+        agent_role: agentRole,
+        reason,
+        trigger_pattern: triggerPattern,
+        metrics,
+      }]);
+
+    console.log(`[REVERT] Logged reversion for ${agentRole}: ${reason}`);
   }
 
   /**

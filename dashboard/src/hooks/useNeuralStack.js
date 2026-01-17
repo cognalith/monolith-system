@@ -1,9 +1,15 @@
 /**
- * USE NEURAL STACK HOOK - Phase 5D
+ * USE NEURAL STACK HOOK - Phase 5E
  * Cognalith Inc. | Monolith System
  *
  * Data fetching hook for Neural Stack dashboard components.
  * Provides real-time data with auto-refresh.
+ *
+ * PHASE 5E: Added autonomy hooks
+ * - useExceptionEscalations
+ * - useCoSHealth
+ * - useBakedAmendments
+ * - useAutonomyStats
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -297,6 +303,281 @@ export function useHeatmapData(autoRefresh = false) {
 }
 
 // ============================================================================
+// PHASE 5E: EXCEPTION ESCALATIONS HOOK
+// ============================================================================
+
+export function useExceptionEscalations(autoRefresh = true) {
+  const [escalations, setEscalations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const intervalRef = useRef(null);
+
+  const fetchEscalations = useCallback(async () => {
+    try {
+      const data = await fetchNeuralStack('/exception-escalations');
+      setEscalations(data.escalations || []);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      setEscalations([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const resolveEscalation = useCallback(async (id, resolution, notes = '') => {
+    try {
+      const result = await postNeuralStack(`/exception-escalations/${id}/resolve`, {
+        resolution,
+        notes,
+      });
+      await fetchEscalations();
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }, [fetchEscalations]);
+
+  useEffect(() => {
+    fetchEscalations();
+
+    if (autoRefresh) {
+      intervalRef.current = setInterval(fetchEscalations, REFRESH_INTERVAL);
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [fetchEscalations, autoRefresh]);
+
+  return {
+    escalations,
+    loading,
+    error,
+    refresh: fetchEscalations,
+    resolve: resolveEscalation,
+    count: escalations.length,
+  };
+}
+
+// ============================================================================
+// PHASE 5E: COS HEALTH HOOK
+// ============================================================================
+
+export function useCoSHealth(autoRefresh = true) {
+  const [health, setHealth] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const intervalRef = useRef(null);
+
+  const fetchHealth = useCallback(async () => {
+    try {
+      const data = await fetchNeuralStack('/cos-health');
+      setHealth(data);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      // Fallback mock data
+      setHealth({
+        current: { success_rate: 75, sample_size: 0, successes: 0, failures: 0 },
+        alert: { triggered: false, threshold: 50, min_sample_size: 10 },
+        active_alerts: [],
+        trend: [],
+        hardcoded_constraints: {
+          alert_threshold: '50%',
+          window_size: 20,
+          min_for_alert: 10,
+          note: 'These values are hardcoded and cannot be modified by CoS',
+        },
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const acknowledgeAlert = useCallback(async (id, notes = '') => {
+    try {
+      const result = await postNeuralStack(`/cos-health/acknowledge-alert/${id}`, { notes });
+      await fetchHealth();
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }, [fetchHealth]);
+
+  useEffect(() => {
+    fetchHealth();
+
+    if (autoRefresh) {
+      intervalRef.current = setInterval(fetchHealth, REFRESH_INTERVAL);
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [fetchHealth, autoRefresh]);
+
+  return {
+    health,
+    loading,
+    error,
+    refresh: fetchHealth,
+    acknowledgeAlert,
+    alertTriggered: health?.alert?.triggered || false,
+  };
+}
+
+// ============================================================================
+// PHASE 5E: BAKED AMENDMENTS HOOK
+// ============================================================================
+
+export function useBakedAmendments(agentRole = null, limit = 50) {
+  const [baked, setBaked] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchBaked = useCallback(async () => {
+    try {
+      const params = new URLSearchParams({ limit: String(limit) });
+      if (agentRole) params.append('agent', agentRole);
+      const data = await fetchNeuralStack(`/baked-amendments?${params}`);
+      setBaked(data.baked || []);
+      setStats(data.stats || null);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      setBaked([]);
+      setStats(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [agentRole, limit]);
+
+  useEffect(() => {
+    fetchBaked();
+  }, [fetchBaked]);
+
+  return {
+    baked,
+    stats,
+    loading,
+    error,
+    refresh: fetchBaked,
+  };
+}
+
+// ============================================================================
+// PHASE 5E: AUTONOMY STATS HOOK
+// ============================================================================
+
+export function useAutonomyStats(autoRefresh = true) {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const intervalRef = useRef(null);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const data = await fetchNeuralStack('/autonomy-stats');
+      setStats(data);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      // Fallback mock data
+      setStats({
+        overall: {
+          total_amendments: 0,
+          autonomous: 0,
+          escalated: 0,
+          pending_approval: 0,
+          approved: 0,
+          rejected: 0,
+          autonomy_rate: 100,
+        },
+        recent_24h: { total: 0, autonomous: 0, escalated: 0 },
+        by_agent: {},
+        escalation_reasons: {},
+        total_escalations: 0,
+        pending_escalations: 0,
+        total_reversions: 0,
+        autonomy_mode: {
+          status: 'active',
+          description: 'CoS operates autonomously for standard Knowledge layer amendments',
+          exceptions: [
+            'Skills layer modifications',
+            'Persona layer modifications',
+            '3+ consecutive failures',
+            'Cross-agent decline patterns',
+          ],
+        },
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+
+    if (autoRefresh) {
+      intervalRef.current = setInterval(fetchStats, REFRESH_INTERVAL);
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [fetchStats, autoRefresh]);
+
+  return {
+    stats,
+    loading,
+    error,
+    refresh: fetchStats,
+  };
+}
+
+// ============================================================================
+// PHASE 5E: REVERT LOG HOOK
+// ============================================================================
+
+export function useRevertLog(limit = 50) {
+  const [reversions, setReversions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchReversions = useCallback(async () => {
+    try {
+      const data = await fetchNeuralStack(`/revert-log?limit=${limit}`);
+      setReversions(data.reversions || []);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      setReversions([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [limit]);
+
+  useEffect(() => {
+    fetchReversions();
+  }, [fetchReversions]);
+
+  return {
+    reversions,
+    loading,
+    error,
+    refresh: fetchReversions,
+  };
+}
+
+// ============================================================================
 // MOCK DATA (for development/fallback)
 // ============================================================================
 
@@ -361,4 +642,10 @@ export default {
   usePendingEscalations,
   useAmendmentActivity,
   useHeatmapData,
+  // Phase 5E hooks
+  useExceptionEscalations,
+  useCoSHealth,
+  useBakedAmendments,
+  useAutonomyStats,
+  useRevertLog,
 };

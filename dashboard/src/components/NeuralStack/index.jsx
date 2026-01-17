@@ -1,9 +1,15 @@
 /**
- * NEURAL STACK DASHBOARD - Phase 5D
+ * NEURAL STACK DASHBOARD - Phase 5E
  * Cognalith Inc. | Monolith System
  *
  * Master component integrating all Neural Stack dashboard widgets.
  * Designed for CEO (Frank) oversight of Monolith agents.
+ *
+ * PHASE 5E: Added autonomy widgets
+ * - AutonomyStatusPanel
+ * - ExceptionQueueWidget
+ * - CoSHealthIndicator
+ * - BakingActivityWidget
  */
 
 import React, { useState, useEffect } from 'react';
@@ -12,6 +18,11 @@ import { EscalationWidget } from './EscalationWidget.jsx';
 import { VarianceTrendChart } from './VarianceTrendChart.jsx';
 import { AmendmentActivityLog } from './AmendmentActivityLog.jsx';
 import { AgentHeatmap } from './AgentHeatmap.jsx';
+// Phase 5E widgets
+import { AutonomyStatusPanel } from './AutonomyStatusPanel.jsx';
+import { ExceptionQueueWidget } from './ExceptionQueueWidget.jsx';
+import { CoSHealthIndicator } from './CoSHealthIndicator.jsx';
+import { BakingActivityWidget } from './BakingActivityWidget.jsx';
 import './NeuralStack.css';
 
 /**
@@ -97,7 +108,16 @@ export function NeuralStackDashboard({ layout = LAYOUTS.default }) {
       />
 
       <main className="neural-stack-main">
-        {/* Top Row: Agent Health + Escalations */}
+        {/* Phase 5E: Autonomy Status Row */}
+        <section className="neural-stack-section autonomy-section">
+          <div className="section-grid three-columns">
+            <AutonomyStatusPanel />
+            <CoSHealthIndicator />
+            <ExceptionQueueWidget />
+          </div>
+        </section>
+
+        {/* Top Row: Agent Health + Financial Escalations */}
         <section className="neural-stack-section top-section">
           <div className="section-grid two-thirds-one-third">
             <AgentHealthGrid onAgentSelect={handleAgentSelect} />
@@ -116,6 +136,13 @@ export function NeuralStackDashboard({ layout = LAYOUTS.default }) {
           </div>
         </section>
 
+        {/* Phase 5E: Baking Activity Row */}
+        <section className="neural-stack-section baking-section">
+          <div className="section-grid full-width">
+            <BakingActivityWidget limit={10} />
+          </div>
+        </section>
+
         {/* Bottom Row: Heatmap */}
         <section className="neural-stack-section bottom-section">
           <AgentHeatmap
@@ -129,7 +156,7 @@ export function NeuralStackDashboard({ layout = LAYOUTS.default }) {
         <div className="footer-left">
           <span>Monolith System v5.0</span>
           <span className="separator">|</span>
-          <span>Phase 5D Neural Stack</span>
+          <span>Phase 5E Full Autonomy</span>
         </div>
         <div className="footer-right">
           <span>Cognalith Inc.</span>
@@ -146,6 +173,11 @@ export {
   VarianceTrendChart,
   AmendmentActivityLog,
   AgentHeatmap,
+  // Phase 5E widgets
+  AutonomyStatusPanel,
+  ExceptionQueueWidget,
+  CoSHealthIndicator,
+  BakingActivityWidget,
 };
 
 export default NeuralStackDashboard;

@@ -1,19 +1,22 @@
 /**
- * APPROVAL WORKFLOW - Phase 5C
+ * APPROVAL WORKFLOW - Phase 5E
  * Cognalith Inc. | Monolith System
  *
  * CEO Approval Gate for amendments.
  *
- * This is a TEMPORARY safety measure until trust is established.
- * Over time, as the system proves reliable, approval requirements
- * may be relaxed for certain amendment types.
+ * PHASE 5E UPDATE: Autonomous mode enabled
+ * - CoS operates autonomously for standard Knowledge layer amendments
+ * - Escalation to CEO only for exceptions (Skills/Persona mods, failures)
+ * - Financial Escalation Framework remains HARDCODED and unchanged
  *
- * Current approval requirements:
- * - ALL amendments require CEO (Frank) approval
- * - Auto-approval can be enabled for proven low-risk patterns
+ * Modes:
+ * - 'autonomous': CoS handles amendments, CEO only for exceptions
+ * - 'strict': All amendments require CEO approval (legacy)
+ * - 'trust': Trust-based auto-approval for proven agents
  */
 
 import { createClient } from '@supabase/supabase-js';
+import { ExceptionEscalation, ESCALATION_REASONS } from './ExceptionEscalation.js';
 
 // Approval tiers (for future relaxation)
 const APPROVAL_TIERS = {
@@ -48,8 +51,12 @@ class ApprovalWorkflow {
     this.isConnected = false;
     this.trustThresholds = { ...TRUST_THRESHOLDS, ...config.trustThresholds };
 
-    // Current mode: 'strict' (all require approval) or 'trust' (some auto-approve)
-    this.mode = config.mode || 'strict';
+    // PHASE 5E: Default to 'autonomous' mode
+    // Modes: 'autonomous' (exception-only), 'strict' (all require approval), 'trust' (trust-based)
+    this.mode = config.mode || 'autonomous';
+
+    // Initialize exception escalation for autonomous mode
+    this.exceptionEscalation = null;
 
     this.initialize(config);
   }
@@ -63,6 +70,9 @@ class ApprovalWorkflow {
         auth: { autoRefreshToken: true, persistSession: false },
       });
       this.isConnected = true;
+
+      // Initialize exception escalation for autonomous mode
+      this.exceptionEscalation = new ExceptionEscalation(config);
     }
   }
 
@@ -76,18 +86,45 @@ class ApprovalWorkflow {
 
   /**
    * Check if amendment requires approval
-   * In strict mode (current), all amendments require approval
+   * PHASE 5E: Autonomous mode - only exceptions require CEO approval
    */
-  async requiresApproval(agentRole, amendmentType) {
+  async requiresApproval(agentRole, amendmentType, amendment = null) {
+    // AUTONOMOUS MODE: Check for exceptions only
+    if (this.mode === 'autonomous') {
+      if (this.exceptionEscalation && amendment) {
+        const escalationCheck = await this.exceptionEscalation.shouldEscalate(amendment, agentRole);
+
+        if (escalationCheck.shouldEscalate) {
+          return {
+            required: true,
+            reason: `Exception detected: ${escalationCheck.reason}`,
+            tier: APPROVAL_TIERS.ALWAYS_REQUIRED,
+            escalation: escalationCheck,
+            autonomous: false,
+          };
+        }
+      }
+
+      // No exception - process autonomously
+      return {
+        required: false,
+        reason: 'Autonomous mode: standard Knowledge layer amendment',
+        tier: APPROVAL_TIERS.AUTO_APPROVED,
+        autonomous: true,
+      };
+    }
+
+    // STRICT MODE: All amendments require approval
     if (this.mode === 'strict') {
       return {
         required: true,
         reason: 'Strict mode: all amendments require CEO approval',
         tier: APPROVAL_TIERS.ALWAYS_REQUIRED,
+        autonomous: false,
       };
     }
 
-    // Trust mode: check if auto-approval is possible
+    // TRUST MODE: Check if auto-approval is possible
     const tier = AMENDMENT_APPROVAL_MAP[amendmentType] || APPROVAL_TIERS.ALWAYS_REQUIRED;
 
     if (tier === APPROVAL_TIERS.ALWAYS_REQUIRED) {
@@ -95,6 +132,7 @@ class ApprovalWorkflow {
         required: true,
         reason: `Amendment type "${amendmentType}" always requires approval`,
         tier,
+        autonomous: false,
       };
     }
 
@@ -103,6 +141,7 @@ class ApprovalWorkflow {
         required: false,
         reason: 'Amendment type eligible for auto-approval',
         tier,
+        autonomous: true,
       };
     }
 
@@ -113,6 +152,7 @@ class ApprovalWorkflow {
         required: false,
         reason: `Agent ${agentRole} has established trust (${trust.provenAmendments} proven amendments, ${(trust.successRate * 100).toFixed(0)}% success)`,
         tier,
+        autonomous: true,
       };
     }
 
@@ -121,7 +161,40 @@ class ApprovalWorkflow {
       reason: `Agent ${agentRole} has not established sufficient trust yet`,
       tier,
       trustProgress: trust,
+      autonomous: false,
     };
+  }
+
+  /**
+   * Process amendment autonomously (no CEO approval needed)
+   * PHASE 5E: New method for autonomous processing
+   */
+  async processAutonomousAmendment(amendmentId, agentRole) {
+    if (!this.isAvailable()) {
+      return { data: null, error: { message: 'Database unavailable' } };
+    }
+
+    const { data, error } = await this.supabase
+      .from('monolith_amendments')
+      .update({
+        approval_status: 'auto_approved',
+        approved_by: 'cos_autonomous',
+        approved_at: new Date().toISOString(),
+        approval_notes: 'Auto-approved in autonomous mode',
+        is_active: true,
+        auto_approved: true,
+        evaluation_status: 'evaluating',
+      })
+      .eq('id', amendmentId)
+      .eq('approval_status', 'pending')
+      .select()
+      .single();
+
+    if (!error && data) {
+      console.log(`[APPROVAL] Auto-approved (autonomous): ${data.trigger_pattern}`);
+    }
+
+    return { data, error };
   }
 
   /**
@@ -382,10 +455,11 @@ Total: ${amendments.length} pending amendment(s)
 
   /**
    * Set approval mode
+   * PHASE 5E: Added 'autonomous' mode
    */
   setMode(mode) {
-    if (!['strict', 'trust'].includes(mode)) {
-      throw new Error('Invalid mode. Use "strict" or "trust".');
+    if (!['strict', 'trust', 'autonomous'].includes(mode)) {
+      throw new Error('Invalid mode. Use "strict", "trust", or "autonomous".');
     }
     this.mode = mode;
     console.log(`[APPROVAL] Mode set to: ${mode}`);
@@ -395,12 +469,24 @@ Total: ${amendments.length} pending amendment(s)
    * Get current mode
    */
   getMode() {
+    const descriptions = {
+      autonomous: 'CoS operates autonomously, CEO only for exceptions',
+      strict: 'All amendments require CEO approval',
+      trust: 'Trusted agents can auto-approve certain amendments',
+    };
+
     return {
       mode: this.mode,
-      description: this.mode === 'strict'
-        ? 'All amendments require CEO approval'
-        : 'Trusted agents can auto-approve certain amendments',
+      description: descriptions[this.mode] || 'Unknown mode',
     };
+  }
+
+  /**
+   * Get exception escalation handler
+   * PHASE 5E: Expose for external use
+   */
+  getExceptionEscalation() {
+    return this.exceptionEscalation;
   }
 
   /**
@@ -468,5 +554,5 @@ Total: ${amendments.length} pending amendment(s)
 }
 
 // Export
-export { ApprovalWorkflow, APPROVAL_TIERS, TRUST_THRESHOLDS };
+export { ApprovalWorkflow, APPROVAL_TIERS, TRUST_THRESHOLDS, ESCALATION_REASONS };
 export default ApprovalWorkflow;

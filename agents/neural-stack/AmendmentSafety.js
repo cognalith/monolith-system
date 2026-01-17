@@ -1,15 +1,20 @@
 /**
- * AMENDMENT SAFETY - Phase 5C
+ * AMENDMENT SAFETY - Phase 5E
  * Cognalith Inc. | Monolith System
  *
  * Enforces safety constraints for the amendment system.
  *
  * Safety Rules (HARDCODED - cannot be modified by agents):
- * 1. Max 10 active amendments per agent
+ * 1. Max 10 active amendments per agent (triggers baking at limit)
  * 2. Auto-revert after 3 consecutive failures
  * 3. Protected patterns cannot be modified
  * 4. Conflicting amendments are rejected
  * 5. Only CoS can generate amendments (agents cannot self-modify)
+ *
+ * PHASE 5E ADDITIONS:
+ * - Cross-agent pattern detection (3+ agents declining)
+ * - Detailed reversion logging
+ * - Integration with exception escalation
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -46,6 +51,15 @@ const CONSTRAINT_TYPES = {
   AUTO_REVERT_TRIGGERED: 'auto_revert_triggered',
   EVALUATION_TIMEOUT: 'evaluation_timeout',
   CONFLICTING_AMENDMENT: 'conflicting_amendment',
+  CROSS_AGENT_PATTERN: 'cross_agent_pattern',       // PHASE 5E
+  CONSECUTIVE_FAILURES: 'consecutive_failures',      // PHASE 5E
+};
+
+// PHASE 5E: Cross-agent detection thresholds
+const CROSS_AGENT_CONFIG = {
+  MIN_DECLINING_AGENTS: 3,        // Detect pattern when 3+ agents declining
+  TIME_WINDOW_HOURS: 1,            // Within 1 hour window
+  MIN_FAILURES_PER_AGENT: 2,       // 2+ failures per agent to count
 };
 
 /**
@@ -482,8 +496,190 @@ class AmendmentSafety {
     }
     return false;
   }
+
+  // ============================================================================
+  // PHASE 5E: CROSS-AGENT PATTERN DETECTION
+  // ============================================================================
+
+  /**
+   * Detect cross-agent decline pattern
+   * Returns { detected: boolean, agents: string[], pattern: string }
+   */
+  async detectCrossAgentPattern() {
+    if (!this.isAvailable()) {
+      return { detected: false, error: 'Database unavailable' };
+    }
+
+    const timeWindow = new Date();
+    timeWindow.setHours(timeWindow.getHours() - CROSS_AGENT_CONFIG.TIME_WINDOW_HOURS);
+
+    // Get recent amendment evaluations with failures
+    const { data: recentEvals } = await this.supabase
+      .from('monolith_amendment_evaluations')
+      .select('amendment_id, success')
+      .eq('success', false)
+      .gte('evaluated_at', timeWindow.toISOString());
+
+    if (!recentEvals || recentEvals.length === 0) {
+      return { detected: false, declining_agents: [] };
+    }
+
+    // Get agent roles for failed amendments
+    const amendmentIds = [...new Set(recentEvals.map(e => e.amendment_id))];
+
+    const { data: amendments } = await this.supabase
+      .from('monolith_amendments')
+      .select('id, agent_role')
+      .in('id', amendmentIds);
+
+    if (!amendments) {
+      return { detected: false, declining_agents: [] };
+    }
+
+    // Count failures per agent
+    const agentFailures = {};
+    for (const eval_ of recentEvals) {
+      const amendment = amendments.find(a => a.id === eval_.amendment_id);
+      if (amendment) {
+        agentFailures[amendment.agent_role] = (agentFailures[amendment.agent_role] || 0) + 1;
+      }
+    }
+
+    // Find agents with multiple failures
+    const decliningAgents = Object.entries(agentFailures)
+      .filter(([_, count]) => count >= CROSS_AGENT_CONFIG.MIN_FAILURES_PER_AGENT)
+      .map(([agent]) => agent);
+
+    const detected = decliningAgents.length >= CROSS_AGENT_CONFIG.MIN_DECLINING_AGENTS;
+
+    if (detected) {
+      // Log the pattern detection
+      await this.logSafetyEvent(
+        'system',
+        CONSTRAINT_TYPES.CROSS_AGENT_PATTERN,
+        {
+          declining_agents: decliningAgents,
+          agent_count: decliningAgents.length,
+          time_window_hours: CROSS_AGENT_CONFIG.TIME_WINDOW_HOURS,
+          failures_by_agent: agentFailures,
+        },
+        `Cross-agent pattern detected: ${decliningAgents.length} agents showing failures`
+      );
+    }
+
+    return {
+      detected,
+      declining_agents: decliningAgents,
+      agent_count: decliningAgents.length,
+      threshold: CROSS_AGENT_CONFIG.MIN_DECLINING_AGENTS,
+      pattern: detected ? 'multi_agent_decline' : null,
+      failures_by_agent: agentFailures,
+    };
+  }
+
+  /**
+   * Get recent declines for cross-agent analysis
+   */
+  async getRecentDeclines(timeWindowHours = 1) {
+    if (!this.isAvailable()) {
+      return { data: [], error: { message: 'Database unavailable' } };
+    }
+
+    const timeWindow = new Date();
+    timeWindow.setHours(timeWindow.getHours() - timeWindowHours);
+
+    const { data, error } = await this.supabase
+      .from('monolith_amendments')
+      .select('agent_role, evaluation_status, superseded_at')
+      .eq('evaluation_status', 'reverted')
+      .gte('superseded_at', timeWindow.toISOString());
+
+    return { data: data || [], error };
+  }
+
+  // ============================================================================
+  // PHASE 5E: DETAILED REVERSION LOGGING
+  // ============================================================================
+
+  /**
+   * Log detailed reversion with metrics
+   */
+  async logReversion(amendmentId, agentRole, reason, metrics, escalated = false) {
+    if (!this.isAvailable()) return;
+
+    // Get amendment details
+    const { data: amendment } = await this.supabase
+      .from('monolith_amendments')
+      .select('trigger_pattern')
+      .eq('id', amendmentId)
+      .single();
+
+    await this.supabase
+      .from('revert_log')
+      .insert([{
+        amendment_id: amendmentId,
+        agent_role: agentRole,
+        reason,
+        trigger_pattern: amendment?.trigger_pattern,
+        metrics,
+        escalated,
+      }]);
+
+    console.log(`[SAFETY] Logged reversion: ${reason} for ${agentRole}`);
+  }
+
+  /**
+   * Get reversion history
+   */
+  async getReversionHistory(agentRole = null, limit = 50) {
+    if (!this.isAvailable()) {
+      return { data: [], error: { message: 'Database unavailable' } };
+    }
+
+    let query = this.supabase
+      .from('revert_log')
+      .select('*')
+      .order('reverted_at', { ascending: false })
+      .limit(limit);
+
+    if (agentRole) {
+      query = query.eq('agent_role', agentRole);
+    }
+
+    const { data, error } = await query;
+    return { data: data || [], error };
+  }
+
+  /**
+   * Get reversion statistics
+   */
+  async getReversionStats() {
+    if (!this.isAvailable()) {
+      return { data: null, error: { message: 'Database unavailable' } };
+    }
+
+    const { data: reverts } = await this.supabase
+      .from('revert_log')
+      .select('reason, agent_role, escalated');
+
+    if (!reverts) return { data: null, error: null };
+
+    const stats = {
+      total_reversions: reverts.length,
+      escalated_count: reverts.filter(r => r.escalated).length,
+      by_reason: {},
+      by_agent: {},
+    };
+
+    for (const r of reverts) {
+      stats.by_reason[r.reason] = (stats.by_reason[r.reason] || 0) + 1;
+      stats.by_agent[r.agent_role] = (stats.by_agent[r.agent_role] || 0) + 1;
+    }
+
+    return { data: stats, error: null };
+  }
 }
 
 // Export
-export { AmendmentSafety, SAFETY_LIMITS, PROTECTED_PATTERNS, CONSTRAINT_TYPES };
+export { AmendmentSafety, SAFETY_LIMITS, PROTECTED_PATTERNS, CONSTRAINT_TYPES, CROSS_AGENT_CONFIG };
 export default AmendmentSafety;

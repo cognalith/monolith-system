@@ -5,11 +5,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getAbbrFromId } from '../../config/roleHierarchy';
 
-// Decision type colors
+// Decision type colors - Cyber-noir palette
 const DECISION_TYPE_COLORS = {
-  approval: '#00ff88',
-  rejection: '#ff4444',
-  delegation: '#ffaa00',
+  approval: '#00f0ff',   // neon-cyan
+  rejection: '#ff003c',  // neon-crimson
+  delegation: '#ffb800', // neon-amber
   escalation: '#ff6b6b',
   deferral: '#666666',
 };
@@ -107,11 +107,11 @@ const MOCK_DECISIONS = [
   },
 ];
 
-// Impact colors
+// Impact colors - Cyber-noir palette
 const IMPACT_COLORS = {
-  critical: '#ff4444',
-  high: '#ffaa00',
-  medium: '#00ff88',
+  critical: '#ff003c',   // neon-crimson
+  high: '#ffb800',       // neon-amber
+  medium: '#00f0ff',     // neon-cyan
   low: '#666666',
 };
 
@@ -225,13 +225,13 @@ const DecisionLogPanel = ({ isOpen, onClose, selectedRole = null }) => {
       onClick={onClose}
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-lg w-full max-w-4xl max-h-[80vh] flex flex-col"
+        className="glass-tile w-full max-w-4xl max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div>
-            <h2 className="text-xl font-bold text-monolith-green">
+            <h2 className="text-xl font-bold text-neon-cyan">
               DECISION LOG ({filteredDecisions.length})
             </h2>
             <div className="flex gap-4 mt-2 text-sm">
@@ -246,7 +246,7 @@ const DecisionLogPanel = ({ isOpen, onClose, selectedRole = null }) => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-gray-800 text-gray-300 border border-gray-600 rounded px-2 py-1 text-sm"
+              className="bg-black/30 text-gray-300 border border-white/10 rounded px-2 py-1 text-sm font-code"
             >
               <option value="time">Sort: Recent</option>
               <option value="impact">Sort: Impact</option>
@@ -262,13 +262,13 @@ const DecisionLogPanel = ({ isOpen, onClose, selectedRole = null }) => {
         </div>
 
         {/* Type Filter */}
-        <div className="flex gap-2 p-4 border-b border-gray-700 flex-wrap">
+        <div className="flex gap-2 p-4 border-b border-white/10 flex-wrap">
           <button
             onClick={() => setFilterType(null)}
-            className={`px-3 py-1 rounded text-sm ${
+            className={`px-3 py-1 rounded text-sm font-code ${
               !filterType
-                ? 'bg-monolith-green text-monolith-dark'
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                ? 'bg-[var(--neon-cyan)] text-black'
+                : 'bg-black/30 text-gray-300 hover:bg-white/10'
             }`}
           >
             All
@@ -277,10 +277,10 @@ const DecisionLogPanel = ({ isOpen, onClose, selectedRole = null }) => {
             <button
               key={type}
               onClick={() => setFilterType(type)}
-              className={`px-3 py-1 rounded text-sm capitalize ${
+              className={`px-3 py-1 rounded text-sm capitalize font-code ${
                 filterType === type
-                  ? 'bg-monolith-green text-monolith-dark'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  ? 'bg-[var(--neon-cyan)] text-black'
+                  : 'bg-black/30 text-gray-300 hover:bg-white/10'
               }`}
               style={{
                 borderLeft: `3px solid ${DECISION_TYPE_COLORS[type]}`,
@@ -295,16 +295,16 @@ const DecisionLogPanel = ({ isOpen, onClose, selectedRole = null }) => {
         <div className="flex-1 overflow-y-auto p-4">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-monolith-green"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--neon-cyan)]"></div>
               <span className="ml-3 text-gray-400">Loading decisions...</span>
             </div>
           ) : error ? (
             <div className="text-center py-8">
-              <span className="text-red-400 text-2xl">!</span>
+              <span className="text-[var(--neon-crimson)] text-2xl">!</span>
               <p className="text-gray-400 mt-2">{error}</p>
               <button
                 onClick={fetchDecisions}
-                className="mt-4 px-4 py-2 bg-monolith-green text-monolith-dark rounded hover:bg-monolith-green/80"
+                className="mt-4 px-4 py-2 bg-[var(--neon-cyan)] text-black rounded hover:opacity-80 cyber-button"
               >
                 Retry
               </button>
@@ -318,7 +318,7 @@ const DecisionLogPanel = ({ isOpen, onClose, selectedRole = null }) => {
               {filteredDecisions.map((decision) => (
                 <div
                   key={decision.id}
-                  className="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-monolith-green/50 transition-colors"
+                  className="bg-black/30 border border-white/10 rounded-lg p-4 hover:border-[var(--neon-cyan)]/50 transition-colors"
                   style={{
                     borderLeftWidth: '4px',
                     borderLeftColor: DECISION_TYPE_COLORS[decision.type],
@@ -350,8 +350,8 @@ const DecisionLogPanel = ({ isOpen, onClose, selectedRole = null }) => {
                         </span>
                       </div>
                       <p className="text-gray-400 text-sm mt-2">{decision.context}</p>
-                      <div className="flex items-center gap-4 mt-3 text-sm">
-                        <span className="text-monolith-amber font-medium">
+                      <div className="flex items-center gap-4 mt-3 text-sm font-code">
+                        <span className="text-neon-amber font-medium">
                           {getAbbrFromId(decision.decision_maker_role)}
                         </span>
                         <span className="text-gray-500">|</span>
@@ -373,11 +373,11 @@ const DecisionLogPanel = ({ isOpen, onClose, selectedRole = null }) => {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-4 border-t border-gray-700 text-sm text-gray-500">
+        <div className="flex items-center justify-between p-4 border-t border-white/10 text-sm text-gray-500 font-code">
           <span>Auto-refresh: 30s</span>
           <button
             onClick={fetchDecisions}
-            className="text-monolith-green hover:text-monolith-green/80"
+            className="text-neon-cyan hover:text-[var(--neon-cyan)]/80"
           >
             Refresh Now
           </button>

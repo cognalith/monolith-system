@@ -290,8 +290,52 @@ class LLMRouter {
   }
 
   async completeWithGoogle(config, systemPrompt, userMessage, messages, maxTokens, temperature) {
-    // Placeholder for Google Gemini integration
-    throw new Error('Google Gemini integration not yet implemented');
+    // Dynamic import for Google Generative AI
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(this.googleApiKey);
+
+    const model = genAI.getGenerativeModel({ model: config.model });
+
+    // Convert messages to Gemini format
+    // Gemini uses 'user' and 'model' roles (not 'assistant')
+    const geminiHistory = [];
+    const formattedMessages = messages.length > 0 ? messages : [{ role: 'user', content: userMessage }];
+
+    // Build history for multi-turn conversation (all messages except the last)
+    for (let i = 0; i < formattedMessages.length - 1; i++) {
+      const msg = formattedMessages[i];
+      geminiHistory.push({
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: msg.content }],
+      });
+    }
+
+    // Get the last message as the current input
+    const lastMessage = formattedMessages[formattedMessages.length - 1];
+    const currentInput = lastMessage.content;
+
+    // Start chat with system instruction and history
+    const chat = model.startChat({
+      history: geminiHistory,
+      generationConfig: {
+        maxOutputTokens: Math.min(maxTokens, config.maxTokens),
+        temperature,
+      },
+      systemInstruction: systemPrompt,
+    });
+
+    // Send the current message
+    const result = await chat.sendMessage(currentInput);
+    const response = result.response;
+
+    // Extract usage metadata if available
+    const usageMetadata = response.usageMetadata || {};
+
+    return {
+      content: response.text(),
+      inputTokens: usageMetadata.promptTokenCount || 0,
+      outputTokens: usageMetadata.candidatesTokenCount || 0,
+    };
   }
 
   async completeWithOllama(config, systemPrompt, userMessage, messages, maxTokens, temperature) {

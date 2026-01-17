@@ -102,6 +102,14 @@ class ConfigManager {
       isDevelopment: this.get('NODE_ENV') !== 'production',
     };
 
+    // Document management
+    this.config.documents = {
+      rootPath: this.get('DOCUMENT_ROOT', '/mnt/h/My Drive/MONOLITH_OS'),
+      enabled: this.getBool('ENABLE_DOCUMENT_MANAGEMENT', true),
+      autoTriage: this.getBool('AUTO_TRIAGE_INBOX', false),
+      indexUpdateInterval: this.getInt('DOCUMENT_INDEX_INTERVAL_MS', 3600000), // 1 hour
+    };
+
     this.loaded = true;
     return this.config;
   }

@@ -43,6 +43,9 @@ import IntelligenceHub from './intelligence/index.js';
 import ProductionWrapper from './production/index.js';
 import configManager from './production/ConfigManager.js';
 
+// Services - Phase 8 (Media Generation)
+import { mediaGenerationService } from './services/index.js';
+
 /**
  * Initialize and run the autonomous agent system
  */
@@ -83,7 +86,7 @@ async function initializeAgentSystem(config = {}) {
   agents.ciso = new CISOAgent({ llmRouter, decisionLogger });
   orchestrator.registerAgent(agents.ciso);
 
-  agents.cmo = new CMOAgent({ llmRouter, decisionLogger });
+  agents.cmo = new CMOAgent({ llmRouter, decisionLogger, mediaGenerationService });
   orchestrator.registerAgent(agents.cmo);
 
   agents.chro = new CHROAgent({ llmRouter, decisionLogger });

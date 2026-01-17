@@ -5,11 +5,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getAbbrFromId } from '../../config/roleHierarchy';
 
-// Status color mapping
+// Status color mapping - Cyber-noir palette
 const STATUS_COLORS = {
-  active: '#00ff88',
-  paused: '#ffaa00',
-  blocked: '#ff4444',
+  active: '#00f0ff',    // neon-cyan
+  paused: '#ffb800',    // neon-amber
+  blocked: '#ff003c',   // neon-crimson
   completed: '#666666',
 };
 
@@ -144,13 +144,13 @@ const WorkflowListPanel = ({ isOpen, onClose, selectedRole = null }) => {
       onClick={onClose}
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-lg w-full max-w-4xl max-h-[80vh] flex flex-col"
+        className="glass-tile w-full max-w-4xl max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div>
-            <h2 className="text-xl font-bold text-monolith-green">
+            <h2 className="text-xl font-bold text-neon-cyan">
               ACTIVE WORKFLOWS ({filteredWorkflows.length})
             </h2>
             <div className="flex gap-4 mt-2 text-sm">
@@ -169,7 +169,7 @@ const WorkflowListPanel = ({ isOpen, onClose, selectedRole = null }) => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-gray-800 text-gray-300 border border-gray-600 rounded px-2 py-1 text-sm"
+              className="bg-black/30 text-gray-300 border border-white/10 rounded px-2 py-1 text-sm font-code"
             >
               <option value="updated">Sort: Recent</option>
               <option value="progress">Sort: Progress</option>
@@ -185,13 +185,13 @@ const WorkflowListPanel = ({ isOpen, onClose, selectedRole = null }) => {
         </div>
 
         {/* Status Filter */}
-        <div className="flex gap-2 p-4 border-b border-gray-700 flex-wrap">
+        <div className="flex gap-2 p-4 border-b border-white/10 flex-wrap">
           <button
             onClick={() => setFilterStatus(null)}
-            className={`px-3 py-1 rounded text-sm ${
+            className={`px-3 py-1 rounded text-sm font-code ${
               !filterStatus
-                ? 'bg-monolith-green text-monolith-dark'
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                ? 'bg-[var(--neon-cyan)] text-black'
+                : 'bg-black/30 text-gray-300 hover:bg-white/10'
             }`}
           >
             All
@@ -200,10 +200,10 @@ const WorkflowListPanel = ({ isOpen, onClose, selectedRole = null }) => {
             <button
               key={status}
               onClick={() => setFilterStatus(status)}
-              className={`px-3 py-1 rounded text-sm capitalize ${
+              className={`px-3 py-1 rounded text-sm capitalize font-code ${
                 filterStatus === status
-                  ? 'bg-monolith-green text-monolith-dark'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  ? 'bg-[var(--neon-cyan)] text-black'
+                  : 'bg-black/30 text-gray-300 hover:bg-white/10'
               }`}
             >
               {status}
@@ -215,16 +215,16 @@ const WorkflowListPanel = ({ isOpen, onClose, selectedRole = null }) => {
         <div className="flex-1 overflow-y-auto p-4">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-monolith-green"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--neon-cyan)]"></div>
               <span className="ml-3 text-gray-400">Loading workflows...</span>
             </div>
           ) : error ? (
             <div className="text-center py-8">
-              <span className="text-red-400 text-2xl">!</span>
+              <span className="text-[var(--neon-crimson)] text-2xl">!</span>
               <p className="text-gray-400 mt-2">{error}</p>
               <button
                 onClick={fetchWorkflows}
-                className="mt-4 px-4 py-2 bg-monolith-green text-monolith-dark rounded hover:bg-monolith-green/80"
+                className="mt-4 px-4 py-2 bg-[var(--neon-cyan)] text-black rounded hover:opacity-80 cyber-button"
               >
                 Retry
               </button>
@@ -238,7 +238,7 @@ const WorkflowListPanel = ({ isOpen, onClose, selectedRole = null }) => {
               {filteredWorkflows.map((workflow) => (
                 <div
                   key={workflow.id}
-                  className="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-monolith-green/50 transition-colors"
+                  className="bg-black/30 border border-white/10 rounded-lg p-4 hover:border-[var(--neon-cyan)]/50 transition-colors"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -259,8 +259,8 @@ const WorkflowListPanel = ({ isOpen, onClose, selectedRole = null }) => {
                       <p className="text-gray-400 text-sm mt-1">
                         {workflow.description}
                       </p>
-                      <div className="flex items-center gap-4 mt-2 text-sm">
-                        <span className="text-monolith-amber font-medium">
+                      <div className="flex items-center gap-4 mt-2 text-sm font-code">
+                        <span className="text-neon-amber font-medium">
                           Owner: {getAbbrFromId(workflow.owner_role)}
                         </span>
                         <span className="text-gray-500">|</span>
@@ -270,12 +270,12 @@ const WorkflowListPanel = ({ isOpen, onClose, selectedRole = null }) => {
                       </div>
                     </div>
                     <div className="ml-4 text-right">
-                      <div className="text-2xl font-bold text-monolith-green">
+                      <div className="text-2xl font-bold text-neon-cyan font-code">
                         {workflow.progress}%
                       </div>
-                      <div className="w-24 h-2 bg-gray-700 rounded-full mt-2 overflow-hidden">
+                      <div className="w-24 h-2 bg-white/10 rounded-full mt-2 overflow-hidden">
                         <div
-                          className="h-full bg-monolith-green rounded-full transition-all duration-300"
+                          className="h-full bg-[var(--neon-cyan)] rounded-full transition-all duration-300 shadow-[0_0_10px_var(--neon-cyan)]"
                           style={{ width: `${workflow.progress}%` }}
                         ></div>
                       </div>
@@ -288,11 +288,11 @@ const WorkflowListPanel = ({ isOpen, onClose, selectedRole = null }) => {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-4 border-t border-gray-700 text-sm text-gray-500">
+        <div className="flex items-center justify-between p-4 border-t border-white/10 text-sm text-gray-500 font-code">
           <span>Auto-refresh: 30s</span>
           <button
             onClick={fetchWorkflows}
-            className="text-monolith-green hover:text-monolith-green/80"
+            className="text-neon-cyan hover:text-[var(--neon-cyan)]/80"
           >
             Refresh Now
           </button>

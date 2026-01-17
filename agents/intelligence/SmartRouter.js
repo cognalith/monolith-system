@@ -1,13 +1,17 @@
 /**
  * MONOLITH OS - Smart Router
  * Intelligent task routing based on context, capability, and load
+ * Persists learnings to database for continuous improvement
  *
  * Features:
  * - Route tasks to best-fit agents
  * - Load balancing across agents
  * - Priority-aware scheduling
  * - Learn from routing outcomes
+ * - Persist learnings to database
  */
+
+import databaseService from '../services/DatabaseService.js';
 
 class SmartRouter {
   constructor(config = {}) {
@@ -17,8 +21,14 @@ class SmartRouter {
     this.routingRules = new Map();
     this.learnings = new Map();
 
+    // Database service
+    this.dbService = config.dbService || databaseService;
+
     // Initialize default routing rules
     this.initializeDefaultRules();
+
+    // Load learnings from database on startup
+    this.loadLearningsFromDb();
   }
 
   /**
@@ -64,6 +74,33 @@ class SmartRouter {
       MEDIUM: { preferSenior: false },
       LOW: { preferSenior: false, allowDelegate: true },
     });
+  }
+
+  /**
+   * Load learnings from database
+   */
+  async loadLearningsFromDb() {
+    if (!this.dbService.isAvailable()) {
+      console.log('[SMART-ROUTER] Database unavailable, using in-memory learnings');
+      return;
+    }
+
+    try {
+      const { data, error } = await this.dbService.getLearningStats();
+
+      if (!error && data) {
+        for (const [key, stats] of Object.entries(data)) {
+          this.learnings.set(key, {
+            total: stats.total,
+            success: stats.success,
+            successRate: stats.successRate,
+          });
+        }
+        console.log(`[SMART-ROUTER] Loaded ${Object.keys(data).length} learning entries from database`);
+      }
+    } catch (error) {
+      console.warn('[SMART-ROUTER] Failed to load learnings from database:', error.message);
+    }
   }
 
   /**
@@ -298,15 +335,15 @@ class SmartRouter {
   }
 
   /**
-   * Record routing outcome
+   * Record routing outcome and persist to database
    */
-  recordOutcome(taskId, outcome) {
+  async recordOutcome(taskId, outcome) {
     const routing = this.routingHistory.find(r => r.taskId === taskId);
     if (!routing) return;
 
     routing.outcome = outcome;
 
-    // Update learnings
+    // Update in-memory learnings
     const learningKey = `${routing.primaryAgent}_${routing.analysis.taskType}`;
     if (!this.learnings.has(learningKey)) {
       this.learnings.set(learningKey, {
@@ -322,6 +359,90 @@ class SmartRouter {
       learning.success++;
     }
     learning.successRate = learning.success / learning.total;
+
+    // Persist to database
+    if (this.dbService.isAvailable()) {
+      await this.persistLearning(routing, outcome);
+    }
+  }
+
+  /**
+   * Persist learning to database
+   */
+  async persistLearning(routing, outcome) {
+    if (!this.dbService.isAvailable()) {
+      return { success: false, error: 'Database unavailable' };
+    }
+
+    const learningKey = `${routing.primaryAgent}_${routing.analysis.taskType}`;
+    const learning = this.learnings.get(learningKey);
+
+    const { data, error } = await this.dbService.saveLearning({
+      role_id: routing.primaryAgent,
+      task_type: routing.analysis.taskType,
+      context: {
+        taskId: routing.taskId,
+        analysis: routing.analysis,
+        confidence: routing.confidence,
+        alternates: routing.alternateAgents,
+      },
+      outcome: {
+        success: outcome.success,
+        details: outcome,
+        routing_reasoning: routing.reasoning,
+      },
+      success: outcome.success,
+      success_rate: learning?.successRate || (outcome.success ? 1 : 0),
+      total_count: learning?.total || 1,
+      success_count: learning?.success || (outcome.success ? 1 : 0),
+      metadata: {
+        routing_factors: routing.analysis,
+        recorded_at: new Date().toISOString(),
+      },
+    });
+
+    if (error) {
+      console.warn('[SMART-ROUTER] Failed to persist learning:', error.message);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  }
+
+  /**
+   * Update learning stats in database (batch update)
+   */
+  async syncLearningsToDb() {
+    if (!this.dbService.isAvailable()) {
+      console.warn('[SMART-ROUTER] Database unavailable for sync');
+      return { synced: 0, errors: 0 };
+    }
+
+    let synced = 0;
+    let errors = 0;
+
+    for (const [key, learning] of this.learnings) {
+      const [roleId, taskType] = key.split('_');
+
+      const { error } = await this.dbService.saveLearning({
+        role_id: roleId,
+        task_type: taskType,
+        context: {},
+        outcome: { aggregated: true },
+        success_rate: learning.successRate,
+        total_count: learning.total,
+        success_count: learning.success,
+      });
+
+      if (error) {
+        errors++;
+      } else {
+        synced++;
+      }
+    }
+
+    console.log(`[SMART-ROUTER] Synced ${synced} learnings, ${errors} errors`);
+    return { synced, errors };
   }
 
   /**
@@ -335,9 +456,10 @@ class SmartRouter {
   /**
    * Get routing statistics
    */
-  getStats() {
+  async getStats() {
     const roleStats = {};
 
+    // Combine in-memory routing history
     for (const routing of this.routingHistory) {
       const role = routing.primaryAgent;
       if (!roleStats[role]) {
@@ -355,12 +477,47 @@ class SmartRouter {
       stats.successRate = stats.routed > 0 ? stats.successful / stats.routed : 0;
     }
 
+    // Get database learnings if available
+    let dbLearnings = {};
+    if (this.dbService.isAvailable()) {
+      const { data } = await this.dbService.getLearningStats();
+      if (data) {
+        dbLearnings = data;
+      }
+    }
+
     return {
       totalRoutings: this.routingHistory.length,
       byRole: roleStats,
       currentLoad: Object.fromEntries(this.agentLoad),
       learnings: Object.fromEntries(this.learnings),
+      dbLearnings,
+      databaseConnected: this.dbService.isAvailable(),
     };
+  }
+
+  /**
+   * Get learnings for a specific role
+   */
+  async getLearningsForRole(roleId, limit = 50) {
+    if (!this.dbService.isAvailable()) {
+      // Return in-memory learnings for this role
+      const roleLearnings = {};
+      for (const [key, learning] of this.learnings) {
+        if (key.startsWith(`${roleId}_`)) {
+          roleLearnings[key] = learning;
+        }
+      }
+      return roleLearnings;
+    }
+
+    const { data, error } = await this.dbService.getLearningsByRole(roleId, null, limit);
+    if (error) {
+      console.warn('[SMART-ROUTER] Failed to get learnings from database:', error.message);
+      return {};
+    }
+
+    return data;
   }
 
   /**
@@ -369,6 +526,13 @@ class SmartRouter {
   setCustomRule(keyword, roles) {
     const rules = this.routingRules.get('keyword');
     rules[keyword] = roles;
+  }
+
+  /**
+   * Check if database is connected
+   */
+  isUsingDatabase() {
+    return this.dbService.isAvailable();
   }
 }
 

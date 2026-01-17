@@ -31,6 +31,11 @@ class RoleAgent extends EventEmitter {
     this.llm = config.llmRouter || new LLMRouter();
     this.logger = config.decisionLogger || new DecisionLogger();
 
+    // Optional service integrations
+    this.gmailService = config.gmailService || null;
+    this.browserService = config.browserService || null;
+    this.mediaGenerationService = config.mediaGenerationService || null;
+
     // State
     this.isActive = false;
     this.currentTask = null;
@@ -39,7 +44,36 @@ class RoleAgent extends EventEmitter {
     console.log(`[AGENT] ${this.roleAbbr} agent initialized`);
   }
 
+  /**
+   * Get available capabilities based on injected services
+   */
+  get capabilities() {
+    const caps = [];
+    if (this.gmailService) {
+      caps.push('email:send', 'email:search', 'email:read');
+    }
+    if (this.browserService) {
+      caps.push('browser:navigate', 'browser:screenshot', 'browser:content', 'browser:form');
+    }
+    if (this.mediaGenerationService) {
+      caps.push('media:infographic', 'media:slides', 'media:video', 'media:podcast', 'media:social');
+    }
+    return caps;
+  }
+
+  /**
+   * Check if a specific capability is available
+   */
+  hasCapability(capability) {
+    return this.capabilities.includes(capability);
+  }
+
   buildSystemPrompt(config) {
+    // Build capabilities section if any services are available
+    const capabilitiesSection = this.capabilities.length > 0
+      ? `\n## Available Capabilities\nYou have access to the following service capabilities:\n${this.capabilities.map(c => `- ${c}`).join('\n')}\n\nYou can use these capabilities to:\n${this.gmailService ? '- Send, search, and read emails\n' : ''}${this.browserService ? '- Browse websites, take screenshots, extract web content, and fill web forms\n' : ''}${this.mediaGenerationService ? '- Generate infographics, presentations, videos, podcasts, and social media graphics\n' : ''}`
+      : '';
+
     return `You are the ${this.roleName} (${this.roleAbbr}) for MONOLITH OS, an AI-powered business operations system.
 
 ## Your Role
@@ -54,7 +88,7 @@ ${Object.entries(this.authorityLimits).map(([k, v]) => `- ${k}: ${v}`).join('\n'
 ## Reporting Structure
 - You report to: ${this.reportsTo.toUpperCase()}
 - Direct reports: ${this.directReports.length > 0 ? this.directReports.join(', ') : 'None'}
-
+${capabilitiesSection}
 ## Decision Guidelines
 1. Act within your authority limits
 2. Escalate to CEO when:
@@ -318,7 +352,217 @@ If CEO decision is required, explain why and provide your recommendation.`;
       lastActive: this.taskHistory.length > 0
         ? this.taskHistory[this.taskHistory.length - 1].completedAt
         : null,
+      capabilities: this.capabilities,
     };
+  }
+
+  // ============================================================
+  // Email Service Methods (require GmailService injection)
+  // ============================================================
+
+  /**
+   * Send an email via the Gmail service
+   * @param {string} to - Recipient email address
+   * @param {string} subject - Email subject
+   * @param {string} body - Email body content
+   * @param {Object} options - Optional settings (cc, bcc, attachments, etc.)
+   * @returns {Promise<Object>} Send result with message ID
+   */
+  async sendEmail(to, subject, body, options = {}) {
+    if (!this.gmailService) {
+      throw new Error(`[${this.roleAbbr}] Email capability not available - GmailService not configured`);
+    }
+    console.log(`[${this.roleAbbr}] Sending email to: ${to}`);
+    return this.gmailService.sendEmail({ to, subject, body, ...options });
+  }
+
+  /**
+   * Search emails via the Gmail service
+   * @param {string} query - Gmail search query
+   * @param {number} maxResults - Maximum number of results to return
+   * @returns {Promise<Array>} Array of matching email messages
+   */
+  async searchEmails(query, maxResults = 10) {
+    if (!this.gmailService) {
+      throw new Error(`[${this.roleAbbr}] Email capability not available - GmailService not configured`);
+    }
+    console.log(`[${this.roleAbbr}] Searching emails: ${query}`);
+    return this.gmailService.searchEmails(query, maxResults);
+  }
+
+  /**
+   * Read a specific email by message ID
+   * @param {string} messageId - The Gmail message ID
+   * @returns {Promise<Object>} Email content and metadata
+   */
+  async readEmail(messageId) {
+    if (!this.gmailService) {
+      throw new Error(`[${this.roleAbbr}] Email capability not available - GmailService not configured`);
+    }
+    console.log(`[${this.roleAbbr}] Reading email: ${messageId}`);
+    return this.gmailService.getEmail(messageId);
+  }
+
+  // ============================================================
+  // Browser Service Methods (require BrowserService injection)
+  // ============================================================
+
+  /**
+   * Navigate to a URL and return the page
+   * @param {string} url - The URL to navigate to
+   * @returns {Promise<Object>} Browser page object or navigation result
+   */
+  async browseUrl(url) {
+    if (!this.browserService) {
+      throw new Error(`[${this.roleAbbr}] Browser capability not available - BrowserService not configured`);
+    }
+    console.log(`[${this.roleAbbr}] Browsing URL: ${url}`);
+    return this.browserService.navigate(url);
+  }
+
+  /**
+   * Take a screenshot of the current page or specified URL
+   * @param {string} path - File path to save the screenshot
+   * @returns {Promise<string>} Path to the saved screenshot
+   */
+  async takeScreenshot(path) {
+    if (!this.browserService) {
+      throw new Error(`[${this.roleAbbr}] Browser capability not available - BrowserService not configured`);
+    }
+    console.log(`[${this.roleAbbr}] Taking screenshot: ${path}`);
+    return this.browserService.screenshot(path);
+  }
+
+  /**
+   * Navigate to a URL and extract its content in one call
+   * @param {string} url - The URL to fetch content from
+   * @returns {Promise<Object>} Page content including text, title, and metadata
+   */
+  async getWebContent(url) {
+    if (!this.browserService) {
+      throw new Error(`[${this.roleAbbr}] Browser capability not available - BrowserService not configured`);
+    }
+    console.log(`[${this.roleAbbr}] Getting web content: ${url}`);
+    await this.browserService.navigate(url);
+    return this.browserService.getContent();
+  }
+
+  /**
+   * Navigate to a URL and fill a form with provided field values
+   * @param {string} url - The URL containing the form
+   * @param {Object} fields - Key-value pairs of form field selectors and values
+   * @returns {Promise<Object>} Form submission result
+   */
+  async fillWebForm(url, fields) {
+    if (!this.browserService) {
+      throw new Error(`[${this.roleAbbr}] Browser capability not available - BrowserService not configured`);
+    }
+    console.log(`[${this.roleAbbr}] Filling web form at: ${url}`);
+    await this.browserService.navigate(url);
+    return this.browserService.fillForm(fields);
+  }
+
+  // ============================================================
+  // Media Generation Service Methods (require MediaGenerationService injection)
+  // ============================================================
+
+  /**
+   * Create any supported media type
+   * @param {string} type - Media type: 'infographic', 'slides', 'video', 'podcast', 'social'
+   * @param {string} content - Content/description for the media
+   * @param {Object} options - Options including brandKitId, title, sources
+   * @returns {Promise<Object>} Media generation result
+   */
+  async createMedia(type, content, options = {}) {
+    if (!this.mediaGenerationService) {
+      throw new Error(`[${this.roleAbbr}] Media generation not available - MediaGenerationService not configured`);
+    }
+    console.log(`[${this.roleAbbr}] Creating ${type}: ${content.substring(0, 50)}...`);
+    return this.mediaGenerationService.createMedia(type, content, options);
+  }
+
+  /**
+   * Create an infographic
+   * @param {string} content - Content/topic for the infographic
+   * @param {Object} options - Options including brandKitId
+   * @returns {Promise<Object>} Canva design request
+   */
+  async createInfographic(content, options = {}) {
+    if (!this.mediaGenerationService) {
+      throw new Error(`[${this.roleAbbr}] Media generation not available - MediaGenerationService not configured`);
+    }
+    console.log(`[${this.roleAbbr}] Creating infographic: ${content.substring(0, 50)}...`);
+    return this.mediaGenerationService.createInfographic(content, options);
+  }
+
+  /**
+   * Create a presentation/slide deck
+   * @param {string} content - Content/topic for the presentation
+   * @param {Object} options - Options including brandKitId, slideStructure
+   * @returns {Promise<Object>} Canva design request
+   */
+  async createSlides(content, options = {}) {
+    if (!this.mediaGenerationService) {
+      throw new Error(`[${this.roleAbbr}] Media generation not available - MediaGenerationService not configured`);
+    }
+    console.log(`[${this.roleAbbr}] Creating slides: ${content.substring(0, 50)}...`);
+    return this.mediaGenerationService.createSlides(content, options);
+  }
+
+  /**
+   * Create a video
+   * @param {string} content - Content/topic for the video
+   * @param {Object} options - Options including brandKitId
+   * @returns {Promise<Object>} Canva design request
+   */
+  async createVideo(content, options = {}) {
+    if (!this.mediaGenerationService) {
+      throw new Error(`[${this.roleAbbr}] Media generation not available - MediaGenerationService not configured`);
+    }
+    console.log(`[${this.roleAbbr}] Creating video: ${content.substring(0, 50)}...`);
+    return this.mediaGenerationService.createVideo(content, options);
+  }
+
+  /**
+   * Create a podcast via NotebookLM
+   * @param {string} content - Main content for the podcast
+   * @param {Object} options - Options including title, sources (URLs/text)
+   * @returns {Promise<Object>} Podcast generation result with share link
+   */
+  async createPodcast(content, options = {}) {
+    if (!this.mediaGenerationService) {
+      throw new Error(`[${this.roleAbbr}] Media generation not available - MediaGenerationService not configured`);
+    }
+    console.log(`[${this.roleAbbr}] Creating podcast: ${options.title || content.substring(0, 50)}...`);
+    return this.mediaGenerationService.createPodcast(content, options);
+  }
+
+  /**
+   * Create a social media graphic
+   * @param {string} content - Content/message for the graphic
+   * @param {Object} options - Options including brandKitId, platform
+   * @returns {Promise<Object>} Canva design request
+   */
+  async createSocialGraphic(content, options = {}) {
+    if (!this.mediaGenerationService) {
+      throw new Error(`[${this.roleAbbr}] Media generation not available - MediaGenerationService not configured`);
+    }
+    console.log(`[${this.roleAbbr}] Creating social graphic: ${content.substring(0, 50)}...`);
+    return this.mediaGenerationService.createSocialGraphic(content, options);
+  }
+
+  /**
+   * Create a full media kit for a product
+   * @param {Object} product - Product info with name, brief, features, benefits
+   * @param {Object} options - Options including brandKitId, types
+   * @returns {Promise<Object>} Batch media generation results
+   */
+  async createProductMediaKit(product, options = {}) {
+    if (!this.mediaGenerationService) {
+      throw new Error(`[${this.roleAbbr}] Media generation not available - MediaGenerationService not configured`);
+    }
+    console.log(`[${this.roleAbbr}] Creating media kit for: ${product.name}`);
+    return this.mediaGenerationService.batchCreateProductKit(product, options);
   }
 }
 

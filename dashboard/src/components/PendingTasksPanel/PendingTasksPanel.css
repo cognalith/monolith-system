@@ -17,16 +17,18 @@
 
 /* Main Panel */
 .pending-tasks-panel {
-  background: #1a1a1a;
-  border: 1px solid #00ff88;
-  border-radius: 4px;
+  background: var(--glass-base);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
   width: 90%;
   max-width: 900px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
-  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
+  font-family: var(--font-code);
 }
 
 /* Header */
@@ -43,7 +45,7 @@
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: #00ff88;
+  color: var(--neon-cyan);
   letter-spacing: 1px;
 }
 
@@ -76,7 +78,7 @@
 }
 
 .sort-select:hover {
-  border-color: #00ff88;
+  border-color: var(--neon-cyan);
 }
 
 .close-btn {
@@ -90,7 +92,7 @@
 }
 
 .close-btn:hover {
-  color: #ff4444;
+  color: var(--neon-crimson);
 }
 
 /* Role Filter */
@@ -117,13 +119,13 @@
 }
 
 .filter-btn:hover {
-  border-color: #00ff88;
-  color: #00ff88;
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
 }
 
 .filter-btn.active {
-  background: #00ff88;
-  border-color: #00ff88;
+  background: var(--neon-cyan);
+  border-color: var(--neon-cyan);
   color: #000;
   font-weight: 600;
 }
@@ -151,7 +153,7 @@
   width: 32px;
   height: 32px;
   border: 3px solid #333;
-  border-top-color: #00ff88;
+  border-top-color: var(--neon-cyan);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -167,7 +169,7 @@
   align-items: center;
   justify-content: center;
   height: 200px;
-  color: #ff4444;
+  color: var(--neon-crimson);
   gap: 12px;
 }
 
@@ -176,7 +178,7 @@
 }
 
 .error-state button {
-  background: #ff4444;
+  background: var(--neon-crimson);
   border: none;
   color: #fff;
   padding: 8px 16px;
@@ -218,8 +220,8 @@
 }
 
 .task-card.expanded {
-  background: rgba(0, 255, 136, 0.05);
-  border-left: 3px solid #00ff88;
+  background: rgba(0, 240, 255, 0.05);
+  border-left: 3px solid var(--neon-cyan);
 }
 
 .task-card-header {
@@ -243,7 +245,7 @@
 }
 
 .task-expand-indicator .chevron.expanded {
-  color: #00ff88;
+  color: var(--neon-cyan);
 }
 
 .task-priority {
@@ -289,11 +291,11 @@
 }
 
 .task-workflow {
-  color: #00ff88;
+  color: var(--neon-cyan);
 }
 
 .task-age {
-  color: #ffaa00;
+  color: var(--neon-amber);
 }
 
 /* Task Expanded Details */
@@ -346,7 +348,7 @@
 .task-step-checkbox {
   width: 16px;
   height: 16px;
-  accent-color: #00ff88;
+  accent-color: var(--neon-cyan);
   cursor: default;
 }
 
@@ -406,7 +408,7 @@
 
 .dependency-item.blocks {
   background: rgba(255, 170, 0, 0.2);
-  color: #ffaa00;
+  color: var(--neon-amber);
 }
 
 /* Task Actions */
@@ -432,7 +434,7 @@
 }
 
 .btn-complete {
-  background: #00ff88;
+  background: var(--neon-cyan);
   color: #000;
 }
 
@@ -483,14 +485,14 @@
 }
 
 .action-feedback.success {
-  background: rgba(0, 255, 136, 0.2);
-  color: #00ff88;
-  border: 1px solid rgba(0, 255, 136, 0.3);
+  background: rgba(0, 240, 255, 0.2);
+  color: var(--neon-cyan);
+  border: 1px solid rgba(0, 240, 255, 0.3);
 }
 
 .action-feedback.error {
   background: rgba(255, 68, 68, 0.2);
-  color: #ff4444;
+  color: var(--neon-crimson);
   border: 1px solid rgba(255, 68, 68, 0.3);
 }
 
@@ -512,7 +514,7 @@
 .refresh-btn {
   background: #222;
   border: 1px solid #333;
-  color: #00ff88;
+  color: var(--neon-cyan);
   padding: 8px 16px;
   border-radius: 4px;
   font-size: 12px;
@@ -522,7 +524,7 @@
 }
 
 .refresh-btn:hover {
-  background: #00ff88;
+  background: var(--neon-cyan);
   color: #000;
 }
 
@@ -719,12 +721,12 @@
 }
 
 .status-dot.live {
-  background: #00ff88;
-  box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+  background: var(--neon-cyan);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
 }
 
 .status-dot.connecting {
-  background: #ffaa00;
+  background: var(--neon-amber);
   box-shadow: 0 0 8px rgba(255, 170, 0, 0.6);
   animation: blink 1s ease-in-out infinite;
 }
@@ -739,11 +741,11 @@
 }
 
 .agent-service-status:has(.status-dot.live) .status-text {
-  color: #00ff88;
+  color: var(--neon-cyan);
 }
 
 .agent-service-status:has(.status-dot.connecting) .status-text {
-  color: #ffaa00;
+  color: var(--neon-amber);
 }
 
 @keyframes pulse {

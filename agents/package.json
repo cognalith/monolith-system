@@ -1,12 +1,21 @@
 {
   "name": "agents",
   "version": "1.0.0",
-  "description": "",
+  "description": "MONOLITH OS - Autonomous Agent System",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "server": "node server.js",
+    "server:dev": "node --watch server.js",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage"
   },
-  "keywords": [],
+  "keywords": [
+    "agents",
+    "ai",
+    "automation"
+  ],
   "author": "",
   "license": "ISC",
   "type": "module",
@@ -16,7 +25,15 @@
     "@sendgrid/mail": "^8.1.6",
     "@supabase/supabase-js": "^2.90.1",
     "dotenv": "^17.2.3",
+    "googleapis": "^144.0.0",
     "openai": "^6.16.0",
-    "resend": "^6.7.0"
+    "playwright": "^1.57.0",
+    "redis": "^4.7.0",
+    "resend": "^6.7.0",
+    "winston": "^3.17.0",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

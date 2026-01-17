@@ -313,6 +313,270 @@ ${JSON.stringify(requirements, null, 2)}
 
     return task.assigned_role === this.roleId;
   }
+
+  // ==========================================
+  // EMAIL & BROWSER INTEGRATION METHODS
+  // ==========================================
+
+  /**
+   * Check monitoring dashboard and capture current status
+   * @param {string} url - Monitoring dashboard URL (e.g., Grafana, Datadog)
+   * @returns {Promise<Object>} Dashboard status with metrics and screenshot
+   */
+  async checkMonitoringDashboard(url) {
+    console.log(`[DevOps] Checking monitoring dashboard: ${url}`);
+
+    // Navigate to the monitoring dashboard
+    const browseResult = await this.browseUrl(url);
+
+    if (!browseResult.success) {
+      return {
+        success: false,
+        error: browseResult.error,
+        url,
+      };
+    }
+
+    // Take a screenshot for records/evidence
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const screenshotPath = `screenshots/monitoring-${timestamp}.png`;
+    const screenshot = await this.takeScreenshot(screenshotPath);
+
+    // Get page content to extract metrics
+    const contentResult = await this.getWebContent(url);
+
+    // Analyze the monitoring data
+    const analysisPrompt = `Analyze this monitoring dashboard and provide a status report.
+
+## Dashboard URL: ${url}
+## Page Content:
+${(contentResult.content || '').substring(0, 5000)}
+
+## Analysis Required:
+1. **System Health**: Overall system status (Healthy/Degraded/Critical)
+2. **Key Metrics**:
+   - CPU/Memory utilization
+   - Response times
+   - Error rates
+   - Throughput
+3. **Alerts**: Any active alerts or warnings
+4. **Anomalies**: Unusual patterns or spikes
+5. **Services Status**: Status of individual services
+6. **Recommendations**: Any actions needed
+
+Provide a structured status report suitable for operations review.`;
+
+    const analysis = await this.llm.complete({
+      modelId: 'claude-sonnet-4',
+      systemPrompt: this.systemPrompt,
+      userMessage: analysisPrompt,
+      temperature: 0.3,
+    });
+
+    return {
+      success: true,
+      url,
+      title: browseResult.title || contentResult.title,
+      screenshot: screenshot.success ? screenshot.path : null,
+      status: analysis.content,
+      checkedAt: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Send incident alert emails to on-call team
+   * @param {string[]} recipients - List of on-call team email addresses
+   * @param {Object} incident - Incident details
+   * @returns {Promise<Object>} Email send results
+   */
+  async alertOnIncident(recipients, incident) {
+    const {
+      id = `INC-${Date.now()}`,
+      severity = 'P2',
+      title,
+      description,
+      affectedServices = [],
+      startTime = new Date().toISOString(),
+      currentStatus = 'Investigating',
+    } = incident;
+
+    // Determine severity styling
+    const severityColors = {
+      P1: { bg: '#c53030', label: 'CRITICAL' },
+      P2: { bg: '#dd6b20', label: 'HIGH' },
+      P3: { bg: '#d69e2e', label: 'MEDIUM' },
+      P4: { bg: '#3182ce', label: 'LOW' },
+    };
+
+    const sevStyle = severityColors[severity] || severityColors.P3;
+
+    const subject = `[${sevStyle.label}] ${severity} Incident: ${title} - ${id}`;
+
+    const htmlBody = `
+<html>
+<body style="font-family: 'Consolas', 'Monaco', monospace; max-width: 700px; margin: 0 auto; background: #1a202c; color: #e2e8f0; padding: 20px;">
+  <div style="background: ${sevStyle.bg}; color: white; padding: 15px; border-radius: 4px 4px 0 0;">
+    <h1 style="margin: 0; font-size: 18px;">
+      ${sevStyle.label} INCIDENT ALERT
+    </h1>
+  </div>
+
+  <div style="background: #2d3748; padding: 20px; border-radius: 0 0 4px 4px;">
+    <table style="width: 100%; color: #e2e8f0; font-size: 14px;">
+      <tr>
+        <td style="padding: 8px 0; color: #a0aec0;">Incident ID:</td>
+        <td style="padding: 8px 0; font-weight: bold;">${id}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: #a0aec0;">Severity:</td>
+        <td style="padding: 8px 0;"><span style="background: ${sevStyle.bg}; color: white; padding: 2px 8px; border-radius: 3px;">${severity}</span></td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: #a0aec0;">Status:</td>
+        <td style="padding: 8px 0;">${currentStatus}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: #a0aec0;">Start Time:</td>
+        <td style="padding: 8px 0;">${startTime}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: #a0aec0;">Affected:</td>
+        <td style="padding: 8px 0;">${affectedServices.join(', ') || 'TBD'}</td>
+      </tr>
+    </table>
+
+    <div style="margin-top: 20px; padding: 15px; background: #1a202c; border-radius: 4px;">
+      <h3 style="margin: 0 0 10px 0; color: #e2e8f0; font-size: 14px;">Description:</h3>
+      <p style="margin: 0; color: #a0aec0; white-space: pre-wrap;">${description || 'Under investigation'}</p>
+    </div>
+
+    <div style="margin-top: 20px; padding: 15px; background: #744210; border-radius: 4px;">
+      <p style="margin: 0; color: #fefcbf; font-size: 12px;">
+        <strong>ACTION REQUIRED:</strong> Please acknowledge this incident and join the incident channel immediately.
+      </p>
+    </div>
+  </div>
+
+  <p style="color: #718096; font-size: 11px; margin-top: 20px; text-align: center;">
+    Sent by MONOLITH OS DevOps Agent | ${new Date().toISOString()}
+  </p>
+</body>
+</html>`;
+
+    const results = [];
+    for (const recipient of recipients) {
+      const result = await this.sendEmail(recipient, subject, htmlBody, { isHtml: true });
+      results.push({ recipient, ...result });
+    }
+
+    // Track incident internally
+    this.incidents.push({
+      id,
+      severity,
+      title,
+      description,
+      affectedServices,
+      startTime,
+      notifiedAt: new Date().toISOString(),
+      recipients,
+    });
+
+    return {
+      success: results.every(r => r.success),
+      incidentId: id,
+      severity,
+      notified: results.filter(r => r.success).length,
+      failed: results.filter(r => !r.success).length,
+      results,
+      sentAt: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Verify a deployment by checking if the URL is live and responding
+   * @param {string} url - Deployment URL to verify
+   * @returns {Promise<Object>} Verification result with status and screenshot
+   */
+  async verifyDeployment(url) {
+    console.log(`[DevOps] Verifying deployment at: ${url}`);
+
+    const startTime = Date.now();
+
+    // Navigate to the deployment URL
+    const browseResult = await this.browseUrl(url);
+
+    const responseTime = Date.now() - startTime;
+
+    if (!browseResult.success) {
+      return {
+        success: false,
+        isLive: false,
+        url,
+        error: browseResult.error,
+        responseTime,
+        verifiedAt: new Date().toISOString(),
+      };
+    }
+
+    // Take a screenshot as evidence
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const screenshotPath = `screenshots/deployment-verify-${timestamp}.png`;
+    const screenshot = await this.takeScreenshot(screenshotPath);
+
+    // Get page content for validation
+    const contentResult = await this.getWebContent(url);
+
+    // Analyze if deployment looks healthy
+    const healthCheckPrompt = `Analyze this deployed application to verify it's working correctly.
+
+## URL: ${url}
+## HTTP Status: ${browseResult.status || 200}
+## Response Time: ${responseTime}ms
+## Page Title: ${browseResult.title || contentResult.title}
+## Page Content:
+${(contentResult.content || '').substring(0, 3000)}
+
+## Verification Checks:
+1. Is the page loading correctly (not an error page)?
+2. Are there any visible errors or warnings?
+3. Does the content look like the expected application?
+4. Is the response time acceptable (<3000ms)?
+5. Any signs of deployment issues?
+
+Provide a brief verification report with:
+- Status: HEALTHY | DEGRADED | FAILED
+- Issues found (if any)
+- Recommendations`;
+
+    const analysis = await this.llm.complete({
+      modelId: 'claude-haiku',
+      systemPrompt: this.systemPrompt,
+      userMessage: healthCheckPrompt,
+      temperature: 0.2,
+    });
+
+    // Determine overall status
+    const isHealthy = analysis.content.toLowerCase().includes('status: healthy');
+    const isDegraded = analysis.content.toLowerCase().includes('status: degraded');
+
+    // Track deployment verification
+    const verification = {
+      url,
+      isLive: true,
+      status: isHealthy ? 'HEALTHY' : isDegraded ? 'DEGRADED' : 'FAILED',
+      responseTime,
+      screenshot: screenshot.success ? screenshot.path : null,
+      analysis: analysis.content,
+      verifiedAt: new Date().toISOString(),
+    };
+
+    this.deployments.push(verification);
+
+    return {
+      success: true,
+      ...verification,
+    };
+  }
 }
 
 export default DevOpsAgent;

@@ -1,49 +1,34 @@
 /**
  * MONOLITH OS - Decision Logger
  * Audit trail for all agent decisions
- * Supports Supabase, file-based, and in-memory logging
+ * Uses DatabaseService as primary storage with file fallback
  */
 
-import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
+import databaseService from '../services/DatabaseService.js';
 
 class DecisionLogger {
   constructor(config = {}) {
-    this.mode = config.mode || 'memory'; // 'supabase', 'file', 'memory'
-    this.decisions = []; // In-memory store
-    this.supabase = null;
+    this.decisions = []; // In-memory cache for quick access
     this.logFile = config.logFile || './logs/decisions.jsonl';
+    this.maxInMemory = config.maxInMemory || 1000; // Limit in-memory cache size
+    this.dbService = config.dbService || databaseService;
 
-    this.initialize(config);
+    this.initialize();
   }
 
-  initialize(config) {
-    // Try Supabase first
-    const supabaseUrl = config.supabaseUrl || process.env.SUPABASE_URL;
-    const supabaseKey = config.supabaseKey || process.env.SUPABASE_ANON_KEY;
-
-    if (supabaseUrl && supabaseKey) {
-      try {
-        this.supabase = createClient(supabaseUrl, supabaseKey);
-        this.mode = 'supabase';
-        console.log('[DECISION-LOGGER] Using Supabase storage');
-      } catch (error) {
-        console.warn('[DECISION-LOGGER] Supabase init failed, falling back to file');
-      }
+  initialize() {
+    // Ensure log directory exists for file fallback
+    const logDir = path.dirname(this.logFile);
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
     }
 
-    // Ensure log directory exists for file mode
-    if (this.mode === 'file') {
-      const logDir = path.dirname(this.logFile);
-      if (!fs.existsSync(logDir)) {
-        fs.mkdirSync(logDir, { recursive: true });
-      }
-      console.log('[DECISION-LOGGER] Using file storage:', this.logFile);
-    }
-
-    if (this.mode === 'memory') {
-      console.log('[DECISION-LOGGER] Using in-memory storage');
+    if (this.dbService.isAvailable()) {
+      console.log('[DECISION-LOGGER] Using DatabaseService as primary storage');
+    } else {
+      console.log('[DECISION-LOGGER] DatabaseService unavailable, using file storage');
     }
   }
 
@@ -57,56 +42,51 @@ class DecisionLogger {
       logged_at: new Date().toISOString(),
     };
 
-    // Always store in memory for quick access
+    // Always store in memory for quick access (with limit)
     this.decisions.push(entry);
+    if (this.decisions.length > this.maxInMemory) {
+      this.decisions = this.decisions.slice(-this.maxInMemory);
+    }
 
-    // Persist based on mode
-    switch (this.mode) {
-      case 'supabase':
-        await this.logToSupabase(entry);
-        break;
-      case 'file':
+    // Try database first
+    if (this.dbService.isAvailable()) {
+      const { data, error } = await this.dbService.logDecision({
+        task_id: entry.taskId,
+        role_id: entry.role,
+        role_name: entry.roleName,
+        decision: entry.decision,
+        action: entry.action,
+        reasoning: entry.reasoning,
+        escalated: entry.escalated || false,
+        escalate_reason: entry.escalateReason,
+        handoff: entry.handoff,
+        model_used: entry.model,
+        tokens: entry.tokens || 0,
+        latency_ms: entry.latencyMs || 0,
+        cost: entry.cost || 0,
+        confidence: entry.confidence,
+        metadata: entry.metadata || {},
+        timestamp: entry.timestamp || entry.logged_at,
+      });
+
+      if (error) {
+        console.warn('[DECISION-LOGGER] Database error, falling back to file:', error.message);
         this.logToFile(entry);
-        break;
-      // 'memory' - already stored above
+      } else if (data) {
+        entry.dbId = data.id; // Store database ID
+      }
+    } else {
+      // Fall back to file
+      this.logToFile(entry);
     }
 
     console.log(`[DECISION-LOGGER] Logged: ${entry.id} by ${entry.role}`);
     return entry.id;
   }
 
-  async logToSupabase(entry) {
-    try {
-      const { error } = await this.supabase
-        .from('agent_decisions')
-        .insert([{
-          id: entry.id,
-          task_id: entry.taskId,
-          role: entry.role,
-          role_name: entry.roleName,
-          decision: entry.decision,
-          action: entry.action,
-          escalated: entry.escalated,
-          escalate_reason: entry.escalateReason,
-          handoff: entry.handoff,
-          model: entry.model,
-          tokens: entry.tokens,
-          latency_ms: entry.latencyMs,
-          timestamp: entry.timestamp,
-          logged_at: entry.logged_at,
-        }]);
-
-      if (error) {
-        console.error('[DECISION-LOGGER] Supabase error:', error.message);
-        // Fallback to file
-        this.logToFile(entry);
-      }
-    } catch (error) {
-      console.error('[DECISION-LOGGER] Supabase error:', error.message);
-      this.logToFile(entry);
-    }
-  }
-
+  /**
+   * Log to file (fallback)
+   */
   logToFile(entry) {
     try {
       const line = JSON.stringify(entry) + '\n';
@@ -120,39 +100,28 @@ class DecisionLogger {
    * Get recent decisions
    */
   async getRecent(limit = 50, filters = {}) {
-    if (this.mode === 'supabase' && this.supabase) {
-      try {
-        let query = this.supabase
-          .from('agent_decisions')
-          .select('*')
-          .order('logged_at', { ascending: false })
-          .limit(limit);
+    // Try database first
+    if (this.dbService.isAvailable()) {
+      const { data, error } = await this.dbService.getRecentDecisions(limit, {
+        role: filters.role,
+        task_id: filters.taskId,
+        escalated: filters.escalated,
+      });
 
-        if (filters.role) {
-          query = query.eq('role', filters.role);
-        }
-        if (filters.taskId) {
-          query = query.eq('task_id', filters.taskId);
-        }
-        if (filters.escalated !== undefined) {
-          query = query.eq('escalated', filters.escalated);
-        }
-
-        const { data, error } = await query;
-        if (!error) return data;
-      } catch (error) {
-        console.error('[DECISION-LOGGER] Supabase query error:', error.message);
+      if (!error && data) {
+        return data;
       }
+      console.warn('[DECISION-LOGGER] Database query error, using in-memory cache');
     }
 
-    // Fallback to in-memory
+    // Fall back to in-memory
     let results = [...this.decisions].reverse();
 
     if (filters.role) {
-      results = results.filter((d) => d.role === filters.role);
+      results = results.filter((d) => d.role === filters.role || d.role_id === filters.role);
     }
     if (filters.taskId) {
-      results = results.filter((d) => d.taskId === filters.taskId);
+      results = results.filter((d) => d.taskId === filters.taskId || d.task_id === filters.taskId);
     }
     if (filters.escalated !== undefined) {
       results = results.filter((d) => d.escalated === filters.escalated);
@@ -172,6 +141,15 @@ class DecisionLogger {
    * Get decisions by role
    */
   async getByRole(role, limit = 50) {
+    // Try database first
+    if (this.dbService.isAvailable()) {
+      const { data, error } = await this.dbService.getDecisionsByRole(role, limit);
+      if (!error && data) {
+        return data;
+      }
+    }
+
+    // Fall back to in-memory
     return this.getRecent(limit, { role });
   }
 
@@ -179,54 +157,110 @@ class DecisionLogger {
    * Get decision by ID
    */
   async getById(id) {
-    if (this.mode === 'supabase' && this.supabase) {
-      const { data, error } = await this.supabase
-        .from('agent_decisions')
+    // Try database first
+    if (this.dbService.isAvailable()) {
+      const { data, error } = await this.dbService.supabase
+        .from('decisions')
         .select('*')
         .eq('id', id)
         .single();
 
-      if (!error) return data;
+      if (!error && data) {
+        return data;
+      }
     }
 
-    return this.decisions.find((d) => d.id === id);
+    // Fall back to in-memory
+    return this.decisions.find((d) => d.id === id || d.dbId === id);
+  }
+
+  /**
+   * Get decisions by task
+   */
+  async getByTask(taskId) {
+    // Try database first
+    if (this.dbService.isAvailable()) {
+      const { data, error } = await this.dbService.getDecisionsByTask(taskId);
+      if (!error && data) {
+        return data;
+      }
+    }
+
+    // Fall back to in-memory
+    return this.decisions.filter((d) => d.taskId === taskId || d.task_id === taskId);
   }
 
   /**
    * Get statistics
    */
   async getStats(since = null) {
+    // Try to get stats from database
+    if (this.dbService.isAvailable()) {
+      const sinceDate = since ? new Date(since) : new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+      const { data: decisions, error } = await this.dbService.supabase
+        .from('decisions')
+        .select('role_id, model_used, escalated, tokens, latency_ms, cost')
+        .gte('timestamp', sinceDate.toISOString());
+
+      if (!error && decisions) {
+        return this.calculateStats(decisions.map(d => ({
+          role: d.role_id,
+          model: d.model_used,
+          escalated: d.escalated,
+          tokens: d.tokens,
+          latencyMs: d.latency_ms,
+          cost: d.cost,
+        })));
+      }
+    }
+
+    // Fall back to in-memory
     const decisions = since
       ? this.decisions.filter((d) => new Date(d.logged_at) >= new Date(since))
       : this.decisions;
 
+    return this.calculateStats(decisions);
+  }
+
+  /**
+   * Calculate stats from decision array
+   */
+  calculateStats(decisions) {
     const stats = {
       total: decisions.length,
       escalated: decisions.filter((d) => d.escalated).length,
       byRole: {},
       byModel: {},
       totalTokens: 0,
+      totalCost: 0,
       avgLatencyMs: 0,
     };
 
     let totalLatency = 0;
 
     for (const d of decisions) {
+      const role = d.role || d.role_id;
+      const model = d.model || d.model_used;
+
       // By role
-      if (!stats.byRole[d.role]) {
-        stats.byRole[d.role] = { total: 0, escalated: 0 };
+      if (role) {
+        if (!stats.byRole[role]) {
+          stats.byRole[role] = { total: 0, escalated: 0 };
+        }
+        stats.byRole[role].total++;
+        if (d.escalated) stats.byRole[role].escalated++;
       }
-      stats.byRole[d.role].total++;
-      if (d.escalated) stats.byRole[d.role].escalated++;
 
       // By model
-      if (d.model) {
-        stats.byModel[d.model] = (stats.byModel[d.model] || 0) + 1;
+      if (model) {
+        stats.byModel[model] = (stats.byModel[model] || 0) + 1;
       }
 
-      // Tokens & latency
+      // Tokens, latency, cost
       stats.totalTokens += d.tokens || 0;
-      totalLatency += d.latencyMs || 0;
+      stats.totalCost += d.cost || 0;
+      totalLatency += d.latencyMs || d.latency_ms || 0;
     }
 
     stats.avgLatencyMs = decisions.length > 0 ? Math.round(totalLatency / decisions.length) : 0;
@@ -247,7 +281,10 @@ class DecisionLogger {
       const lines = [headers.join(',')];
 
       for (const d of decisions) {
-        lines.push(headers.map((h) => JSON.stringify(d[h] || '')).join(','));
+        lines.push(headers.map((h) => {
+          const value = d[h] || d[h.replace('_', '')] || '';
+          return JSON.stringify(value);
+        }).join(','));
       }
 
       fs.writeFileSync(filepath, lines.join('\n'));
@@ -257,10 +294,67 @@ class DecisionLogger {
   }
 
   /**
+   * Sync file-based decisions to database (utility method)
+   */
+  async syncToDatabase() {
+    if (!this.dbService.isAvailable()) {
+      console.warn('[DECISION-LOGGER] Database not available for sync');
+      return { synced: 0, errors: 0 };
+    }
+
+    if (!fs.existsSync(this.logFile)) {
+      return { synced: 0, errors: 0 };
+    }
+
+    const content = fs.readFileSync(this.logFile, 'utf-8');
+    const lines = content.trim().split('\n').filter(l => l);
+
+    let synced = 0;
+    let errors = 0;
+
+    for (const line of lines) {
+      try {
+        const entry = JSON.parse(line);
+        const { error } = await this.dbService.logDecision({
+          task_id: entry.taskId,
+          role_id: entry.role,
+          role_name: entry.roleName,
+          decision: entry.decision,
+          action: entry.action,
+          escalated: entry.escalated || false,
+          escalate_reason: entry.escalateReason,
+          model_used: entry.model,
+          tokens: entry.tokens || 0,
+          latency_ms: entry.latencyMs || 0,
+          timestamp: entry.timestamp || entry.logged_at,
+        });
+
+        if (error) {
+          errors++;
+        } else {
+          synced++;
+        }
+      } catch (e) {
+        errors++;
+      }
+    }
+
+    console.log(`[DECISION-LOGGER] Synced ${synced} decisions, ${errors} errors`);
+    return { synced, errors };
+  }
+
+  /**
    * Clear in-memory decisions (for testing)
    */
   clear() {
     this.decisions = [];
+  }
+
+  /**
+   * Check if database is being used
+   */
+  isUsingDatabase() {
+    return this.dbService.isAvailable();
   }
 }
 

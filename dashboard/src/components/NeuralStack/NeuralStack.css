@@ -1,0 +1,1210 @@
+/**
+ * NEURAL STACK DASHBOARD STYLES - Phase 5D
+ * Cognalith Inc. | Monolith System
+ *
+ * Bloomberg terminal aesthetic with Monolith dark theme
+ */
+
+/* ============================================================================
+   BASE STYLES
+   ============================================================================ */
+
+.neural-stack-container {
+  background: linear-gradient(180deg, #0a0a0f 0%, #0d0d14 100%);
+  min-height: 100vh;
+  color: #e0e0e0;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.neural-stack-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+  background: rgba(10, 10, 15, 0.8);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.neural-stack-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #00ff88;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.neural-stack-grid {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* ============================================================================
+   AGENT HEALTH GRID
+   ============================================================================ */
+
+.agent-health-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.agent-card {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.agent-card:hover {
+  border-color: rgba(0, 255, 136, 0.4);
+  background: rgba(26, 26, 46, 0.8);
+  transform: translateY(-2px);
+}
+
+.agent-card.status-healthy {
+  border-left: 3px solid #00ff88;
+}
+
+.agent-card.status-attention {
+  border-left: 3px solid #ffaa00;
+}
+
+.agent-card.status-declining {
+  border-left: 3px solid #ff4444;
+}
+
+.agent-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.agent-role {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.agent-status-indicator {
+  font-size: 1rem;
+}
+
+.agent-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.agent-metric {
+  display: flex;
+  flex-direction: column;
+}
+
+.agent-metric-label {
+  color: #888;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.agent-metric-value {
+  color: #e0e0e0;
+  font-weight: 500;
+}
+
+.agent-metric-value.positive {
+  color: #00ff88;
+}
+
+.agent-metric-value.negative {
+  color: #ff4444;
+}
+
+.agent-metric-value.warning {
+  color: #ffaa00;
+}
+
+.trend-arrow {
+  display: inline-block;
+  margin-left: 0.25rem;
+}
+
+.trend-arrow.improving {
+  color: #00ff88;
+}
+
+.trend-arrow.declining {
+  color: #ff4444;
+}
+
+.trend-arrow.stable {
+  color: #888;
+}
+
+/* ============================================================================
+   ESCALATION WIDGET
+   ============================================================================ */
+
+.escalation-widget {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(255, 170, 0, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.escalation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba(255, 170, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 170, 0, 0.2);
+}
+
+.escalation-title {
+  font-weight: 600;
+  color: #ffaa00;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.escalation-count {
+  background: #ffaa00;
+  color: #0a0a0f;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  min-width: 24px;
+  text-align: center;
+}
+
+.escalation-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.escalation-item {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s ease;
+}
+
+.escalation-item:hover {
+  background: rgba(255, 170, 0, 0.05);
+}
+
+.escalation-item:last-child {
+  border-bottom: none;
+}
+
+.escalation-tier {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.escalation-tier.tier-2 {
+  background: rgba(255, 170, 0, 0.2);
+  color: #ffaa00;
+}
+
+.escalation-tier.tier-3 {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+}
+
+.escalation-action {
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.escalation-vendor {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+}
+
+.escalation-cost {
+  font-weight: 600;
+  color: #00ff88;
+  font-size: 0.9rem;
+}
+
+.escalation-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.escalation-btn {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.escalation-btn.approve {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.escalation-btn.approve:hover {
+  background: rgba(0, 255, 136, 0.3);
+}
+
+.escalation-btn.deny {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.3);
+}
+
+.escalation-btn.deny:hover {
+  background: rgba(255, 68, 68, 0.3);
+}
+
+.monthly-spend {
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.monthly-spend-label {
+  font-size: 0.7rem;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.monthly-spend-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #00ff88;
+}
+
+/* ============================================================================
+   VARIANCE TREND CHART
+   ============================================================================ */
+
+.variance-chart-container {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.variance-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.variance-chart-title {
+  font-weight: 600;
+  color: #fff;
+}
+
+.variance-chart-trend {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.variance-chart-trend.improving {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+}
+
+.variance-chart-trend.stable {
+  background: rgba(136, 136, 136, 0.2);
+  color: #888;
+}
+
+.variance-chart-trend.declining {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+}
+
+.variance-chart-svg {
+  width: 100%;
+  height: 200px;
+}
+
+.chart-grid-line {
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-dasharray: 2, 4;
+}
+
+.chart-axis-label {
+  fill: #666;
+  font-size: 10px;
+}
+
+.chart-data-line {
+  fill: none;
+  stroke: #00ff88;
+  stroke-width: 2;
+}
+
+.chart-trend-line {
+  fill: none;
+  stroke: rgba(255, 170, 0, 0.6);
+  stroke-width: 1.5;
+  stroke-dasharray: 4, 4;
+}
+
+.chart-data-point {
+  fill: #00ff88;
+  cursor: pointer;
+  transition: r 0.2s ease;
+}
+
+.chart-data-point:hover {
+  r: 6;
+}
+
+.chart-data-point.failure {
+  fill: #ff4444;
+}
+
+.chart-amendment-marker {
+  fill: #ffaa00;
+  cursor: pointer;
+}
+
+/* ============================================================================
+   AMENDMENT ACTIVITY LOG
+   ============================================================================ */
+
+.amendment-log {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.amendment-log-header {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+  color: #00ff88;
+}
+
+.amendment-log-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.amendment-item {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.amendment-item:last-child {
+  border-bottom: none;
+}
+
+.amendment-status-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.amendment-status-icon.pending {
+  background: rgba(255, 170, 0, 0.2);
+  color: #ffaa00;
+}
+
+.amendment-status-icon.active {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+}
+
+.amendment-status-icon.reverted {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+}
+
+.amendment-status-icon.evaluating {
+  background: rgba(100, 100, 255, 0.2);
+  color: #6464ff;
+}
+
+.amendment-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.amendment-agent {
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.amendment-type {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0.125rem;
+}
+
+.amendment-trigger {
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 0.25rem;
+  font-family: monospace;
+}
+
+.amendment-time {
+  font-size: 0.7rem;
+  color: #555;
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+   HEATMAP
+   ============================================================================ */
+
+.heatmap-container {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.heatmap-title {
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 1rem;
+}
+
+.heatmap-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.heatmap-table th {
+  padding: 0.5rem;
+  text-align: center;
+  color: #888;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.heatmap-table td {
+  padding: 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.heatmap-agent {
+  text-align: left !important;
+  font-weight: 600;
+  color: #fff;
+}
+
+.heatmap-cell {
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-weight: 500;
+}
+
+.heatmap-cell.good {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+}
+
+.heatmap-cell.medium {
+  background: rgba(255, 170, 0, 0.2);
+  color: #ffaa00;
+}
+
+.heatmap-cell.bad {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+}
+
+/* ============================================================================
+   RESPONSIVE STYLES
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .neural-stack-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .agent-health-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .agent-card {
+    padding: 0.75rem;
+  }
+
+  .escalation-buttons {
+    flex-direction: column;
+  }
+
+  .variance-chart-svg {
+    height: 150px;
+  }
+
+  .heatmap-table {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .agent-health-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .agent-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   SCROLLBAR STYLES
+   ============================================================================ */
+
+.escalation-list::-webkit-scrollbar,
+.amendment-log-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.escalation-list::-webkit-scrollbar-track,
+.amendment-log-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.escalation-list::-webkit-scrollbar-thumb,
+.amendment-log-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 136, 0.3);
+  border-radius: 3px;
+}
+
+.escalation-list::-webkit-scrollbar-thumb:hover,
+.amendment-log-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 136, 0.5);
+}
+
+/* ============================================================================
+   LOADING & EMPTY STATES
+   ============================================================================ */
+
+.neural-stack-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #888;
+}
+
+.neural-stack-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.neural-stack-empty-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ============================================================================
+   SECTION LAYOUT
+   ============================================================================ */
+
+.neural-stack-main {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.neural-stack-section {
+  width: 100%;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.section-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #00ff88;
+  margin: 0;
+}
+
+.section-title-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.section-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.section-grid.two-thirds-one-third {
+  grid-template-columns: 2fr 1fr;
+}
+
+.section-grid.half-half {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* ============================================================================
+   HEALTH BADGES & SUMMARY
+   ============================================================================ */
+
+.health-summary {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.health-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.health-badge.healthy {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+}
+
+.health-badge.attention {
+  background: rgba(255, 170, 0, 0.2);
+  color: #ffaa00;
+}
+
+.health-badge.declining {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+}
+
+/* ============================================================================
+   BUTTONS
+   ============================================================================ */
+
+.refresh-btn,
+.refresh-btn-small {
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  color: #00ff88;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.refresh-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.refresh-btn-small {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+}
+
+.refresh-btn:hover,
+.refresh-btn-small:hover {
+  background: rgba(0, 255, 136, 0.2);
+}
+
+.escalation-btn.notes-toggle {
+  flex: 0;
+  width: 32px;
+  background: rgba(100, 100, 255, 0.1);
+  color: #6464ff;
+  border: 1px solid rgba(100, 100, 255, 0.3);
+}
+
+.escalation-btn.notes-toggle:hover {
+  background: rgba(100, 100, 255, 0.2);
+}
+
+/* ============================================================================
+   SELECTED AGENT BADGE
+   ============================================================================ */
+
+.selected-agent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-left: 1rem;
+}
+
+.clear-agent-btn {
+  background: none;
+  border: none;
+  color: #00ff88;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.clear-agent-btn:hover {
+  opacity: 1;
+}
+
+/* ============================================================================
+   ERROR BANNERS
+   ============================================================================ */
+
+.error-banner {
+  background: rgba(255, 68, 68, 0.1);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  color: #ff4444;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
+.error-banner-small {
+  background: rgba(255, 68, 68, 0.1);
+  color: #ff4444;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+/* ============================================================================
+   HEADER ENHANCEMENTS
+   ============================================================================ */
+
+.title-icon {
+  color: #00ff88;
+  font-size: 1.5rem;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.last-updated {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.status-indicator.online .status-dot {
+  width: 8px;
+  height: 8px;
+  background: #00ff88;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ============================================================================
+   ESCALATION ENHANCEMENTS
+   ============================================================================ */
+
+.escalation-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.escalation-tier-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.escalation-agent {
+  font-size: 0.75rem;
+  color: #888;
+  margin-bottom: 0.25rem;
+}
+
+.escalation-context {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-bottom: 0.5rem;
+  font-style: italic;
+}
+
+.escalation-notes-input {
+  margin-top: 0.75rem;
+}
+
+.escalation-notes-input textarea {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: #e0e0e0;
+  padding: 0.5rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  resize: vertical;
+}
+
+.escalation-notes-input textarea:focus {
+  outline: none;
+  border-color: rgba(0, 255, 136, 0.5);
+}
+
+/* ============================================================================
+   VARIANCE CHART ENHANCEMENTS
+   ============================================================================ */
+
+.variance-chart-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.variance-chart-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-line {
+  width: 16px;
+  height: 0;
+  border-bottom: 2px dashed;
+}
+
+.legend-triangle {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 8px solid #ffaa00;
+}
+
+/* ============================================================================
+   AMENDMENT ENHANCEMENTS
+   ============================================================================ */
+
+.amendment-log-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #00ff88;
+}
+
+.amendment-count {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+}
+
+.amendment-log-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-summary {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.status-badge {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+}
+
+.status-badge.evaluating {
+  background: rgba(100, 100, 255, 0.2);
+  color: #6464ff;
+}
+
+.status-badge.active {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+}
+
+.amendment-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.amendment-confidence {
+  font-size: 0.65rem;
+  color: #666;
+}
+
+.patterns-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.patterns-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.patterns-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pattern-insight {
+  background: rgba(255, 170, 0, 0.05);
+  border-left: 2px solid #ffaa00;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.pattern-type {
+  font-weight: 600;
+  color: #ffaa00;
+  margin-bottom: 0.25rem;
+}
+
+.pattern-details {
+  color: #888;
+  font-size: 0.75rem;
+}
+
+.pattern-recommendation {
+  color: #aaa;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+/* ============================================================================
+   HEATMAP ENHANCEMENTS
+   ============================================================================ */
+
+.heatmap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.heatmap-averages-row {
+  border-top: 2px solid rgba(0, 255, 136, 0.3);
+}
+
+.heatmap-averages-row td {
+  font-weight: 600;
+}
+
+.heatmap-cell.average {
+  background: rgba(100, 100, 255, 0.2);
+  color: #6464ff;
+}
+
+.heatmap-legend {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.75rem;
+  justify-content: center;
+}
+
+/* ============================================================================
+   FOOTER
+   ============================================================================ */
+
+.neural-stack-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(0, 255, 136, 0.1);
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.separator {
+  color: #444;
+}
+
+/* ============================================================================
+   RESPONSIVE ENHANCEMENTS
+   ============================================================================ */
+
+@media (max-width: 1024px) {
+  .section-grid.two-thirds-one-third,
+  .section-grid.half-half {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .neural-stack-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
+
+  .header-right {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .selected-agent-badge {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+
+  .section-title-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .health-summary {
+    flex-wrap: wrap;
+  }
+
+  .variance-chart-legend {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .heatmap-legend {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .neural-stack-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .neural-stack-main {
+    padding: 0.5rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .amendment-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}

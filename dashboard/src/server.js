@@ -25,6 +25,9 @@ import tasksRoutes from './api/tasksRoutes.js';
 // Task data loader for NotebookLM-extracted JSON files
 import { getPendingTasks, getPrioritySummary, getCompletedTasks, getActiveWorkflows, getTaskCountsByRole } from './api/taskDataLoader.js';
 
+// Phase 5D: Neural Stack Dashboard Routes
+import neuralStackRoutes from './api/neuralStackRoutes.js';
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -90,6 +93,9 @@ app.use('/api/workflows', authMiddleware, workflowsActiveRoutes);  // Alias for 
 app.use('/api/tasks', authMiddleware, tasksCompletedRoutes);
 app.use('/api/tasks', authMiddleware, tasksRoutes);  // Task completion & agent execution
 app.use('/api/decisions', authMiddleware, decisionsRoutes);
+
+// Phase 5D: Neural Stack Dashboard Routes
+app.use('/api/neural-stack', authMiddleware, neuralStackRoutes);
 
 // Initialize Supabase client (optional - works without it using JSON data)
 const supabaseUrl = process.env.SUPABASE_URL;

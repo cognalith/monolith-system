@@ -307,6 +307,18 @@ function transformTask(task, roleInfo) {
   const priority = PRIORITY_MAP[task.priority?.toUpperCase()] || PRIORITY_MAP.MEDIUM;
   const status = STATUS_MAP[task.status?.toLowerCase()] || 'queued';
 
+  // Validate due_date - must be a valid date format (YYYY-MM-DD or ISO)
+  let dueDate = null;
+  if (task.due_date) {
+    const dateRegex = /^\d{4}-\d{2}-\d{2}/;
+    if (dateRegex.test(task.due_date)) {
+      dueDate = task.due_date;
+    } else {
+      // Non-date values like "Daily 8 AM" go into metadata
+      console.log(`  [WARN] Invalid due_date "${task.due_date}" moved to metadata`);
+    }
+  }
+
   return {
     task_id: taskId,
     title: task.content || task.title || 'Untitled Task',
@@ -315,7 +327,7 @@ function transformTask(task, roleInfo) {
     assigned_team: team,
     priority: priority,
     status: status,
-    due_date: task.due_date || null,
+    due_date: dueDate,
     tags: generateTags(task, roleId),
     metadata: {
       original_id: task.id,
@@ -324,6 +336,7 @@ function transformTask(task, roleInfo) {
       migrated_at: new Date().toISOString(),
       original_status: task.status,
       original_priority: task.priority,
+      original_due_date: task.due_date || null,
       role_name: roleInfo.role_name || null,
       role_abbr: roleAbbr,
       completed_at: task.completedAt || null,

@@ -194,6 +194,127 @@ router.get('/tasks', async (req, res) => {
 });
 
 /**
+ * GET /tasks/blocked
+ * Get all blocked tasks
+ * NOTE: This route must be defined BEFORE /tasks/:id to avoid matching "blocked" as an ID
+ */
+router.get('/tasks/blocked', async (req, res) => {
+  try {
+    const { data: tasks, error } = await supabase
+      .from('monolith_task_queue')
+      .select('*')
+      .eq('status', 'blocked')
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+
+    // Get dependencies for blocked tasks
+    const taskIds = (tasks || []).map(t => t.id);
+    let dependencies = [];
+
+    if (taskIds.length > 0) {
+      const { data: deps, error: depError } = await supabase
+        .from('monolith_task_dependencies')
+        .select('*')
+        .in('task_id', taskIds)
+        .eq('resolved', false);
+
+      if (depError) console.warn('[ORCHESTRATION] Dependencies query error:', depError.message);
+      dependencies = deps || [];
+    }
+
+    // Enrich tasks with dependencies
+    const enrichedTasks = (tasks || []).map(task => ({
+      ...task,
+      assigned_agent_name: getRoleFullName(task.assigned_agent),
+      blocking_dependencies: dependencies.filter(d => d.task_id === task.id),
+    }));
+
+    res.json({
+      tasks: enrichedTasks,
+      total: enrichedTasks.length,
+    });
+  } catch (error) {
+    console.error('[ORCHESTRATION] GET /tasks/blocked error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /tasks/active
+ * Get all active tasks
+ * NOTE: This route must be defined BEFORE /tasks/:id to avoid matching "active" as an ID
+ */
+router.get('/tasks/active', async (req, res) => {
+  try {
+    const { data: tasks, error } = await supabase
+      .from('monolith_task_queue')
+      .select('*')
+      .eq('status', 'active')
+      .order('started_at', { ascending: true });
+
+    if (error) throw error;
+
+    res.json({
+      tasks: (tasks || []).map(task => ({
+        ...task,
+        assigned_agent_name: getRoleFullName(task.assigned_agent),
+        duration_minutes: task.started_at
+          ? Math.round((Date.now() - new Date(task.started_at).getTime()) / 60000)
+          : null,
+      })),
+      total: (tasks || []).length,
+    });
+  } catch (error) {
+    console.error('[ORCHESTRATION] GET /tasks/active error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /tasks/queue/:agentRole
+ * Get an agent's task queue
+ * NOTE: This route must be defined BEFORE /tasks/:id to avoid matching "queue" as an ID
+ */
+router.get('/tasks/queue/:agentRole', async (req, res) => {
+  try {
+    const { agentRole } = req.params;
+    const normalizedRole = agentRole.toLowerCase();
+
+    // Get queued and active tasks for this agent
+    const { data: tasks, error } = await supabase
+      .from('monolith_task_queue')
+      .select('*')
+      .eq('assigned_agent', normalizedRole)
+      .in('status', ['queued', 'active', 'blocked'])
+      .order('priority', { ascending: false })
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+
+    // Separate by status
+    const queue = {
+      active: (tasks || []).filter(t => t.status === 'active'),
+      queued: (tasks || []).filter(t => t.status === 'queued'),
+      blocked: (tasks || []).filter(t => t.status === 'blocked'),
+    };
+
+    res.json({
+      agent_role: normalizedRole,
+      agent_name: getRoleFullName(normalizedRole),
+      queue,
+      total: (tasks || []).length,
+      active_count: queue.active.length,
+      queued_count: queue.queued.length,
+      blocked_count: queue.blocked.length,
+    });
+  } catch (error) {
+    console.error('[ORCHESTRATION] GET /tasks/queue/:agentRole error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
  * GET /tasks/:id
  * Get a specific task by ID
  */
@@ -359,124 +480,6 @@ router.delete('/tasks/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('[ORCHESTRATION] DELETE /tasks/:id error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * GET /tasks/queue/:agentRole
- * Get an agent's task queue
- */
-router.get('/tasks/queue/:agentRole', async (req, res) => {
-  try {
-    const { agentRole } = req.params;
-    const normalizedRole = agentRole.toLowerCase();
-
-    // Get queued and active tasks for this agent
-    const { data: tasks, error } = await supabase
-      .from('monolith_task_queue')
-      .select('*')
-      .eq('assigned_agent', normalizedRole)
-      .in('status', ['queued', 'active', 'blocked'])
-      .order('priority', { ascending: false })
-      .order('created_at', { ascending: true });
-
-    if (error) throw error;
-
-    // Separate by status
-    const queue = {
-      active: (tasks || []).filter(t => t.status === 'active'),
-      queued: (tasks || []).filter(t => t.status === 'queued'),
-      blocked: (tasks || []).filter(t => t.status === 'blocked'),
-    };
-
-    res.json({
-      agent_role: normalizedRole,
-      agent_name: getRoleFullName(normalizedRole),
-      queue,
-      total: (tasks || []).length,
-      active_count: queue.active.length,
-      queued_count: queue.queued.length,
-      blocked_count: queue.blocked.length,
-    });
-  } catch (error) {
-    console.error('[ORCHESTRATION] GET /tasks/queue/:agentRole error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * GET /tasks/blocked
- * Get all blocked tasks
- */
-router.get('/tasks/blocked', async (req, res) => {
-  try {
-    const { data: tasks, error } = await supabase
-      .from('monolith_task_queue')
-      .select('*')
-      .eq('status', 'blocked')
-      .order('created_at', { ascending: true });
-
-    if (error) throw error;
-
-    // Get dependencies for blocked tasks
-    const taskIds = (tasks || []).map(t => t.id);
-    let dependencies = [];
-
-    if (taskIds.length > 0) {
-      const { data: deps, error: depError } = await supabase
-        .from('monolith_task_dependencies')
-        .select('*')
-        .in('task_id', taskIds)
-        .eq('resolved', false);
-
-      if (depError) console.warn('[ORCHESTRATION] Dependencies query error:', depError.message);
-      dependencies = deps || [];
-    }
-
-    // Enrich tasks with dependencies
-    const enrichedTasks = (tasks || []).map(task => ({
-      ...task,
-      assigned_agent_name: getRoleFullName(task.assigned_agent),
-      blocking_dependencies: dependencies.filter(d => d.task_id === task.id),
-    }));
-
-    res.json({
-      tasks: enrichedTasks,
-      total: enrichedTasks.length,
-    });
-  } catch (error) {
-    console.error('[ORCHESTRATION] GET /tasks/blocked error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * GET /tasks/active
- * Get all active tasks
- */
-router.get('/tasks/active', async (req, res) => {
-  try {
-    const { data: tasks, error } = await supabase
-      .from('monolith_task_queue')
-      .select('*')
-      .eq('status', 'active')
-      .order('started_at', { ascending: true });
-
-    if (error) throw error;
-
-    res.json({
-      tasks: (tasks || []).map(task => ({
-        ...task,
-        assigned_agent_name: getRoleFullName(task.assigned_agent),
-        duration_minutes: task.started_at
-          ? Math.round((Date.now() - new Date(task.started_at).getTime()) / 60000)
-          : null,
-      })),
-      total: (tasks || []).length,
-    });
-  } catch (error) {
-    console.error('[ORCHESTRATION] GET /tasks/active error:', error);
     res.status(500).json({ error: error.message });
   }
 });

@@ -1453,4 +1453,298 @@ router.get('/throughput', async (req, res) => {
   }
 });
 
+// ============================================================================
+// TOKEN TRACKING ENDPOINTS
+// ============================================================================
+
+/**
+ * GET /tokens/stats
+ * Get system-wide token usage statistics
+ */
+router.get('/tokens/stats', async (req, res) => {
+  try {
+    const { days = 7 } = req.query;
+    const daysNum = Math.min(30, Math.max(1, parseInt(days, 10) || 7));
+
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - daysNum);
+
+    // Get agent token stats
+    const { data: agentStats, error: statsError } = await supabase
+      .from('monolith_agent_token_stats')
+      .select('*')
+      .gte('stats_date', startDate.toISOString().split('T')[0]);
+
+    if (statsError) {
+      // Table might not exist yet
+      if (statsError.code === '42P01') {
+        return res.json({
+          period_days: daysNum,
+          total_tokens: 0,
+          total_cost_usd: 0,
+          total_tasks: 0,
+          by_agent: [],
+          message: 'Token tracking tables not yet created. Run migration 009_token_tracking.sql'
+        });
+      }
+      throw statsError;
+    }
+
+    // Aggregate stats
+    const byAgent = {};
+    let totalTokens = 0;
+    let totalCost = 0;
+    let totalTasks = 0;
+
+    (agentStats || []).forEach(row => {
+      if (!byAgent[row.agent_role]) {
+        byAgent[row.agent_role] = {
+          tokens_used: 0,
+          cost_usd: 0,
+          tasks_executed: 0,
+          tasks_completed: 0,
+          llm_calls: 0,
+        };
+      }
+      byAgent[row.agent_role].tokens_used += row.total_tokens_used || 0;
+      byAgent[row.agent_role].cost_usd += parseFloat(row.total_cost_usd || 0);
+      byAgent[row.agent_role].tasks_executed += row.tasks_executed || 0;
+      byAgent[row.agent_role].tasks_completed += row.tasks_completed || 0;
+      byAgent[row.agent_role].llm_calls += row.total_llm_calls || 0;
+
+      totalTokens += row.total_tokens_used || 0;
+      totalCost += parseFloat(row.total_cost_usd || 0);
+      totalTasks += row.tasks_executed || 0;
+    });
+
+    // Convert to array and add names
+    const agentMetrics = Object.entries(byAgent).map(([agent, data]) => ({
+      agent,
+      agent_name: getRoleFullName(agent),
+      ...data,
+      avg_tokens_per_task: data.tasks_executed > 0
+        ? Math.round(data.tokens_used / data.tasks_executed)
+        : 0,
+    })).sort((a, b) => b.tokens_used - a.tokens_used);
+
+    res.json({
+      period_days: daysNum,
+      total_tokens: totalTokens,
+      total_cost_usd: totalCost.toFixed(6),
+      total_tasks: totalTasks,
+      avg_tokens_per_task: totalTasks > 0 ? Math.round(totalTokens / totalTasks) : 0,
+      avg_cost_per_task: totalTasks > 0 ? (totalCost / totalTasks).toFixed(6) : '0.000000',
+      by_agent: agentMetrics,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('[ORCHESTRATION] GET /tokens/stats error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /tokens/agent/:agentRole
+ * Get token usage for a specific agent
+ */
+router.get('/tokens/agent/:agentRole', async (req, res) => {
+  try {
+    const { agentRole } = req.params;
+    const { days = 7 } = req.query;
+    const daysNum = Math.min(30, Math.max(1, parseInt(days, 10) || 7));
+    const normalizedRole = agentRole.toLowerCase();
+
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - daysNum);
+
+    // Get agent stats
+    const { data: stats, error: statsError } = await supabase
+      .from('monolith_agent_token_stats')
+      .select('*')
+      .eq('agent_role', normalizedRole)
+      .gte('stats_date', startDate.toISOString().split('T')[0])
+      .order('stats_date', { ascending: false });
+
+    if (statsError && statsError.code !== '42P01') {
+      throw statsError;
+    }
+
+    // Get recent token usage log
+    const { data: usageLogs, error: logError } = await supabase
+      .from('monolith_token_usage_log')
+      .select('*')
+      .eq('agent_role', normalizedRole)
+      .gte('created_at', startDate.toISOString())
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (logError && logError.code !== '42P01') {
+      console.warn('[ORCHESTRATION] Token log query error:', logError.message);
+    }
+
+    // Aggregate totals
+    const totals = (stats || []).reduce((acc, day) => ({
+      tasks_executed: acc.tasks_executed + (day.tasks_executed || 0),
+      tasks_completed: acc.tasks_completed + (day.tasks_completed || 0),
+      tasks_failed: acc.tasks_failed + (day.tasks_failed || 0),
+      tokens_estimated: acc.tokens_estimated + (day.total_tokens_estimated || 0),
+      tokens_used: acc.tokens_used + (day.total_tokens_used || 0),
+      llm_calls: acc.llm_calls + (day.total_llm_calls || 0),
+      cost_usd: acc.cost_usd + parseFloat(day.total_cost_usd || 0),
+    }), {
+      tasks_executed: 0,
+      tasks_completed: 0,
+      tasks_failed: 0,
+      tokens_estimated: 0,
+      tokens_used: 0,
+      llm_calls: 0,
+      cost_usd: 0,
+    });
+
+    // Calculate efficiency
+    const estimationAccuracy = totals.tokens_estimated > 0
+      ? Math.round((totals.tokens_used / totals.tokens_estimated) * 100)
+      : 100;
+
+    res.json({
+      agent_role: normalizedRole,
+      agent_name: getRoleFullName(normalizedRole),
+      period_days: daysNum,
+      totals: {
+        ...totals,
+        cost_usd: totals.cost_usd.toFixed(6),
+        avg_tokens_per_task: totals.tasks_executed > 0
+          ? Math.round(totals.tokens_used / totals.tasks_executed)
+          : 0,
+      },
+      estimation_accuracy: `${estimationAccuracy}%`,
+      daily_breakdown: (stats || []).map(s => ({
+        date: s.stats_date,
+        tokens_used: s.total_tokens_used,
+        tasks_executed: s.tasks_executed,
+        cost_usd: s.total_cost_usd,
+      })),
+      recent_calls: (usageLogs || []).slice(0, 20).map(log => ({
+        id: log.id,
+        model: log.model,
+        tokens_input: log.tokens_input,
+        tokens_output: log.tokens_output,
+        tokens_total: log.tokens_total,
+        cost_usd: log.cost_usd,
+        call_type: log.call_type,
+        latency_ms: log.latency_ms,
+        created_at: log.created_at,
+      })),
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('[ORCHESTRATION] GET /tokens/agent/:agentRole error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /tokens/tasks
+ * Get token usage for tasks
+ */
+router.get('/tokens/tasks', async (req, res) => {
+  try {
+    const { limit = 50 } = req.query;
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 50));
+
+    // Get tasks with token data
+    const { data: tasks, error } = await supabase
+      .from('monolith_task_queue')
+      .select('id, task_id, title, assigned_agent, status, tokens_estimated, tokens_input, tokens_output, tokens_total, llm_calls, execution_cost_usd, model_used, completed_at')
+      .gt('tokens_total', 0)
+      .order('tokens_total', { ascending: false })
+      .limit(limitNum);
+
+    if (error) throw error;
+
+    res.json({
+      tasks: (tasks || []).map(t => ({
+        ...t,
+        assigned_agent_name: getRoleFullName(t.assigned_agent),
+        estimation_accuracy: t.tokens_estimated > 0
+          ? `${Math.round((t.tokens_total / t.tokens_estimated) * 100)}%`
+          : 'N/A',
+      })),
+      total: (tasks || []).length,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('[ORCHESTRATION] GET /tokens/tasks error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /execute/:agentRole
+ * Trigger task execution for an agent (manual trigger)
+ * This starts the agent executor for the next queued task
+ */
+router.post('/execute/:agentRole', async (req, res) => {
+  try {
+    const { agentRole } = req.params;
+    const normalizedRole = agentRole.toLowerCase();
+
+    // Get the next queued task for this agent
+    const { data: task, error: taskError } = await supabase
+      .from('monolith_task_queue')
+      .select('*')
+      .eq('assigned_agent', normalizedRole)
+      .eq('status', 'queued')
+      .order('priority', { ascending: false })
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .single();
+
+    if (taskError) {
+      if (taskError.code === 'PGRST116') {
+        return res.json({
+          success: false,
+          message: `No queued tasks for agent ${normalizedRole}`,
+          agent_role: normalizedRole,
+        });
+      }
+      throw taskError;
+    }
+
+    // Mark task as active
+    const { data: activeTask, error: updateError } = await supabase
+      .from('monolith_task_queue')
+      .update({
+        status: 'active',
+        started_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', task.id)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+
+    console.log(`[ORCHESTRATION] Started execution for ${normalizedRole}: ${task.title}`);
+
+    // Note: In production, this would trigger the actual AgentExecutor
+    // For now, we just mark it as started and return the task info
+
+    res.json({
+      success: true,
+      message: `Task execution started for ${normalizedRole}`,
+      agent_role: normalizedRole,
+      agent_name: getRoleFullName(normalizedRole),
+      task: {
+        ...activeTask,
+        assigned_agent_name: getRoleFullName(activeTask.assigned_agent),
+      },
+      note: 'Task marked as active. AgentExecutor integration pending.',
+    });
+  } catch (error) {
+    console.error('[ORCHESTRATION] POST /execute/:agentRole error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

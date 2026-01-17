@@ -56,9 +56,33 @@ export {
   KNOWN_WORKFLOWS,
 } from './DependencyParser.js';
 
+// Token Tracker exports
+export {
+  TokenTracker,
+  MODEL_PRICING,
+  AGENT_BASE_TOKENS,
+  COMPLEXITY_MULTIPLIERS,
+} from './TokenTracker.js';
+
+// Agent Executor exports
+export {
+  AgentExecutor,
+  ROLE_SYSTEM_PROMPTS,
+  BLOCKER_PATTERNS,
+} from './AgentExecutor.js';
+
 // Re-export defaults
 import TaskRouterDefault from './TaskRouter.js';
 import ExecutionEngineDefault from './ExecutionEngine.js';
 import ResolutionSystemDefault from './ResolutionSystem.js';
 import DependencyParserDefault from './DependencyParser.js';
-export { TaskRouterDefault, ExecutionEngineDefault, ResolutionSystemDefault, DependencyParserDefault };
+import TokenTrackerDefault from './TokenTracker.js';
+import AgentExecutorDefault from './AgentExecutor.js';
+export {
+  TaskRouterDefault,
+  ExecutionEngineDefault,
+  ResolutionSystemDefault,
+  DependencyParserDefault,
+  TokenTrackerDefault,
+  AgentExecutorDefault,
+};

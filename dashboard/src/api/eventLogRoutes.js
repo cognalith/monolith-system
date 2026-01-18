@@ -16,7 +16,9 @@
 
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
-import MemoryCompressionService from '../../../agents/services/MemoryCompressionService.js';
+
+// Note: MemoryCompressionService is dynamically imported in the compress endpoint
+// to avoid module load failures if LLMRouter/dependencies aren't available
 
 const router = express.Router();
 
@@ -934,6 +936,23 @@ router.post('/compress/:agent', async (req, res) => {
     const { older_than_hours = 24, dry_run = false } = req.body;
 
     console.log(`[EVENT-LOG] Triggering compression for ${agent} (older than ${older_than_hours}h, dryRun: ${dry_run})`);
+
+    // Dynamically import MemoryCompressionService to avoid module load failures
+    let MemoryCompressionService;
+    try {
+      const module = await import('../../../agents/services/MemoryCompressionService.js');
+      MemoryCompressionService = module.default;
+    } catch (importError) {
+      console.error('[EVENT-LOG] Failed to load MemoryCompressionService:', importError.message);
+      return res.status(503).json({
+        agent_role: agent,
+        agent_name: getFullRoleName(agent),
+        status: 'error',
+        error: 'Memory compression service not available in this environment',
+        details: importError.message,
+        timestamp: new Date().toISOString(),
+      });
+    }
 
     // Initialize compression service
     const compressionService = new MemoryCompressionService({

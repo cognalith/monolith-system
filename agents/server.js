@@ -9,7 +9,14 @@ import 'dotenv/config';
 
 import http from 'http';
 import { WebSocketServer } from 'ws';
+import { createClient } from '@supabase/supabase-js';
 import initializeAgentSystem from './index.js';
+
+// Initialize Supabase client for event log
+const supabase = createClient(
+  process.env.SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || ''
+);
 
 const PORT = process.env.PORT || process.env.AGENT_SERVICE_PORT || 3001;
 const WS_HEARTBEAT_INTERVAL = 30000; // 30 seconds
@@ -423,6 +430,187 @@ function createHttpServer() {
 
         const result = await cmo.createPodcast(content, { title, sources, ...options });
         json({ success: true, ...result });
+        return;
+      }
+
+      // ==========================================
+      // EVENT LOG API ENDPOINTS (Phase 11)
+      // ==========================================
+
+      // Helper functions for event log
+      const getTimeAgo = (timestamp) => {
+        const now = new Date();
+        const then = new Date(timestamp);
+        const diffMs = now - then;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        if (diffMins < 1) return 'just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        return `${diffDays}d ago`;
+      };
+
+      const getRoleName = (roleId) => {
+        const names = {
+          ceo: 'Chief Executive Officer', cfo: 'Chief Financial Officer',
+          coo: 'Chief Operating Officer', cto: 'Chief Technology Officer',
+          cmo: 'Chief Marketing Officer', cos: 'Chief of Staff',
+          cpo: 'Chief Product Officer', chro: 'Chief Human Resources Officer',
+          ciso: 'Chief Information Security Officer', clo: 'General Counsel',
+          devops: 'DevOps Lead', data: 'Data Engineer', qa: 'QA Lead', swe: 'Software Engineer',
+        };
+        return names[roleId] || roleId?.toUpperCase() || 'Unknown';
+      };
+
+      // GET /api/event-log - Unified event stream
+      if (path === '/api/event-log' && req.method === 'GET') {
+        const agent = url.searchParams.get('agent');
+        const type = url.searchParams.get('type');
+        const hours = parseInt(url.searchParams.get('hours') || '24');
+        const limit = Math.min(parseInt(url.searchParams.get('limit') || '100'), 500);
+        const cutoffTime = new Date(Date.now() - hours * 3600000).toISOString();
+        const eventTypes = type ? type.split(',') : ['task', 'conversation', 'state_change', 'audit'];
+        const events = [];
+        const errors = [];
+
+        // Query tasks
+        if (eventTypes.includes('task')) {
+          try {
+            let taskQuery = supabase.from('monolith_task_queue')
+              .select('id, task_id, title, assigned_agent, status, priority, created_at, started_at, completed_at')
+              .gte('created_at', cutoffTime).order('created_at', { ascending: false }).limit(limit);
+            if (agent) taskQuery = taskQuery.eq('assigned_agent', agent);
+            const { data: tasks, error: taskError } = await taskQuery;
+            if (taskError) errors.push({ source: 'tasks', error: taskError.message });
+            (tasks || []).forEach(t => {
+              events.push({
+                id: `task-${t.id}`, type: 'task', subtype: t.status,
+                agent_role: t.assigned_agent, agent_name: getRoleName(t.assigned_agent),
+                task_id: t.task_id || t.id, title: t.title, status: t.status, priority: t.priority,
+                timestamp: t.created_at, time_ago: getTimeAgo(t.created_at),
+              });
+            });
+          } catch (err) { errors.push({ source: 'tasks', error: err.message }); }
+        }
+
+        // Query conversations
+        if (eventTypes.includes('conversation')) {
+          try {
+            let convQuery = supabase.from('monolith_agent_conversations')
+              .select('id, agent_role, conversation_id, task_id, messages, token_count, is_compressed, created_at')
+              .gte('created_at', cutoffTime).order('created_at', { ascending: false }).limit(limit);
+            if (agent) convQuery = convQuery.eq('agent_role', agent);
+            const { data: convs, error: convError } = await convQuery;
+            if (convError && convError.code !== '42P01') errors.push({ source: 'conversations', error: convError.message });
+            (convs || []).forEach(c => {
+              let preview = '';
+              if (c.messages && Array.isArray(c.messages)) {
+                const aMsg = c.messages.find(m => m.role === 'assistant');
+                if (aMsg) preview = aMsg.content?.substring(0, 200) + (aMsg.content?.length > 200 ? '...' : '');
+              }
+              events.push({
+                id: `conv-${c.id}`, type: 'conversation', subtype: c.is_compressed ? 'compressed' : 'active',
+                agent_role: c.agent_role, agent_name: getRoleName(c.agent_role),
+                task_id: c.task_id, conversation_id: c.conversation_id,
+                token_count: c.token_count, is_compressed: c.is_compressed, message_preview: preview,
+                timestamp: c.created_at, time_ago: getTimeAgo(c.created_at),
+              });
+            });
+          } catch (err) { errors.push({ source: 'conversations', error: err.message }); }
+        }
+
+        // Query state changes
+        if (eventTypes.includes('state_change')) {
+          try {
+            let stateQuery = supabase.from('monolith_task_state_log')
+              .select('id, task_id, change_type, old_value, new_value, changed_by, changed_by_type, metadata, created_at')
+              .gte('created_at', cutoffTime).order('created_at', { ascending: false }).limit(limit);
+            if (agent) stateQuery = stateQuery.eq('changed_by', agent);
+            const { data: states, error: stateError } = await stateQuery;
+            if (stateError && stateError.code !== '42P01') errors.push({ source: 'state_changes', error: stateError.message });
+            (states || []).forEach(s => {
+              events.push({
+                id: `state-${s.id}`, type: 'state_change', subtype: s.change_type,
+                agent_role: s.changed_by, agent_name: getRoleName(s.changed_by),
+                task_id: s.task_id, change_type: s.change_type,
+                old_value: s.old_value, new_value: s.new_value, changed_by_type: s.changed_by_type,
+                timestamp: s.created_at, time_ago: getTimeAgo(s.created_at),
+              });
+            });
+          } catch (err) { errors.push({ source: 'state_changes', error: err.message }); }
+        }
+
+        // Query audits
+        if (eventTypes.includes('audit')) {
+          try {
+            let auditQuery = supabase.from('monolith_task_audits')
+              .select('id, task_id, audited_agent, accuracy_score, completeness_score, quality_score, efficiency_score, overall_score, drift_detected, drift_severity, created_at')
+              .gte('created_at', cutoffTime).order('created_at', { ascending: false }).limit(limit);
+            if (agent) auditQuery = auditQuery.eq('audited_agent', agent);
+            const { data: audits, error: auditError } = await auditQuery;
+            if (auditError && auditError.code !== '42P01') errors.push({ source: 'audits', error: auditError.message });
+            (audits || []).forEach(a => {
+              events.push({
+                id: `audit-${a.id}`, type: 'audit', subtype: a.drift_detected ? 'drift_detected' : 'normal',
+                agent_role: a.audited_agent, agent_name: getRoleName(a.audited_agent),
+                task_id: a.task_id, overall_score: a.overall_score,
+                drift_detected: a.drift_detected, drift_severity: a.drift_severity,
+                timestamp: a.created_at, time_ago: getTimeAgo(a.created_at),
+                metadata: { accuracy: a.accuracy_score, completeness: a.completeness_score, quality: a.quality_score, efficiency: a.efficiency_score },
+              });
+            });
+          } catch (err) { errors.push({ source: 'audits', error: err.message }); }
+        }
+
+        // Sort and summarize
+        events.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        const sortedEvents = events.slice(0, limit);
+        const summary = { total: sortedEvents.length, by_type: {}, by_agent: {} };
+        sortedEvents.forEach(e => {
+          summary.by_type[e.type] = (summary.by_type[e.type] || 0) + 1;
+          if (e.agent_role) summary.by_agent[e.agent_role] = (summary.by_agent[e.agent_role] || 0) + 1;
+        });
+
+        json({
+          events: sortedEvents, summary,
+          filters: { agent: agent || 'all', types: eventTypes, hours, limit },
+          errors: errors.length > 0 ? errors : undefined,
+          timestamp: new Date().toISOString(),
+        });
+        return;
+      }
+
+      // GET /api/event-log/memory/:agent - Agent memory state
+      if (path.startsWith('/api/event-log/memory/') && req.method === 'GET') {
+        const agent = path.split('/').pop();
+        let convStats = { total: 0, compressed: 0, active: 0, total_tokens: 0 };
+        try {
+          const { data: convs } = await supabase.from('monolith_agent_conversations')
+            .select('id, token_count, is_compressed').eq('agent_role', agent);
+          (convs || []).forEach(c => {
+            convStats.total++;
+            convStats.total_tokens += c.token_count || 0;
+            if (c.is_compressed) convStats.compressed++; else convStats.active++;
+          });
+        } catch (err) { /* ignore */ }
+
+        let knowledgeStats = { total: 0 };
+        try {
+          const { data: knowledge } = await supabase.from('monolith_agent_knowledge')
+            .select('id').eq('agent_role', agent);
+          knowledgeStats.total = (knowledge || []).length;
+        } catch (err) { /* ignore */ }
+
+        json({
+          agent_role: agent, agent_name: getRoleName(agent),
+          memory: { conversations: convStats, knowledge: knowledgeStats },
+          context_estimate: {
+            active_tokens: convStats.total_tokens - (convStats.compressed * 500),
+            estimated_utilization: Math.min(100, Math.round((convStats.total_tokens / 128000) * 100)),
+          },
+          timestamp: new Date().toISOString(),
+        });
         return;
       }
 

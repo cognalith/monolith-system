@@ -125,7 +125,14 @@ app.use('/api/orchestration', authMiddleware, orchestrationRoutes);
 app.use('/api/context', authMiddleware, contextGraphRoutes);
 
 // Phase 11: Event Log & Memory Routes
-app.use('/api/event-log', authMiddleware, eventLogRoutes);
+console.log('[SERVER] Registering event-log routes, router type:', typeof eventLogRoutes);
+if (eventLogRoutes && typeof eventLogRoutes === 'function') {
+  app.use('/api/event-log', authMiddleware, eventLogRoutes);
+  console.log('[SERVER] Event Log routes registered at /api/event-log');
+} else {
+  console.error('[SERVER] eventLogRoutes is not a valid router:', eventLogRoutes);
+  app.use('/api/event-log', (req, res) => res.status(503).json({ error: 'Event Log routes failed to load' }));
+}
 
 // Initialize Supabase client (optional - works without it using JSON data)
 const supabaseUrl = process.env.SUPABASE_URL;

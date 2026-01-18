@@ -5,6 +5,7 @@
  */
 
 import { EventEmitter } from 'events';
+import { randomUUID } from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import databaseService from '../services/DatabaseService.js';
@@ -37,7 +38,57 @@ class TaskOrchestrator extends EventEmitter {
     // Database service
     this.dbService = config.dbService || databaseService;
 
+    // Audit agent (Phase 11) - optional, set via setAuditAgent()
+    this.auditAgent = config.auditAgent || null;
+
     console.log('[ORCHESTRATOR] Task Orchestrator initialized');
+  }
+
+  /**
+   * Set the Audit Agent for task auditing (Phase 11)
+   * @param {AuditAgent} auditAgent - The audit agent instance
+   */
+  setAuditAgent(auditAgent) {
+    this.auditAgent = auditAgent;
+    console.log('[ORCHESTRATOR] Audit Agent attached');
+  }
+
+  /**
+   * Log a state change to the database for event tracking (Phase 11)
+   * @param {Object} params - State change parameters
+   */
+  async logStateChange({ taskId, changeType, oldValue, newValue, changedBy, changedByType = 'system', metadata = {} }) {
+    if (!this.dbService.isAvailable()) {
+      console.warn('[ORCHESTRATOR] Database unavailable, state change not logged');
+      return { data: null, error: { message: 'Database unavailable' } };
+    }
+
+    try {
+      const { data, error } = await this.dbService.supabase
+        .from('monolith_task_state_log')
+        .insert([{
+          task_id: taskId,
+          change_type: changeType,
+          old_value: oldValue,
+          new_value: newValue,
+          changed_by: changedBy,
+          changed_by_type: changedByType,
+          metadata: metadata,
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[ORCHESTRATOR] logStateChange error:', error.message);
+        return { data: null, error };
+      }
+
+      console.log(`[ORCHESTRATOR] State change logged: ${changeType} for task ${taskId}`);
+      return { data, error: null };
+    } catch (err) {
+      console.error('[ORCHESTRATOR] logStateChange exception:', err.message);
+      return { data: null, error: { message: err.message } };
+    }
   }
 
   /**
@@ -211,6 +262,17 @@ class TaskOrchestrator extends EventEmitter {
     // Sort by priority score (highest first)
     this.taskQueue.sort((a, b) => b.priorityScore - a.priorityScore);
 
+    // Log state change (Phase 11)
+    await this.logStateChange({
+      taskId: task.dbId || task.id,
+      changeType: 'status_change',
+      oldValue: null,
+      newValue: 'queued',
+      changedBy: 'orchestrator',
+      changedByType: 'system',
+      metadata: { priorityScore: task.priorityScore },
+    });
+
     this.emit('taskQueued', task);
     console.log(`[ORCHESTRATOR] Queued task: ${task.id} (score: ${task.priorityScore})`);
   }
@@ -357,17 +419,34 @@ class TaskOrchestrator extends EventEmitter {
       });
     }
 
+    // Log state change: queued -> active (Phase 11)
+    await this.logStateChange({
+      taskId: task.dbId || task.id,
+      changeType: 'status_change',
+      oldValue: 'queued',
+      newValue: 'active',
+      changedBy: agent.roleId,
+      changedByType: 'agent',
+      metadata: { startTime: Date.now() },
+    });
+
     try {
       const result = await agent.processTask(task);
+
+      // Capture start time before removing from inProgress (for audit)
+      const taskStartTime = this.inProgress.get(task.id)?.startTime;
 
       // Move to completed
       this.inProgress.delete(task.id);
       this.completed.push(result);
 
+      // Determine final status
+      const finalStatus = result.escalate ? 'escalated' : 'completed';
+
       // Update task status in database
       if (this.dbService.isAvailable()) {
         await this.updateTaskInDb(task.dbId || task.id, {
-          status: result.escalate ? 'escalated' : 'completed',
+          status: finalStatus,
           metadata: {
             ...task.metadata,
             result: result,
@@ -376,8 +455,41 @@ class TaskOrchestrator extends EventEmitter {
         });
       }
 
+      // Log state change: active -> completed/escalated (Phase 11)
+      await this.logStateChange({
+        taskId: task.dbId || task.id,
+        changeType: 'status_change',
+        oldValue: 'active',
+        newValue: finalStatus,
+        changedBy: agent.roleId,
+        changedByType: 'agent',
+        metadata: {
+          completedAt: new Date().toISOString(),
+          escalated: result.escalate || false,
+        },
+      });
+
       this.emit('taskCompleted', { task, result });
       console.log(`[ORCHESTRATOR] Task ${task.id} completed by ${agent.roleAbbr}`);
+
+      // Phase 11: Trigger audit if audit agent is attached
+      if (this.auditAgent && !result.escalate) {
+        try {
+          // Enrich task with completion timestamps for audit
+          const auditTask = {
+            ...task,
+            assigned_agent: agent.roleId,
+            started_at: taskStartTime ? new Date(taskStartTime).toISOString() : null,
+            completed_at: new Date().toISOString(),
+          };
+          // Fire and forget - don't block task completion
+          this.auditAgent.auditCompletedTask(auditTask, result).catch(err => {
+            console.warn(`[ORCHESTRATOR] Audit failed for task ${task.id}:`, err.message);
+          });
+        } catch (auditErr) {
+          console.warn(`[ORCHESTRATOR] Audit setup error:`, auditErr.message);
+        }
+      }
 
     } catch (error) {
       this.inProgress.delete(task.id);
@@ -387,10 +499,13 @@ class TaskOrchestrator extends EventEmitter {
       task.priorityScore = Math.max(0, task.priorityScore - 20);
       task.retryCount = (task.retryCount || 0) + 1;
 
+      // Determine status based on retry count
+      const failedStatus = task.retryCount >= 3 ? 'failed' : 'pending';
+
       // Update task in database
       if (this.dbService.isAvailable()) {
         await this.updateTaskInDb(task.dbId || task.id, {
-          status: task.retryCount >= 3 ? 'failed' : 'pending',
+          status: failedStatus,
           priority_score: task.priorityScore,
           retry_count: task.retryCount,
           metadata: {
@@ -400,6 +515,21 @@ class TaskOrchestrator extends EventEmitter {
           },
         });
       }
+
+      // Log state change: active -> failed/pending (Phase 11)
+      await this.logStateChange({
+        taskId: task.dbId || task.id,
+        changeType: 'status_change',
+        oldValue: 'active',
+        newValue: failedStatus,
+        changedBy: agent.roleId,
+        changedByType: 'agent',
+        metadata: {
+          error: error.message,
+          retryCount: task.retryCount,
+          willRetry: task.retryCount < 3,
+        },
+      });
 
       if (task.retryCount < 3) {
         this.taskQueue.push(task);
@@ -470,6 +600,22 @@ class TaskOrchestrator extends EventEmitter {
       }
     }
 
+    // Log state change: escalation created (Phase 11)
+    if (escalation.task) {
+      await this.logStateChange({
+        taskId: escalation.task?.dbId || escalation.task?.id,
+        changeType: 'escalation',
+        oldValue: null,
+        newValue: 'escalated_to_ceo',
+        changedBy: escalation.role,
+        changedByType: 'agent',
+        metadata: {
+          reason: escalation.reason,
+          recommendation: escalation.recommendation,
+        },
+      });
+    }
+
     this.emit('escalation', escalation);
   }
 
@@ -520,6 +666,22 @@ class TaskOrchestrator extends EventEmitter {
       escalation.status = 'resolved';
       escalation.ceoDecision = decision;
       escalation.resolvedAt = new Date().toISOString();
+
+      // Log state change: escalation resolved (Phase 11)
+      if (escalation.task) {
+        await this.logStateChange({
+          taskId: escalation.task?.dbId || escalation.task?.id,
+          changeType: 'escalation_resolved',
+          oldValue: 'escalated_to_ceo',
+          newValue: 'resolved',
+          changedBy: 'ceo',
+          changedByType: 'human',
+          metadata: {
+            decision: decision,
+            resolvedAt: escalation.resolvedAt,
+          },
+        });
+      }
 
       this.emit('escalationResolved', escalation);
       console.log(`[ORCHESTRATOR] Escalation ${escalationId} resolved by CEO`);

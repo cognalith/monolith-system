@@ -1,5 +1,5 @@
 /**
- * NEURAL STACK DASHBOARD - Phase 6H
+ * NEURAL STACK DASHBOARD - Phase 11
  * Cognalith Inc. | Monolith System
  *
  * Master component integrating all Neural Stack dashboard widgets.
@@ -40,6 +40,9 @@
  *
  * PHASE 6H: Added People Team specialized panel
  * - PeopleTeamPanel
+ *
+ * PHASE 11: Added Event Log & Memory
+ * - EventLogPanel (unified debug timeline)
  */
 
 import React, { useState, useEffect } from 'react';
@@ -75,6 +78,8 @@ import { OperationsTeamPanel } from './OperationsTeamPanel.jsx';
 import { FinanceTeamPanel } from './FinanceTeamPanel.jsx';
 // Phase 6H widgets
 import { PeopleTeamPanel } from './PeopleTeamPanel.jsx';
+// Phase 11 widgets
+import { EventLogPanel } from './EventLogPanel.jsx';
 import './NeuralStack.css';
 
 /**
@@ -218,6 +223,11 @@ export function NeuralStackDashboard({ layout = LAYOUTS.default }) {
           <PeopleTeamPanel />
         </section>
 
+        {/* Phase 11: Event Log & Memory */}
+        <section className="neural-stack-section event-log-section">
+          <EventLogPanel showRefresh={true} />
+        </section>
+
         {/* Phase 6A: Team Hierarchy Section */}
         <section className="neural-stack-section team-section">
           {selectedTeam ? (
@@ -296,9 +306,9 @@ export function NeuralStackDashboard({ layout = LAYOUTS.default }) {
       {/* Footer */}
       <footer className="neural-stack-footer">
         <div className="footer-left">
-          <span>Monolith System v6.5</span>
+          <span>Monolith System v11.0</span>
           <span className="separator">|</span>
-          <span>Phase 6H All Teams Deployed</span>
+          <span>Phase 11 Event Log & Memory</span>
         </div>
         <div className="footer-right">
           <span>Cognalith Inc.</span>
@@ -342,6 +352,8 @@ export {
   FinanceTeamPanel,
   // Phase 6H widgets
   PeopleTeamPanel,
+  // Phase 11 widgets
+  EventLogPanel,
 };
 
 export default NeuralStackDashboard;

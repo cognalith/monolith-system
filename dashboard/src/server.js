@@ -40,6 +40,9 @@ import orchestrationRoutes from './api/orchestrationRoutes.js';
 // Phase 9: Context Graph Routes
 import contextGraphRoutes from './api/contextGraphRoutes.js';
 
+// Phase 11: Event Log & Memory Routes
+import eventLogRoutes from './api/eventLogRoutes.js';
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -120,6 +123,9 @@ app.use('/api/orchestration', authMiddleware, orchestrationRoutes);
 
 // Phase 9: Context Graph Routes
 app.use('/api/context', authMiddleware, contextGraphRoutes);
+
+// Phase 11: Event Log & Memory Routes
+app.use('/api/event-log', authMiddleware, eventLogRoutes);
 
 // Initialize Supabase client (optional - works without it using JSON data)
 const supabaseUrl = process.env.SUPABASE_URL;

@@ -10,8 +10,10 @@
  */
 
 import OpenAI from 'openai';
+import { randomUUID } from 'crypto';
 import TokenTracker from './TokenTracker.js';
 import { BLOCKER_TYPES } from './ExecutionEngine.js';
+import databaseService from '../services/DatabaseService.js';
 
 // Role system prompts
 const ROLE_SYSTEM_PROMPTS = {
@@ -157,6 +159,54 @@ class AgentExecutor {
       tasksFailed: 0,
       tasksBlocked: 0,
     };
+
+    // Database service for saving conversations
+    this.db = databaseService;
+  }
+
+  /**
+   * Save a conversation to the database for memory tracking
+   * @param {Object} params - Conversation parameters
+   * @returns {Promise<Object>} Save result
+   */
+  async saveConversation({ taskId, agentRole, systemPrompt, userPrompt, assistantResponse, tokenCount }) {
+    if (!this.db.isAvailable()) {
+      console.warn('[AGENT-EXECUTOR] Database unavailable, conversation not saved');
+      return { data: null, error: { message: 'Database unavailable' } };
+    }
+
+    const conversationId = randomUUID();
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+      { role: 'assistant', content: assistantResponse },
+    ];
+
+    try {
+      const { data, error } = await this.db.supabase
+        .from('monolith_agent_conversations')
+        .insert([{
+          agent_role: agentRole,
+          conversation_id: conversationId,
+          task_id: taskId,
+          messages: messages,
+          token_count: tokenCount || 0,
+          is_compressed: false,
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[AGENT-EXECUTOR] saveConversation error:', error.message);
+        return { data: null, error };
+      }
+
+      console.log(`[AGENT-EXECUTOR] Conversation saved for ${agentRole}, task: ${taskId}`);
+      return { data, error: null };
+    } catch (err) {
+      console.error('[AGENT-EXECUTOR] saveConversation exception:', err.message);
+      return { data: null, error: { message: err.message } };
+    }
   }
 
   /**
@@ -230,6 +280,16 @@ class AgentExecutor {
           result.usage?.completion_tokens || estimation.outputTokens,
           this.config.model
         ),
+      });
+
+      // Save conversation for memory tracking (Phase 11)
+      await this.saveConversation({
+        taskId: task.id,
+        agentRole,
+        systemPrompt,
+        userPrompt,
+        assistantResponse: result.content,
+        tokenCount: result.usage?.total_tokens || estimation.totalTokens,
       });
 
       // Check for blockers

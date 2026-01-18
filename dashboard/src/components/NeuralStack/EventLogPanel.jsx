@@ -59,13 +59,13 @@ function formatRelativeTime(dateString) {
  */
 function getEventIcon(type) {
   const icons = {
-    task: '\u{1F4CB}',           // clipboard
-    conversation: '\u{1F4AC}',   // speech bubble
-    state_change: '\u{1F504}',   // cycle arrows
-    audit: '\u{1F50D}',          // magnifying glass
-    artifact: '\u{1F4E6}',       // package
+    task: '📋',           // clipboard
+    conversation: '💬',   // speech bubble
+    state_change: '🔄',   // cycle arrows
+    audit: '🔍',          // magnifying glass
+    artifact: '📦',       // package
   };
-  return icons[type] || '\u{2754}'; // question mark
+  return icons[type] || '❔'; // question mark
 }
 
 /**
@@ -507,7 +507,7 @@ export function EventLogPanel({ showRefresh = true }) {
       <div className="event-log-panel">
         <div className="panel-header">
           <div className="header-left">
-            <span className="panel-icon">\u{1F4DC}</span>
+            <span className="panel-icon">📜</span>
             <span className="panel-title">Event Log</span>
           </div>
         </div>
@@ -521,7 +521,7 @@ export function EventLogPanel({ showRefresh = true }) {
       {/* Header */}
       <div className="panel-header">
         <div className="header-left">
-          <span className="panel-icon">\u{1F4DC}</span>
+          <span className="panel-icon">📜</span>
           <span className="panel-title">Event Log</span>
           <div className="event-log-stats">
             <span className="log-stat">
@@ -548,7 +548,7 @@ export function EventLogPanel({ showRefresh = true }) {
             onClick={() => setShowMemory(!showMemory)}
             title="Show agent memory"
           >
-            \u{1F9E0}
+            🧠
           </button>
           {showRefresh && (
             <button
@@ -642,7 +642,7 @@ export function EventLogPanel({ showRefresh = true }) {
       {/* Event List */}
       {events.length === 0 ? (
         <div className="neural-stack-empty">
-          <div className="neural-stack-empty-icon">\u{1F4DC}</div>
+          <div className="neural-stack-empty-icon">📜</div>
           <div>No events recorded</div>
           <div className="empty-hint">
             Events will appear here as agents execute tasks.

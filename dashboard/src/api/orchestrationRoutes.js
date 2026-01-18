@@ -149,6 +149,99 @@ router.post('/tasks', async (req, res) => {
 });
 
 /**
+ * GET /task-queue
+ * Combined view of all task queues for dashboard
+ * Returns { queued, blocked, active } structure expected by TaskQueuePanel
+ */
+router.get('/task-queue', async (req, res) => {
+  try {
+    const { agent, team, limit = 100 } = req.query;
+    const limitNum = Math.min(200, Math.max(1, parseInt(limit, 10) || 100));
+
+    // Build base query conditions
+    const buildQuery = (status) => {
+      let query = supabase
+        .from('monolith_task_queue')
+        .select('*')
+        .eq('status', status)
+        .order('priority', { ascending: false })
+        .order('created_at', { ascending: true })
+        .limit(limitNum);
+
+      if (agent) query = query.eq('assigned_agent', agent.toLowerCase());
+      if (team) query = query.eq('assigned_team', team.toLowerCase());
+
+      return query;
+    };
+
+    // Fetch all three queues in parallel
+    const [queuedResult, blockedResult, activeResult] = await Promise.all([
+      buildQuery('queued'),
+      buildQuery('blocked'),
+      buildQuery('active'),
+    ]);
+
+    if (queuedResult.error) throw queuedResult.error;
+    if (blockedResult.error) throw blockedResult.error;
+    if (activeResult.error) throw activeResult.error;
+
+    // Transform tasks with camelCase field names for frontend
+    const transformTasks = (tasks) => (tasks || []).map(task => ({
+      // Keep original fields
+      ...task,
+      // Add camelCase aliases for frontend compatibility
+      id: task.id,
+      taskId: task.task_id,
+      title: task.title,
+      description: task.description,
+      assignedAgent: task.assigned_agent,
+      assignedAgentName: getRoleFullName(task.assigned_agent),
+      assignedTeam: task.assigned_team,
+      status: task.status,
+      createdAt: task.created_at,
+      updatedAt: task.updated_at,
+      startedAt: task.started_at,
+      completedAt: task.completed_at,
+      dueDate: task.due_date,
+      // Map priority integer to string for frontend
+      priority: task.priority >= 90 ? 'critical' :
+                task.priority >= 70 ? 'high' :
+                task.priority >= 40 ? 'medium' : 'low',
+      priorityValue: task.priority,
+      // Blocker info
+      blockerType: task.blocked_type,
+      blockerContext: task.blocked_context,
+      blockedAt: task.blocked_at,
+      waitingOn: task.blocked_by_agent || task.blocked_by_task_id,
+      // Token tracking
+      tokensEstimated: task.tokens_estimated,
+      tokensTotal: task.tokens_total,
+      modelUsed: task.model_used,
+      executionCost: task.execution_cost_usd,
+    }));
+
+    res.json({
+      queued: transformTasks(queuedResult.data),
+      blocked: transformTasks(blockedResult.data),
+      active: transformTasks(activeResult.data),
+      summary: {
+        queued_count: (queuedResult.data || []).length,
+        blocked_count: (blockedResult.data || []).length,
+        active_count: (activeResult.data || []).length,
+        total: (queuedResult.data || []).length +
+               (blockedResult.data || []).length +
+               (activeResult.data || []).length,
+      },
+      filters: { agent, team, limit: limitNum },
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('[ORCHESTRATION] GET /task-queue error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
  * GET /tasks
  * List tasks with optional filters
  * Query params: ?status=active&agent=cos&team=technology&limit=50

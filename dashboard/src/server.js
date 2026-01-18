@@ -37,6 +37,9 @@ import knowledgeBotRoutes from './api/knowledgeBotRoutes.js';
 // Phase 7: Task Orchestration Engine Routes
 import orchestrationRoutes from './api/orchestrationRoutes.js';
 
+// Phase 9: Context Graph Routes
+import contextGraphRoutes from './api/contextGraphRoutes.js';
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -114,6 +117,9 @@ app.use('/api/neural-stack/knowledge-bots', authMiddleware, knowledgeBotRoutes);
 
 // Phase 7: Task Orchestration Engine Routes
 app.use('/api/orchestration', authMiddleware, orchestrationRoutes);
+
+// Phase 9: Context Graph Routes
+app.use('/api/context', authMiddleware, contextGraphRoutes);
 
 // Initialize Supabase client (optional - works without it using JSON data)
 const supabaseUrl = process.env.SUPABASE_URL;

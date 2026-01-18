@@ -1,12 +1,132 @@
 # Claude Code Session Context
-**Last Updated**: 2026-01-17
+**Last Updated**: 2026-01-18
 **Branch**: main
-**Phase**: 7.1 (Task Migration Complete)
-**Last Commit**: 3953522 - feat(orchestration): add dependency migration script
+**Phase**: 11 (Event Log & Memory Complete)
+**Last Commit**: f805467 - feat(phase-11): implement Event Log & Memory system
 
 ---
 
-## Phase 7.1: Task Migration (Latest)
+## Phase 11: Event Log & Memory (Latest)
+
+### Overview
+Phase 11 implements a unified event logging system that connects agent execution to the Phase 10 memory tables, plus creates an Event Log debug page for troubleshooting. Includes an Audit Agent for grading completed tasks and a Memory Compression Service for managing agent context windows.
+
+### New Files Created
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| `agents/roles/audit/AuditAgent.js` | 478 | Grades completed tasks on accuracy, completeness, quality, efficiency; detects drift; captures learnings |
+| `agents/services/MemoryCompressionService.js` | 497 | LLM-based conversation compression; manages agent context windows |
+| `dashboard/src/api/eventLogRoutes.js` | 991 | Unified event log API with 6 endpoints |
+| `dashboard/src/components/NeuralStack/EventLogPanel.jsx` | 670 | Dashboard component for unified event timeline |
+
+### Modified Files
+
+| File | Changes |
+|------|---------|
+| `agents/core/TaskOrchestrator.js` | Added audit agent integration, state change logging |
+| `agents/orchestration/AgentExecutor.js` | Added conversation saving to memory tables |
+| `dashboard/src/components/NeuralStack/index.jsx` | Added EventLogPanel section, updated to v11.0 |
+| `dashboard/src/components/NeuralStack/NeuralStack.css` | Added 300+ lines of event log styling |
+| `dashboard/src/server.js` | Registered eventLogRoutes |
+
+### Event Log API Endpoints (`/api/event-log/`)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Unified event stream (tasks, conversations, audits, state changes) |
+| `/agent/:role` | GET | Agent-specific events |
+| `/task/:taskId` | GET | Task-specific timeline |
+| `/memory/:agent` | GET | Agent memory state (conversations, knowledge, compressions) |
+| `/compression-status` | GET | Memory compression statistics |
+| `/compress/:agent` | POST | Trigger memory compression for an agent |
+
+### Audit Agent Features
+- **Grading Criteria** (0-100 scale):
+  - Accuracy - Did output address the request?
+  - Completeness - Were all aspects covered?
+  - Quality - Is output well-structured?
+  - Efficiency - Appropriate scope?
+- **Drift Detection**: None, Minor, Moderate, Severe
+- **Learning Capture**: High-quality outputs (80+ accuracy) sent to MONA for knowledge retention
+- **Time Variance Tracking**: Compares estimated vs actual hours
+
+### Memory Compression Service Features
+- **Compression Guidelines**: Preserves key decisions, facts, action items
+- **Default Settings**: 24-hour threshold, minimum 3 conversations
+- **Target Ratio**: 80% reduction (0.2 compression ratio)
+- **Daily Compression**: `runDailyCompression()` for all agents
+- **Stats Tracking**: Compression ratio, tokens saved, by-agent breakdown
+
+---
+
+## Phase 10: Memory Tables Schema
+
+### Overview
+Phase 10 created the database schema for agent memory, conversations, audits, and context graphs. These tables are populated by Phase 11 implementation.
+
+### Database Tables
+
+| Table | Purpose |
+|-------|---------|
+| `monolith_agent_conversations` | Stores agent conversation history with messages, token counts |
+| `monolith_agent_knowledge` | Agent knowledge entries with confidence scores |
+| `monolith_memory_compressions` | Compression records with before/after token counts |
+| `monolith_task_audits` | Task audit grades (accuracy, completeness, quality, efficiency) |
+| `monolith_task_state_log` | Task state change history |
+| `monolith_task_artifacts` | Task output artifacts and deliverables |
+| `monolith_context_nodes` | Context graph nodes (topics, concepts, agents) |
+| `monolith_context_edges` | Context graph relationships |
+
+### Migration File
+- `database/migrations/010_context_graph.sql` - Context graph tables
+- Memory tables created via Supabase MCP
+
+---
+
+## Phase 9: Context Graph System
+
+### Overview
+Phase 9 implements a context graph system for visualizing relationships between agents, tasks, concepts, and knowledge.
+
+### Key Files
+- `dashboard/src/api/contextGraphRoutes.js` - Context graph API endpoints
+- Database tables: `monolith_context_nodes`, `monolith_context_edges`
+
+### Context Graph API Endpoints (`/api/context/`)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/nodes` | GET | List context graph nodes |
+| `/edges` | GET | List context graph edges |
+| `/graph` | GET | Full graph with nodes and edges |
+| `/agent/:role` | GET | Agent-centric subgraph |
+
+---
+
+## Phase 8: Agent Execution System
+
+### Overview
+Phase 8 integrates the AgentExecutor into the orchestration system, enabling real LLM-powered agent execution with token tracking and conversation history.
+
+### Key Changes
+- `agents/orchestration/AgentExecutor.js` - Executes tasks via LLM with token tracking
+- `/api/orchestration/execute/:agent` - Execute task endpoint
+- Token usage tracking per agent and task
+- Conversation history saving
+
+### Execution Flow
+```
+POST /api/orchestration/execute/:agent
+  → AgentExecutor.executeTask()
+    → LLMRouter.complete()
+    → Save conversation to monolith_agent_conversations
+    → Return result with token usage
+```
+
+---
+
+## Phase 7.1: Task Migration
 
 ### Overview
 Migrated 320 real JSON tasks from NotebookLM extracts to the Supabase orchestration queue with 42 cross-agent dependencies.
@@ -34,13 +154,6 @@ Migrated 320 real JSON tasks from NotebookLM extracts to the Supabase orchestrat
 
 ### Task ID Format (Enhanced)
 Human-readable: `TASK-YYYYMMDD-ROLE-NNN` (e.g., `TASK-20260105-CHRO-003`)
-
-### QA Fixes Applied During Migration
-| Issue | Root Cause | Fix |
-|-------|-----------|-----|
-| 404 on `/tasks/blocked` | Route ordering - matched as `:id` param | Moved specific routes before parameterized routes |
-| 404 on `/tasks/active` | Route ordering - matched as `:id` param | Moved specific routes before parameterized routes |
-| Invalid due_date "Daily 8 AM" | Non-date values in JSON | Added date regex validation, moved to metadata |
 
 ---
 
@@ -74,9 +187,6 @@ queued → active → completed
 | `high` | 75 |
 | `critical` | 100 |
 
-### Task ID Format
-Human-readable: `TASK-YYYYMMDD-XXX` (e.g., `TASK-20260117-878`)
-
 ### API Endpoints (`/api/orchestration/`)
 
 | Endpoint | Method | Description |
@@ -100,59 +210,7 @@ Human-readable: `TASK-YYYYMMDD-XXX` (e.g., `TASK-20260117-878`)
 | `/decisions/:id/delegate` | POST | Delegate to another agent |
 | `/agents` | GET | All agents' work status |
 | `/throughput` | GET | Throughput metrics by period |
-
-### Key Files Created
-
-**Core Engine** (`agents/orchestration/`):
-- `TaskRouter.js` - Routes tasks to agents based on keywords, tags, team
-- `ExecutionEngine.js` - Agent execution loop with task state management
-- `ResolutionSystem.js` - DependencyResolver, CEODecisionHandler, AutoEscalation
-- `index.js` - Module exports for orchestration components
-
-**API Routes**:
-- `dashboard/src/api/orchestrationRoutes.js` - 16 REST endpoints
-
-**Dashboard Components** (`dashboard/src/components/Orchestration/`):
-- `ActiveWorkPanel.jsx` - Agent work status grid
-- `TaskQueuePanel.jsx` - Queued/blocked/active task lists
-- `CEODecisionQueue.jsx` - Frank's decision interface
-- `SystemHealthPanel.jsx` - Health metrics dashboard
-- `Orchestration.css` - Cyber-noir styling
-- `index.jsx` - Main orchestration dashboard
-
-**Database Migration**:
-- `database/migrations/008_phase7_task_orchestration.sql`
-
-### Deployment Notes
-- Railway requires `RAILWAY_DOCKERFILE_PATH=Dockerfile` env var to use Dockerfile instead of static site serving
-- All 16 orchestration endpoints tested and working
-
-### Test Results
-```bash
-# Health check
-curl https://monolith-system-production.up.railway.app/api/orchestration/health
-# Returns: {"status":"healthy","task_counts":{...},"pending_decisions":0}
-
-# Create task
-curl -X POST .../api/orchestration/tasks -d '{"title":"Test","priority":"high"}'
-# Returns: {"success":true,"task":{"task_id":"TASK-20260117-878","priority":75,...}}
-```
-
----
-
-## QA Fixes (Phase 6H)
-
-### Issues Found & Resolved
-| Issue | Root Cause | Fix Applied |
-|-------|-----------|-------------|
-| 404 on `/teams/product` | Missing team ID in TEAM_HIERARCHY | Added product team definition to teamRoutes.js |
-| 404 on `/teams/people` | Missing team ID in TEAM_HIERARCHY | Added people team definition to teamRoutes.js |
-| 404 on `/recommendation-queue` | Endpoint not implemented | Added endpoint in neuralStackRoutes.js |
-| 404 on `/learning-insights` | Endpoint not implemented | Added endpoint in neuralStackRoutes.js |
-| 404 on `/research-log` | Endpoint not implemented | Added endpoint in neuralStackRoutes.js |
-| 404 on `/teams/heatmap` | Endpoint not implemented | Added endpoint in neuralStackRoutes.js |
-| 404 on `/teams/activity-log` | Endpoint not implemented | Added endpoint in neuralStackRoutes.js |
-| 500 on `/recent-activity` | Unhandled Supabase error | Added graceful error handling |
+| `/execute/:agent` | POST | Execute task via AgentExecutor (Phase 8) |
 
 ---
 
@@ -195,25 +253,13 @@ const HARDCODED = Object.freeze({
 
 ---
 
-## Neural Stack Evolution (Phases 5A-5E)
-
-| Phase | Name | Description |
-|-------|------|-------------|
-| 5A | Data Foundation | Supabase tables for agent memory, task history, amendments |
-| 5B | Authorization Escalation | Financial Escalation Framework (MonA + Frank MFA) |
-| 5C | Amendment System | Knowledge amendments with CoS evaluation |
-| 5D | Neural Stack Dashboard | Health monitoring, variance tracking, amendment activity |
-| 5E | Full Autonomy | Exception-only escalation, auto-approval, amendment baking |
-
----
-
 ## Project Structure
 
 ```
 /home/tinanaman/monolith-system/
 ├── agents/                          # AI Agent System
 │   ├── core/
-│   │   ├── TaskOrchestrator.js     # Task routing and execution
+│   │   ├── TaskOrchestrator.js     # Task routing, execution, audit integration
 │   │   ├── RoleAgent.js            # Base agent class
 │   │   ├── EscalationEngine.js     # Phase 5E exception escalation
 │   │   ├── DecisionLogger.js       # Decision audit logging
@@ -228,18 +274,22 @@ const HARDCODED = Object.freeze({
 │   │   ├── ExceptionEscalation.js  # Phase 5E escalation logic
 │   │   ├── AmendmentBaking.js      # Phase 5E baking mechanism
 │   │   ├── CoSSelfMonitor.js       # Phase 5E self-monitoring
-│   │   ├── 001-011_*.sql           # Neural stack & team seed migrations
-│   │   └── *-team-configs.js       # Team configuration files (tech, marketing, product, ops)
-│   ├── orchestration/              # Phase 7 components
+│   │   └── *-team-configs.js       # Team configuration files
+│   ├── orchestration/              # Phase 7-8 components
 │   │   ├── TaskRouter.js           # Task routing to agents
 │   │   ├── ExecutionEngine.js      # Agent execution loop
+│   │   ├── AgentExecutor.js        # LLM-powered task execution
 │   │   ├── ResolutionSystem.js     # Dependency/decision resolution
 │   │   ├── DependencyParser.js     # Parses task dependencies from notes
 │   │   ├── migrateJsonTasks.js     # JSON to Supabase migration script
 │   │   ├── migrateDependencies.js  # Cross-agent dependency migration
 │   │   └── index.js                # Module exports
 │   ├── roles/                      # Agent role definitions
-│   ├── services/                   # Shared services
+│   │   ├── audit/
+│   │   │   └── AuditAgent.js       # Phase 11: Task auditing
+│   │   └── [other roles]/
+│   ├── services/
+│   │   └── MemoryCompressionService.js  # Phase 11: Memory compression
 │   └── server.js                   # Agent API server
 │
 ├── cognalith-website/               # Company website (separate project)
@@ -250,11 +300,16 @@ const HARDCODED = Object.freeze({
 │   │   ├── api/
 │   │   │   ├── neuralStackRoutes.js    # Neural Stack API
 │   │   │   ├── orchestrationRoutes.js  # Phase 7 Task Orchestration API
+│   │   │   ├── contextGraphRoutes.js   # Phase 9 Context Graph API
+│   │   │   ├── eventLogRoutes.js       # Phase 11 Event Log API
 │   │   │   ├── teamRoutes.js           # Team hierarchy API
 │   │   │   ├── knowledgeBotRoutes.js   # Knowledge bot API
 │   │   │   └── tasksRoutes.js          # Task management API
 │   │   ├── components/
-│   │   │   ├── NeuralStack/        # Phase 5D-6H dashboard
+│   │   │   ├── NeuralStack/        # Phase 5D-11 dashboard
+│   │   │   │   ├── index.jsx       # Main dashboard (v11.0)
+│   │   │   │   ├── EventLogPanel.jsx   # Phase 11 event log
+│   │   │   │   └── [other widgets]
 │   │   │   └── Orchestration/      # Phase 7 dashboard
 │   │   └── data/tasks/             # Task JSON files
 │   └── package.json
@@ -264,7 +319,8 @@ const HARDCODED = Object.freeze({
 │       ├── 005_phase5e_full_autonomy.sql
 │       ├── 006_phase6a_team_hierarchy.sql
 │       ├── 007_phase6b_knowledge_bot_tables.sql
-│       └── 008_phase7_task_orchestration.sql
+│       ├── 008_phase7_task_orchestration.sql
+│       └── 010_context_graph.sql
 │
 ├── docs/                           # Documentation
 ├── infrastructure/                 # Infrastructure configs
@@ -278,7 +334,25 @@ const HARDCODED = Object.freeze({
 
 ## API Endpoints Summary
 
-### Orchestration API (`/api/orchestration/`) - Phase 7
+### Event Log API (`/api/event-log/`) - Phase 11
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Unified event stream |
+| `/agent/:role` | GET | Agent-specific events |
+| `/task/:taskId` | GET | Task timeline |
+| `/memory/:agent` | GET | Agent memory state |
+| `/compression-status` | GET | Compression statistics |
+| `/compress/:agent` | POST | Trigger compression |
+
+### Context Graph API (`/api/context/`) - Phase 9
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/nodes` | GET | List context nodes |
+| `/edges` | GET | List context edges |
+| `/graph` | GET | Full graph |
+| `/agent/:role` | GET | Agent subgraph |
+
+### Orchestration API (`/api/orchestration/`) - Phase 7-8
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/health` | GET | System health metrics |
@@ -293,6 +367,7 @@ const HARDCODED = Object.freeze({
 | `/decisions/:id/decide` | POST | Submit decision |
 | `/agents` | GET | All agents' work status |
 | `/throughput` | GET | Throughput metrics |
+| `/execute/:agent` | POST | Execute task via LLM |
 
 ### Neural Stack API (`/api/neural-stack/`)
 | Endpoint | Method | Description |
@@ -330,16 +405,15 @@ RAILWAY_DOCKERFILE_PATH=Dockerfile  # Required for Dockerfile builds
 ## Recent Commits
 
 ```
+f805467 feat(phase-11): implement Event Log & Memory system
+cc823aa feat(phase-9): add context graph system and fix task-queue endpoint
+a08cffa feat(phase-8): integrate AgentExecutor into execute endpoint
+94637b9 feat(phase-8): add token tracking and agent execution system
+a56efe4 docs: update session context for Phase 7.1 task migration
 3953522 feat(orchestration): add dependency migration script
 9c67ae3 feat(orchestration): add task migration system for JSON to Supabase
 7796ba5 fix(orchestration): use integer priorities and generate task_id
 afd993c feat(phase-7): implement Task Orchestration Engine
-4bd1b49 feat(database): add Phase 6B Knowledge Bot tables migration
-7725ed5 fix(dashboard): update to use monolith_decisions table
-11a6fe7 docs: update session context with QA fixes
-00971cf fix(dashboard): resolve API 404/500 errors from QA testing
-910f13c feat(phase-6g-6h): add Finance and People teams (parallel execution)
-43d1837 feat(phase-6): complete Team Deployment series (6A-6F)
 ```
 
 ---
@@ -347,9 +421,15 @@ afd993c feat(phase-7): implement Task Orchestration Engine
 ## Next Steps / Potential Work
 
 - [x] ~~Implement batch task creation API~~ (Phase 7.1 - bulk import endpoints)
+- [x] ~~Integrate AgentExecutor into execution endpoint~~ (Phase 8)
+- [x] ~~Add context graph system~~ (Phase 9)
+- [x] ~~Create memory tables schema~~ (Phase 10)
+- [x] ~~Implement Event Log & Memory system~~ (Phase 11)
 - [ ] Build Orchestration Dashboard UI in React frontend
 - [ ] Implement real-time WebSocket updates for task status
 - [ ] Connect live agent system to Task Orchestration Engine
 - [ ] Add task dependency visualization (graph view)
 - [ ] Add task templates for common workflows
 - [ ] CEO decision notification system (Slack/email)
+- [ ] Implement Knowledge Bot auto-research triggers
+- [ ] Add memory compression scheduling (cron job)
